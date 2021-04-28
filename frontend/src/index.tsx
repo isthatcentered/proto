@@ -1,123 +1,116 @@
-import React, { FormEvent, useState } from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
-import Radio, { RadioGroup } from "./components/radio"
+import { SelectQuoteType } from "./pages/select-quote-type"
 
 
 
 
-type  BooleanString = "true" | "false"
+const getAutoMarquesResponse = [
+	{
+		"codeMarque":    "683",
+		"libelleMarque": "RENAULT",
+	},
+	{
+		"codeMarque":    "391",
+		"libelleMarque": "VOLKSWAGEN",
+	},
+	{
+		"codeMarque":    "212",
+		"libelleMarque": "AUDI",
+	},
+	{
+		"codeMarque":    "66",
+		"libelleMarque": "BMW",
+	},
+	{
+		"codeMarque":    "219",
+		"libelleMarque": "PEUGEOT",
+	},
+	{
+		"codeMarque":    "413",
+		"libelleMarque": "MERCEDES",
+	},
+	{
+		"codeMarque":    "681",
+		"libelleMarque": "FORD",
+	},
+	{
+		"codeMarque":    "1001",
+		"libelleMarque": "CITROEN",
+	},
+	// Maif.fr has "autres marques"
+]
 
-enum VehiculeType
-{
-	AUTO        = "01",
-	MOTO        = "02",
-	CAMPING_CAR = "06"
-}
+// Pass year and brand id
+const getAutoModeles = [
+	{
+		"codeFamille":    "2554",
+		"libelleFamille": "MEGANE",
+	},
+	{
+		"codeFamille":    "2553",
+		"libelleFamille": "MASTER",
+	},
+	{
+		"codeFamille":    "2535",
+		"libelleFamille": "CLIO",
+	},
+	{
+		"codeFamille":    "100000007829",
+		"libelleFamille": "CAPTUR",
+	},
+	{
+		"codeFamille":    "2587",
+		"libelleFamille": "TRAFIC",
+	},
+	{
+		"codeFamille":    "2595",
+		"libelleFamille": "GRAND SCENIC",
+	},
+	{
+		"codeFamille":    "2594",
+		"libelleFamille": "SCENIC",
+	},
+	{
+		"codeFamille":    "100000022173",
+		"libelleFamille": "KADJAR",
+	},
+]
 
-type SelectQuoteTypeFormModel = { vehiculeType: VehiculeType, hasAccount: BooleanString }
+// VehiculeType questions as json[] ?
+
+// Marque                    -> radio?
+// Année mise circulation    -> number
+// Modèle                    -> select
+// Energie                   -> select
+// Transmission              -> select
+// Motorisation              -> select
+// Type carosserie           -> select
+// Nombre portes             -> select
+// Finition                  -> select
 
 
-const useFormState = <T extends Record<any, any>>(
-	defaultValue: T,
-) => {
-	const [ data, setData ] = useState<T>( defaultValue )
-	
-	const setField = <K extends keyof typeof data>( field: K ) => (
-		value: typeof data[K],
-	) => setData( { ...data, [ field ]: value } )
-	
-	return [ data, setField ] as const
-}
-
-
-const SelectQuoteType = ( props: { onFormSubmitted: ( vehiculeType: string ) => void } ) => {
-	const [ values, setFieldValue ] = useFormState<SelectQuoteTypeFormModel>( { vehiculeType: VehiculeType.AUTO, hasAccount: "false" } )
-	
-	const handleSubmit = ( e: FormEvent<HTMLFormElement> ) => {
-		e.preventDefault()
-		if ( values.hasAccount === "true" ) {
-			window.open( "https://www.maif.fr/services-en-ligne/devis/vam/dv_pour_bien_demarrer.action?view" )
-			return
-		}
-		
-		props.onFormSubmitted( values.vehiculeType )
-	}
+const IdentifyCar = () => {
 	
 	return (
-		<div>
-			<h1>
-				Assurance auto-moto : contrat VAM<br/>
-				Devis en ligne
-			</h1>
-			<i>i</i> Tous les champs sont obligatoires, sauf mention contraire.
-			<form onSubmit={handleSubmit}>
-				<h2>Assurer un véhicule</h2>
-				<fieldset>
-					<legend>Pour quelle catégorie de véhicule souhaitez-vous réaliser un devis ?</legend>
-					<RadioGroup
-						value={values.vehiculeType}
-						onRadioClicked={setFieldValue( "vehiculeType" )}
-						name="vehiculeType"
-					>
-						{groupProps =>
-							<>
-								<Radio
-									value={VehiculeType.AUTO}
-									{...groupProps}
-								>
-									Auto
-								</Radio>
-								
-								<Radio
-									value={VehiculeType.MOTO}
-									{...groupProps}
-								>
-									Moto ({">"}50cm<sup>3</sup>)
-								</Radio>
-								
-								<Radio
-									value={VehiculeType.CAMPING_CAR}
-									{...groupProps}
-								>
-									Camping-car ({"<"}3.5t)
-								</Radio>
-							</>}
-					</RadioGroup>
-					
-					<p>Véhicule de collection ou tout autre catégorie de véhicule, <a href="https://maif.fr">prenez contact avec un conseiller MAIF</a>.</p>
-				</fieldset>
-				
-				<fieldset>
-					<legend>Déjà un compte ? Connectez-vous pour gagner du temps !</legend>
-					<RadioGroup
-						value={values.hasAccount}
-						onRadioClicked={setFieldValue( "hasAccount" )}
-						name="hasAccount"
-					>
-						{groupProps =>
-							<>
-								<Radio value={"true"} {...groupProps}>
-									J'ai un compte maif.fr
-								</Radio>
-								
-								<Radio value={"false"} {...groupProps}>
-									Je n'ai pas (encore) de compte maif.fr
-								</Radio>
-							</>}
-					</RadioGroup>
-				</fieldset>
-				
-				<button type="submit">Démarrer mon devis</button>
-			</form>
-			<pre>{JSON.stringify( values )}</pre>
-		</div>)
+		<>
+			[1 Id vehicule] - 2 who drives - 3 blah {"<-"} crumbs
+			<h2>Sélection du véhicule à assurer</h2>
+			
+			
+			1/8 Marque
+		
+		
+		</>)
 }
+
 
 const App = () => {
 	const [ step, setStep ] = useState( 0 )
 	
 	return (
 		<>
+			<p>Wizard styles</p>
 			{step === 0 && <SelectQuoteType onFormSubmitted={() => setStep( 1 )}/>}
 		</>
 	)
