@@ -1,118 +1,69 @@
-import React, { useState } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
-import { SelectQuoteType } from "./pages/select-quote-type"
+import { DateInput, Label, ListRadio, RadioGroup, useForm, YesNo } from "./forms"
+import * as F from "./forms/use-form"
+import { UsageVehiculeStep } from "./contracts"
+import * as REMOTE from "./remote"
 
 
 
 
-const getAutoMarquesResponse = [
-	{
-		"codeMarque":    "683",
-		"libelleMarque": "RENAULT",
-	},
-	{
-		"codeMarque":    "391",
-		"libelleMarque": "VOLKSWAGEN",
-	},
-	{
-		"codeMarque":    "212",
-		"libelleMarque": "AUDI",
-	},
-	{
-		"codeMarque":    "66",
-		"libelleMarque": "BMW",
-	},
-	{
-		"codeMarque":    "219",
-		"libelleMarque": "PEUGEOT",
-	},
-	{
-		"codeMarque":    "413",
-		"libelleMarque": "MERCEDES",
-	},
-	{
-		"codeMarque":    "681",
-		"libelleMarque": "FORD",
-	},
-	{
-		"codeMarque":    "1001",
-		"libelleMarque": "CITROEN",
-	},
-	// Maif.fr has "autres marques"
-]
+const useCodesTypesUtilisationVehicule = () => {
+	return REMOTE.success( [
+		{ value: "01", label: "Usage privé et professionnel" },
+		{ value: "02", label: "Usage privé et professionnel occasionnel" },
+	] )
+}
 
-// Pass year and brand id
-const getAutoModeles = [
-	{
-		"codeFamille":    "2554",
-		"libelleFamille": "MEGANE",
-	},
-	{
-		"codeFamille":    "2553",
-		"libelleFamille": "MASTER",
-	},
-	{
-		"codeFamille":    "2535",
-		"libelleFamille": "CLIO",
-	},
-	{
-		"codeFamille":    "100000007829",
-		"libelleFamille": "CAPTUR",
-	},
-	{
-		"codeFamille":    "2587",
-		"libelleFamille": "TRAFIC",
-	},
-	{
-		"codeFamille":    "2595",
-		"libelleFamille": "GRAND SCENIC",
-	},
-	{
-		"codeFamille":    "2594",
-		"libelleFamille": "SCENIC",
-	},
-	{
-		"codeFamille":    "100000022173",
-		"libelleFamille": "KADJAR",
-	},
-]
-
-// VehiculeType questions as json[] ?
-
-// Marque                    -> radio?
-// Année mise circulation    -> number
-// Modèle                    -> select
-// Energie                   -> select
-// Transmission              -> select
-// Motorisation              -> select
-// Type carosserie           -> select
-// Nombre portes             -> select
-// Finition                  -> select
-
-
-const IdentifyCar = () => {
+const UsageVehicule: UsageVehiculeStep = ( _props ) => {
+	const [ values, field ] = useForm( {
+		codeUsageVehicule:       F.empty<string>(),
+		leasingOuCredit:         F.empty<boolean>(),
+		dateEffetContratDesiree: F.empty<Date>(),
+	} )
 	
-	return (
-		<>
-			[1 Id vehicule] - 2 who drives - 3 blah {"<-"} crumbs
-			<h2>Sélection du véhicule à assurer</h2>
-			
-			
-			1/8 Marque
+	console.log( values )
+	
+	return <div>
+		<Label className="mb-4"
+		       label="A partir de quelle date souhaitez-vous être assuré"
+		>
+			<DateInput{...field( "dateEffetContratDesiree" )}/>
+		</Label>
 		
+		<YesNo
+			{...field( "leasingOuCredit" )}
+			className="mb-4"
+			label="Ce véhicule est-il financé à crédit (leasing, crédit auto) ?"
+		/>
 		
-		</>)
+		<RadioGroup
+			className="mb-4"
+			label="Pour quels types de déplacements ce véhicule est-il utilisé ?"
+			value={field( "codeUsageVehicule" ).value}
+		>{helpers =>
+			<>
+				<ListRadio {...helpers} {...field( "codeUsageVehicule" )} value={"01"} className="mb-2">Usage privé et professionnel</ListRadio>
+				<ListRadio {...helpers} {...field( "codeUsageVehicule" )} value={"02"}>Usage privé et professionnel occasionnel</ListRadio>
+			</>}
+		</RadioGroup>
+	</div>
 }
 
 
+
 const App = () => {
-	const [ step, setStep ] = useState( 0 )
+	
 	
 	return (
-		<>
-			<p>Wizard styles</p>
-			{step === 0 && <SelectQuoteType onFormSubmitted={() => setStep( 1 )}/>}
-		</>
+		<div className="container mx-auto px-4 pt-4"
+		     style={{ maxWidth: 500 }}
+		>
+			<UsageVehicule
+				numeroRepertoire={"1234"}
+				onConfirm={console.log}
+			/>
+		</div>
 	)
 }
 
