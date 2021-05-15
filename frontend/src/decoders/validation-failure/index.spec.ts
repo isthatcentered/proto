@@ -4,10 +4,6 @@ import cases from "jest-in-case"
 
 
 
-const assertType = <T>( actual: T ) => {
-	actual
-}
-
 describe( `ValidationFailure`, () => {
 	cases(
 		"toStruct",

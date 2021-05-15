@@ -5,6 +5,7 @@ import * as D from "io-ts/Decoder"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
 import * as AP from "fp-ts/Apply"
+import * as AR from "fp-ts/Array"
 
 
 
@@ -61,6 +62,39 @@ describe( `fp-ts`, () => {
 	// 		testName: {},
 	// 	},
 	// )
+	test( `Validation vs Either`, () => {
+		const validateUserNameError     = `validateUserName_error`,
+		      validateUserPasswordError = `validateUserPassword_error`,
+		      validateUserName          = E.fromPredicate( ( value: string ) => value.length > 2, _value => [ validateUserNameError ] ),
+		      validatePassword          = E.fromPredicate( ( value: string ) => value.length > 8, _value => [ validateUserPasswordError ] )
+		
+		const validateCredsEither = ( username: string, password: string ): E.Either<string[], { username: string, password: string }> =>
+			AP.sequenceS( E.Applicative )
+			( {
+				username: validateUserName( username ),
+				password: validatePassword( password ),
+			} )
+		
+		
+		// Array<Either<E, T>> -> Either<E,Array<T>>
+		//                                     Array of Eithers    ->   to Either of Array
+		//                                     v         v                  v        v
+		expect( AR.sequence( E.Applicative )( [ E.right( 3 ) ] ) ).toEqual( E.right( [ 3 ] ) )
+		expect( AR.sequence( E.Applicative )( [ E.left( 3 ) ] ) ).toEqual( E.left( 3 ) )
+		
+		
+		expect( validateCredsEither( "_", "_" ) ).toEqual( E.left( [ validateUserNameError ] ) )
+		
+		const validateCredsValidation = ( username: string, password: string ): E.Either<string[], { username: string, password: string }> =>
+			AP.sequenceS( E.getApplicativeValidation( AR.getSemigroup<string>() ) )
+			( {
+				username: validateUserName( username ),
+				password: validatePassword( password ),
+			} )
+		
+		expect( validateCredsValidation( "_", "_" ) ).toEqual( E.left( [ validateUserNameError, validateUserPasswordError ] ) )
+	} )
+	
 	
 	
 	test( `Traverse either`, () => {

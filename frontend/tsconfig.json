@@ -28,7 +28,7 @@
         "alwaysStrict": true,
         // "noUnusedLocals": true,                /* Report errors on unused locals. */
         "noUnusedParameters": true,
-        "noImplicitReturns": true
+        "noImplicitReturns": true,
     },
     "include": [
         "src"

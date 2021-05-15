@@ -1,0 +1,8 @@
+/*
+ * indigo-100: #e0e7ff
+ * indigo-200: #c7d2fe
+ * indigo-500: #6366f1
+ */
+.ListRadio:focus-within .ListRadio-radio {
+	border-color: #6366f1;
+}
