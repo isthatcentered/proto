@@ -39,13 +39,13 @@ export const Select = ( props: SelectProps ) => {
 					classNames(
 						"appearance-none block w-full py-2 px-3 border-2 border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm",
 						{
-							"bg-gray-100":                           disabled,
+							"bg-gray-100 border-none":                           disabled,
 							"animate-pulse bg-gray-100 border-none": REMOTE.isPending( data ),
 						},
 					)
 				}
 			>
-				<option value=""/>
+				<option value="">-</option>
 				{REMOTE.isSuccess( data ) && data.value.map( item =>
 					<option key={item.value}
 					        value={item.value}

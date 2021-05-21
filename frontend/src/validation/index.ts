@@ -4,7 +4,7 @@
 
 import { Refinement } from "fp-ts/function"
 import * as E from "fp-ts/Either"
-import * as RF from "./refinements"
+import * as RF from "../kit-2/validation/refinements"
 //
 //
 //

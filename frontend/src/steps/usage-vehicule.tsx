@@ -6,19 +6,15 @@ import * as DATES from "../kit-2/dates"
 import { Placeholders } from "../kit-2/placeholder"
 import * as AR from "fp-ts/Array"
 import React from "react"
-import * as yup from "yup"
+import * as V from "../kit-2/validation"
 
 
 
 
-const schema = yup.object( {
-	codeUsageVehicule:       yup.string().required(),
-	leasingOuCredit:         yup.boolean().required(),
-	dateEffetContratDesiree: yup.date().test(
-		"Min today",
-		"Le contrat ne peut démarrer avant aujourd'hui",
-		( value ) => !!value && DATES.isAfter( DATES.today() )( value ),
-	).required(),
+const schema = V.record( {
+	codeUsageVehicule:       V.string,
+	leasingOuCredit:         V.boolean,
+	dateEffetContratDesiree: V.date, // @todo: Validation, date > today
 } )
 
 const useCodesTypesUtilisationVehicule = () => {
@@ -30,36 +26,36 @@ const useCodesTypesUtilisationVehicule = () => {
 }
 
 const UsageVehicule: UsageVehiculeStep = ( _props ) => {
-	const [ values, state, { field, form } ] = useForm( {
+	const [ values, form ] = useForm( {
 		defaultValue: {
 			dateEffetContratDesiree: new Date(),
 		},
-		schema:       schema,
+		schema,
 		onSubmit:     console.log,
 	} )
 	
 	const [ codesTypesUtilisationVehicule ] = useCodesTypesUtilisationVehicule()
 	
 	return (
-		<form {...form}>
+		<form {...form.props}>
 			<DateInput
-				{...field( "dateEffetContratDesiree" )}
+				{...form.field( "dateEffetContratDesiree" )}
 				min={DATES.today().toISOString()}
 				className="mb-4"
 				label="A partir de quelle date souhaitez-vous être assuré"
 			/>
 			
 			<YesNo
-				{...field( "leasingOuCredit" )}
+				{...form.field( "leasingOuCredit" )}
 				className="mb-4"
 				label="Ce véhicule est-il financé à crédit (leasing, crédit auto) ?"
 			/>
 			{/* @todo: iplement using radio select */}
 			<AsyncRadioGroup
-				{...field( "codeUsageVehicule" )}
+				{...form.field( "codeUsageVehicule" )}
 				className="mb-4"
 				label="Pour quels types de déplacements ce véhicule est-il utilisé ?"
-				value={field( "codeUsageVehicule" ).value}
+				value={form.field( "codeUsageVehicule" ).value}
 				data={codesTypesUtilisationVehicule}
 				placeholder={props => (
 					<div className="grid gap-3">

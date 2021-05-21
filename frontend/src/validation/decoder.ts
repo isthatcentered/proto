@@ -4,7 +4,7 @@ import { flow, pipe, Predicate, Refinement } from "fp-ts/function"
 import * as R from "fp-ts/Record"
 import * as AR from "fp-ts/Array"
 import * as AP from "fp-ts/Apply"
-import * as REFINEMENTS from "./refinements"
+import * as REFINEMENTS from "../kit-2/validation/refinements"
 
 
 // @todo: decoder is (or has ?) a traversable ? & foldable ?

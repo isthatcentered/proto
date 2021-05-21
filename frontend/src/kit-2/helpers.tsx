@@ -1,4 +1,6 @@
 import { HTMLAttributes } from "react"
+import { pipe } from "fp-ts/function"
+import * as AR from "fp-ts/Array"
 
 
 
@@ -18,3 +20,11 @@ export const prop = <T extends AnyRecord, K extends keyof T>( key: K ) => ( reco
 export type Kinda<T extends AnyRecord> = {
 	[K in keyof T]: T[K] | undefined
 }
+
+export type Clazz<T> = new ( ...args: any[] ) => T;
+
+export const pick = <T extends AnyRecord, K extends keyof T>( keys: K[] ) => ( thing: T ): Pick<T, K> =>
+	pipe(
+		keys,
+		AR.reduce( {} as Pick<T, K>, ( acc, key ) => ({ ...acc, [ key ]: thing[ key ] }) ),
+	)

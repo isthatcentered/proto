@@ -4,7 +4,7 @@ import { InitParcoursStep } from "../contracts"
 import { ButtonRadioSelect, useForm } from "../kit-2/forms"
 import { ClickableStyles, SectionHeaderStyles } from "../kit-2/shared"
 import React from "react"
-import * as yup from "yup"
+import * as V from "../kit-2/validation"
 
 
 
@@ -18,15 +18,15 @@ const useCodesTypeVehicule = () => {
 	return [ state ] as const
 }
 
-const schema = yup.object( {
-	codeTypeVehicule:  yup.string().required(),
-	alreadyHasAccount: yup.boolean().required(),
+const schema = V.record( {
+	codeTypeVehicule:  V.string,
+	alreadyHasAccount: V.boolean,
 } )
 
 const InitParcours: InitParcoursStep = ( props ) => {
-	const [ values, formStatus, { field, form } ] = useForm( {
+	const [ values, form ] = useForm( {
 		defaultValue: {},
-		schema:       schema,
+		schema,
 		onSubmit:     props.onConfirm,
 	} )
 	
@@ -34,13 +34,13 @@ const InitParcours: InitParcoursStep = ( props ) => {
 	
 	const showUseYourExistingMaifAccountPrompt = !!values.alreadyHasAccount
 	
-	const showSubmitButton = formStatus === "valid" && !showUseYourExistingMaifAccountPrompt
+	const showSubmitButton = form.isValid && !showUseYourExistingMaifAccountPrompt
 	
 	return (
-		<form {...form}>
-			<h2 className="mb-4"><SectionHeaderStyles>Assurer un véhicule</SectionHeaderStyles></h2>
+		<form {...form.props}>
+			<h2 className="mb-8"><SectionHeaderStyles>Assurer un véhicule</SectionHeaderStyles></h2>
 			<ButtonRadioSelect
-				{...field( "codeTypeVehicule" )}
+				{...form.field( "codeTypeVehicule" )}
 				data={codesTypeVehicules}
 				label="Pour quelle catégorie de véhicule souhaitez-vous réaliser un devis ?"
 			/>
@@ -60,7 +60,7 @@ const InitParcours: InitParcoursStep = ( props ) => {
 			<div className="pt-8"/>
 			
 			<ButtonRadioSelect
-				{...field( "alreadyHasAccount" )}
+				{...form.field( "alreadyHasAccount" )}
 				cols={2}
 				data={REMOTE.success( [ { value: true, label: "J'ai un espace personnel" }, { value: false, label: "Je n'ai pas (encore) d'espace" } ] )}
 				label="Avez-vous déjà un compte Maif.fr ?"

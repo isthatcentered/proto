@@ -1,9 +1,10 @@
 import * as NEA from "fp-ts/NonEmptyArray"
 import * as E from "fp-ts/Either"
-import { constant, flow, pipe } from "fp-ts/function"
+import { constant, flow, pipe, Predicate, Refinement } from "fp-ts/function"
 import * as AR from "fp-ts/Array"
 import * as AP from "fp-ts/Apply"
 import * as REC from "fp-ts/Record"
+import { Clazz } from "../helpers"
 
 
 
@@ -20,7 +21,7 @@ const assertType = <TExpected>( value: TExpected ) => value
 // Models
 // -------------------------------------------------------------------------------------
 type Failure<T = never> = { path: string, message: string, value: any, data: T }
-type Validated<T> = E.Either<NEA.NonEmptyArray<Failure>, T>
+export type Validated<T> = E.Either<NEA.NonEmptyArray<Failure>, T>
 export type Validation<B, A = B> = ( value: A ) => Validated<B>
 export type AnyValidation = Validation<any>
 
@@ -67,6 +68,28 @@ export const fail = ( message: string ): Validation<any> => () =>
 			} ),
 		),
 	)
+
+
+function fromRefinement<A, B extends A>( refinement: Refinement<A, B>, message: ( value: A ) => string ): Validation<B, A>
+function fromRefinement<A>( predicate: Predicate<A>, message: ( value: A ) => string ): Validation<A>
+function fromRefinement( refinement: ( value: any ) => boolean, message: ( value: any ) => string ): Validation<any>
+{
+	return E.fromPredicate( refinement, value => NEA.of( failure( { message: message( value ) } ) ) )
+}
+
+
+const typeOf = <T>( kind: "string" | "boolean" | "number" | "undefined" | "object" ) =>
+	fromRefinement<T>(
+		value => typeof value === kind,
+		value => `Expected value of type "${kind}", got "${value}" of type ${typeof value}`,
+	)
+
+const instanceOf = <T>( clazz: Clazz<T> ) =>
+	fromRefinement<T>(
+		value => value instanceof clazz,
+		value => `Expected value "${value}" to be an instance of "${clazz.name}" but was an instance of "${(value as any as object)?.constructor?.name}"`,
+	)
+
 
 // -------------------------------------------------------------------------------------
 // Combinators
@@ -138,6 +161,51 @@ export const record = <B extends Record<keyof A, any>, A extends Record<string, 
 assertType<Validation<{ key: number }, { key: string }>>( record( { key: identity as Validation<number, string> } ) )
 assertType<Validation<{ key: string }, { key: string }>>( record( { key: identity as Validation<string, string> } ) )
 
+
+// -------------------------------------------------------------------------------------
+// Primitives
+// -------------------------------------------------------------------------------------
+export const required = <T>(): Validation<T> =>
+	fromRefinement( value => value !== undefined && value !== null, () => "Required" )
+
+export const string = sequence( required<string>(), typeOf( "string" ) )
+
+export const number = sequence( required<number>(), typeOf( "number" ) )
+
+export const boolean = sequence( required<boolean>(), typeOf( "boolean" ) )
+
+export const date = sequence( required<Date>(), instanceOf( Date ) )
+
+export const nonEmpty = fromRefinement(
+	<T>( value: string | T[] ) =>
+		Array.isArray( value ) ?
+		value.length > 0 :
+		value.trim() !== "",
+	() => "Cannot be empty",
+)
+
+export const nonEmptyString = sequence( string, nonEmpty )
+
+export const gte = ( n: number ) => fromRefinement(
+	( value: number ) => value >= n,
+	value => `Must be more than or equal to "${n}", got "${value}"`,
+)
+
+export const min = gte
+
+export const lte = ( n: number ) => fromRefinement(
+	( value: number ) => value <= n,
+	value => `Must be less than or equal to "${n}", got "${value}"`,
+)
+
+export const max = lte
+
+export const between = ( min: number, max: number ) =>
+	sequence( gte( min ), lte( max ) )
+
+ 
+
+// export const year
 /**
  * and: chain
  * or: ma orelse(mb)

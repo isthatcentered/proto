@@ -19,6 +19,7 @@ type RadioProps<T extends any> = ElementProps<{
 type RadioGroupProps<T extends any> = ElementProps<{
 	label: string,
 	value: T | undefined,
+	name:string,
 	children: (
 		radioProps: Omit<RadioProps<T>, "value" | "children">,
 	) => any
@@ -123,7 +124,7 @@ type AsyncRadioProps<T extends any> = ElementProps<{
 }, RadioGroupProps<T>>
 
 export const AsyncRadioGroup = <T extends any>( props: AsyncRadioProps<T> ) => {
-	const { value, label, name, data, placeholder, ...propz } = props
+	const { value, label, data, placeholder, ...propz } = props
 	const Placeholder = placeholder || (() => null)
 	return (
 		<RadioGroup
