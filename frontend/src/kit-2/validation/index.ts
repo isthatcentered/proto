@@ -5,6 +5,7 @@ import * as AR from "fp-ts/Array"
 import * as AP from "fp-ts/Apply"
 import * as REC from "fp-ts/Record"
 import { Clazz } from "../helpers"
+import * as DATES from "../dates"
 
 
 
@@ -89,6 +90,14 @@ const instanceOf = <T>( clazz: Clazz<T> ) =>
 		value => value instanceof clazz,
 		value => `Expected value "${value}" to be an instance of "${clazz.name}" but was an instance of "${(value as any as object)?.constructor?.name}"`,
 	)
+
+export const contramap = <A, B>( map: ( a: A ) => B ) => ( validation: Validation<B>, message: ( value: A ) => string ): Validation<A> =>
+	a =>
+		pipe(
+			validation( map( a ) ),
+			E.map( constant( a ) ),
+			E.mapLeft( NEA.map( mapFailure( f => ({ ...f, message: message( a ) }) ) ) ),
+		)
 
 
 // -------------------------------------------------------------------------------------
@@ -186,10 +195,27 @@ export const nonEmpty = fromRefinement(
 
 export const nonEmptyString = sequence( string, nonEmpty )
 
-export const gte = ( n: number ) => fromRefinement(
+const gteNumber = ( n: number ) => fromRefinement(
 	( value: number ) => value >= n,
 	value => `Must be more than or equal to "${n}", got "${value}"`,
 )
+
+export const gteDate = ( min: Date ): Validation<Date> =>
+	fromRefinement(
+		date => DATES.isSame( min )( date ) || DATES.isAfter( min )( date ),
+		() => `Cannot be before ${min}`,
+	)
+
+
+export function gte( min: Date ): Validation<Date>
+export function gte( min: number ): Validation<number>
+export function gte( min: any ): Validation<any>
+{
+	return typeof min === "number" ?
+	       gteNumber( min ) :
+	       gteDate( min )
+}
+
 
 export const min = gte
 
@@ -202,8 +228,6 @@ export const max = lte
 
 export const between = ( min: number, max: number ) =>
 	sequence( gte( min ), lte( max ) )
-
- 
 
 // export const year
 /**

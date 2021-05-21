@@ -37,7 +37,7 @@ const useForm = <TFormValues extends AnyRecord, TValidatedValues extends Record<
 	const failedProps = pipe( validation, getFailedProps )
 	const isValid = E.isRight( validation )
 	
-	console.log( failedProps )
+	console.log( failedProps, validation )
 	useEffect( () => {
 		if ( !isPending )
 			return

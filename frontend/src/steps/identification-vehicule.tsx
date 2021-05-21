@@ -1,14 +1,16 @@
 import { Parameter, useFakeTask, UseQueryParams } from "../kit-2/use-task"
 import * as AUTOS from "../queries/autos"
+import * as VEHICULES from "../queries/vehicules"
 import { Code } from "../kit-2/helpers"
 import { IdentificationVehiculeStep } from "../contracts"
 import { ButtonRadioSelect, NumberInput, Select, useForm } from "../kit-2/forms"
 import { constant, pipe } from "fp-ts/function"
-import * as O from "fp-ts/Option"
 import { ClickableStyles, SectionHeaderStyles } from "../kit-2/shared"
 import React from "react"
 import * as REMOTE from "../kit-2/remote"
 import * as V from "../kit-2/validation"
+import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
 
 
 
@@ -120,10 +122,15 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 		defaultValue: {},
 		schema,
 		onSubmit:     values =>
-			              props.onConfirm( {
-				              anneeMiseEnCirculationVehicule: values.anneeMiseEnCirculation,
-				              numeroRepertoire:               values.codeFinition,
-			              } ),
+			              VEHICULES.getAcceptation( values.codeFinition )
+				              .then( E.foldW( () => {
+						              // @todo: display vehicule refused error
+					              }, () =>
+						              props.onConfirm( {
+							              anneeMiseEnCirculationVehicule: values.anneeMiseEnCirculation,
+							              numeroRepertoire:               values.codeFinition,
+						              } ),
+				              ) ),
 	} )
 	
 	

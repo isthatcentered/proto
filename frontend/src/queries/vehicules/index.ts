@@ -1,5 +1,5 @@
 import * as E from "fp-ts/Either"
-import { AcceptationRisqueVehicule, JustificationAcceptationRisque } from "../../swagger/__generated__/iard-devis-vehicules"
+import { JustificationAcceptationRisque } from "../../swagger/__generated__/iard-devis-vehicules"
 import { crashOnError, iardDevisVehiculesClient, nomenclatureToCode, referentienModelesVehiculesClient } from "../clients"
 import { pipe } from "fp-ts/function"
 import * as T from "fp-ts/Task"
@@ -14,20 +14,20 @@ export const getVehicule = ( params: { numeroRepertoire: string } ) =>
 		.then( crashOnError )
 
 // @todo: type 404 not found
-export const getAcceptation = ( params: {
+export const getAcceptation = ( _params: {
 	numeroRepertoire: string
-} ): Promise<E.Either<JustificationAcceptationRisque[],
-	Omit<AcceptationRisqueVehicule, "justifications">>> =>
-	iardDevisVehiculesClient.acceptationRisqueVehicule
-		.jouerAcceptationVehicule( { ...params } )
-		.then( crashOnError )
-		.then( result =>
-			result.codeAcceptation === "01"
-			?
-			E.right( { ...result } )
-			:
-			E.left( result.justifications || [] ),
-		)
+} ): Promise<E.Either<JustificationAcceptationRisque[], true>> =>
+	Promise.resolve( E.right( true ) ) // @todo: Queries, re-activate
+// iardDevisVehiculesClient.acceptationRisqueVehicule
+// 	.jouerAcceptationVehicule( { ...params } )
+// 	.then( crashOnError )
+// 	.then( result =>
+// 		result.codeAcceptation === "01"
+// 		?
+// 		E.right( { ...result } )
+// 		:
+// 		E.left( result.justifications || [] ),
+// 	)
 
 // @todo: type 404 not found
 export const getTypesUtilisation = ( params: {

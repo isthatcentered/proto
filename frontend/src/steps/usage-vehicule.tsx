@@ -14,7 +14,7 @@ import * as V from "../kit-2/validation"
 const schema = V.record( {
 	codeUsageVehicule:       V.string,
 	leasingOuCredit:         V.boolean,
-	dateEffetContratDesiree: V.date, // @todo: Validation, date > today
+	dateEffetContratDesiree: V.sequence( V.date, V.min( DATES.today() ) ),
 } )
 
 const useCodesTypesUtilisationVehicule = () => {
