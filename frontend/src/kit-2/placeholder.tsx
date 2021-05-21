@@ -1,4 +1,4 @@
-import * as REMOTE from "../remote"
+import * as REMOTE from "./remote"
 import cn from "classnames"
 import React, { ComponentType } from "react"
 import { ElementProps } from "./helpers"

@@ -1,0 +1,2375 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "\"Cette API permet de gÃ©rer le contexte iard-devis-vehicules.\"",
+    "version": "1.0.0-SNAPSHOT",
+    "title": "iard-devis-vehicules-v1",
+    "contact": {
+      "name": "Arahi - Squad Contrats",
+      "url": "https://maif.sharepoint.com/sites/api/",
+      "email": "arahi_api_contrats@maif.fr"
+    },
+    "license": {}
+  },
+  "host": "intranet.api-recx.build-klif.cloud.maif.local:40054",
+  "basePath": "/iard/devis_vehicules/v1/",
+  "tags": [
+    {
+      "name": "Acceptation risque véhicule",
+      "description": "Regroupe les opérations relatives à l'acceptation des risques à assurer véhicules à moteur"
+    },
+    {
+      "name": "Calcul crm",
+      "description": "Regroupe les opérations relatives au calcul du coefficient de bonus/malus pour des risques à assurer véhicules à moteur"
+    },
+    {
+      "name": "Devis",
+      "description": "Regroupe les opérations relatives aux devis"
+    },
+    {
+      "name": "Editions",
+      "description": "Regroupe les opérations qui permettent d'effectuer les éditions en lien avec les devis véhicules."
+    },
+    {
+      "name": "Nomenclatures",
+      "description": "Regroupe les opérations qui permettent de récupérer les codes et les libellés des nomenclatures interne Maif en fonction d'un contexte ou pas."
+    },
+    {
+      "name": "Risque à assurer",
+      "description": "Regroupe les opérations relatives aux risques (véhicule et conducteur) à assurer."
+    }
+  ],
+  "paths": {
+    "/antecedents_sinistralite/dates": {
+      "get": {
+        "tags": [
+          "Acceptation risque véhicule"
+        ],
+        "summary": "Permet de récupérer les dates qui sont en lien avec les antécédents de sinistralité du conducteur.",
+        "operationId": "recupererDatesAntecedentsSinistralite",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dateDEcheanceAncienAssureur",
+            "in": "query",
+            "description": "Date de dernière échéance de l'assureur précédent. <br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_<br>_Exemple : 2018-04-23_",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/DateAntecedentsSinistralite"
+            }
+          },
+          "400": {
+            "description": "La syntaxe de la requête est erronée. <br> Erreur(s) possible(s): <ul> <li>[_F00146_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1619)</li></ul>"
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/calculer_coefficient_bonus_malus": {
+      "post": {
+        "tags": [
+          "Calcul crm"
+        ],
+        "summary": "Permet de calculer le coefficient de bonus/malus à date pour un prospect à partir des critères fournis en paramètres",
+        "operationId": "calculCrmProspect",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Ce end point calcule le coefficient bonus/malus qui sera appliqué à la Maif en fonction du futur véhicule, du futur conducteur et du futur sociétaire.<br> Le contexte de ce calcul est l'ajout d'un premier véhicule pour une personne physique non connue à la Maif.<br> Les données permettant de calculer le coefficient de bonus/malus sont : <br><ul><li>La **dateEffet** qui correspond à la date à laquelle le futur sociétaire souhaite assurer son véhicule.</li> <li>L'objet **vehicule** qui contient les données permettant d'identifier le futur véhicule et son usage.</li><li>L'objet **conducteur** regroupe toutes les données qui permettent de le caractériser.</li></ul><br> Pour récupérer les codes MAIF nécessaires pour l'utilisation de ce endpoint, il faut utiliser les endpoints suivants: <br><ul><li>GET /usages/vehicule/{numeroRepertoire}<br>L'usage étant par exemple : Usage privé et professionnel</li> <li>GET /types_conducteur<br>Le type de conducteur étant par exemple : Conjoint</li><li>GET ?/experiences_conducteur<br>L'expérience du conducteur étant par exemple : Sans expérience </li> <li>GET ?/responsabilites_sinistre<br>La responsabilité lors d'un sinistre étant par exemple : Responsabilité Totale</li><li>GET ?/antecedents_sinistralite/dates<br>Les antécédents de sinistralité sont les dates dateDebutCollecteSinistre et dateAnterioriteBonus050</li> <li>GET /types_permis/vehicule/{numeroRepertoire}<br>Le type de permis étant par exemple : B</li></ul>",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InfoCalculCrmProspect"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CalculCrmRisqueVehicule"
+            }
+          },
+          "400": {
+            "description": "La syntaxe de la requête est erronée. <br> Erreur(s) possible(s): <ul> <li>[_F00189_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1563)</li> <li>[_F00194_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1568)</li> <li>[_F00196_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1570)</li> <li>[_F00200_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1574)</li> <li>[_F00202_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1576)</li> <li>[_F00210_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1583)</li> <li>[_F00644_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1827)</li> <li>[_F00710_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2316)</li> <li>[_F00845_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2482)</li> <li>[_F00996_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2529)</li> <li>[_F01044_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2585)</li> <li>[_F01081_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2648)</li> <li>[_F01188_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2806)</li> <li>[_F01495_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=3071)</li></ul>"
+          },
+          "403": {
+            "description": "Accès refusé.<br> Ce type d'erreur est remonté lorsqu'il y a eu un problème d'authentification.<br> **Exemple :** appel d'un endpoint sécurisé avec un jeton expiré."
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/devis": {
+      "post": {
+        "tags": [
+          "Devis"
+        ],
+        "summary": "Permet d'enregistrer un devis à partir d'un risque (véhicule et conducteur) à assurer pour une personne connue à partir des critères fournis en paramètres",
+        "operationId": "creerDevis",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Données à fournir pour effectuer l'enregistrement d'un devis : <br><ul> <li>L'**identifiant de la personne** </li> <li>L'**identifiant du besoin** </li> <li>L'**identifiant du risque vehicule conducteur à assurer** qui est donné en retour du POST /vehicule_conducteur_a_assurer de cette API</li> <li>La **solutionChoisie** est la solution que le client a choisi parmis les solutions éligibles retournées dans le endpoint GET /solutions_eligibles présent dans l'API tarification-vehicules</li></ul><br>",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DevisVehiculeConducteur"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Header d'autorisation.<br>Format attendu : **Bearer [_token_](http://croupier.outillage-socle-api.lb.prod.cloud.maif.local/)**",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CreationDevisSynthese"
+            }
+          },
+          "201": {
+            "description": "Ressource créée",
+            "schema": {
+              "$ref": "#/definitions/CreationDevisSynthese"
+            }
+          },
+          "400": {
+            "description": "La syntaxe de la requête est erronée. <br> Erreurs possibles: <ul><li> [_F00071_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1502)</li><li> [_F00315_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1985)</li><li> [_F00366_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2148)</li><li> [_F00926_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2493)</li></ul>"
+          },
+          "401": {
+            "description": "Non autorisé.<br> Ce type d'erreur est remonté lorsque l'appelant est bien identifié mais n'a pas les droits pour réaliser l'action demandée.<br> **Exemple :**   <ul>   <li>sociétaire voulant consulter le ou les contrats d'un autre sociétaire.</li>    <li>pas de contrats pour un potentiel.</li> </ul>            "
+          },
+          "403": {
+            "description": "Accès refusé.<br> Ce type d'erreur est remonté lorsqu'il y a eu un problème d'authentification.<br> **Exemple :** appel d'un endpoint sécurisé avec un jeton expiré."
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/devis/editions/mail": {
+      "post": {
+        "tags": [
+          "Editions"
+        ],
+        "summary": "Produit une édition du devis passé en paramètre et l'envoi par email",
+        "operationId": "lancerCreationEditionDevisMail",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Données à fournir pour demander une édition de devis : <br><ul><li>L'**identifiant de la personne** </li><li>L'identifiant du devis véhicule conducteur</li></ul>",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InfoEditionDevis"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Header d'autorisation.<br>Format attendu : **Bearer [_token_](http://croupier.outillage-socle-api.lb.prod.cloud.maif.local/)**",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "202": {
+            "description": "Demande envoyée pour traitement"
+          },
+          "400": {
+            "description": "La syntaxe de la requête est erronée. <br> Erreurs possibles: <ul> <li> [_F00071_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1502) </li></ul>"
+          },
+          "403": {
+            "description": "Accès refusé.<br> Ce type d'erreur est remonté lorsqu'il y a eu un problème d'authentification.<br> **Exemple :** appel d'un endpoint sécurisé avec un jeton expiré."
+          },
+          "404": {
+            "description": "Ressource non trouvée. <br> Erreurs possibles: <ul> <li> [_F00401_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2025) </li> <li> [_F01281_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2855) </li></ul>"
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/devis/editions/pdf": {
+      "post": {
+        "tags": [
+          "Editions"
+        ],
+        "summary": "Produit une édition instantanée du devis passé en paramètre",
+        "operationId": "lancerCreationEditionDevisPdf",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Données à fournir pour demander une édition de devis : <br><ul><li>L'**identifiant de la personne** </li><li>L'identifiant du devis véhicule conducteur</li></ul>",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InfoEditionDevis"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Header d'autorisation.<br>Format attendu : **Bearer [_token_](http://croupier.outillage-socle-api.lb.prod.cloud.maif.local/)**",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK. Réponse retournée lorsqu'une édition au format pdf est demandée.",
+            "schema": {
+              "type": "string",
+              "format": "byte"
+            }
+          },
+          "400": {
+            "description": "La syntaxe de la requête est erronée. <br> Erreurs possibles: <ul> <li> [_F00071_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1502) </li> <li> [_F00622_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1820) </li></ul>"
+          },
+          "403": {
+            "description": "Accès refusé.<br> Ce type d'erreur est remonté lorsqu'il y a eu un problème d'authentification.<br> **Exemple :** appel d'un endpoint sécurisé avec un jeton expiré."
+          },
+          "404": {
+            "description": "Ressource non trouvée. <br> Erreurs possibles: <ul> <li> [_F00401_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2025) </li> <li> [_F01281_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2855) </li></ul>"
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/experiences_conducteur": {
+      "get": {
+        "tags": [
+          "Nomenclatures"
+        ],
+        "summary": "Permet de récupérer les codes et libellés possibles pour la nomenclature codeExperienceConducteur.",
+        "description": "La liste des codes et libellés est différente en fonction du contexte d'appel.(paramètre Header HTTP).",
+        "operationId": "recupererValeursExperienceConducteur",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Nomenclature"
+            }
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/jouer_acceptation/prospect": {
+      "post": {
+        "tags": [
+          "Acceptation risque véhicule"
+        ],
+        "summary": "Permet de jouer l'acceptation du risque pour un prospect à partir des critères fournis en paramètres",
+        "operationId": "jouerAcceptationProspect",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Ce end point valide ou invalide l'acceptation d'assurance du futur véhicule, du futur conducteur et du futur sociétaire.<br> Le contexte de cette acceptation est l'ajout d'un premier véhicule pour une personne physique non connue à la Maif.<br> Les données permettant d'évaluer l'acceptation sont : <br><ul><li>La **dateEffet** qui correspond à la date à laquelle le futur sociétaire souhaite assurer son véhicule.</li> <li>L'objet **vehicule** qui contient les données permettant d'identifier le futur véhicule et son usage.</li><li>L'objet **conducteur** regroupe toutes les données qui permettent de le caractériser.</li></ul><br> Pour récupérer les codes MAIF nécessaires pour l'utilisation de ce endpoint, il faut utiliser les endpoints suivants: <br><ul><li>GET /usages/vehicule/{numeroRepertoire}<br>L'usage étant par exemple : Usage privé et professionnel</li> <li>GET /types_conducteur<br>Le type de conducteur étant par exemple : Conjoint</li><li>GET ?/experiences_conducteur<br>L'expérience du conducteur étant par exemple : Sans expérience </li> <li>GET ?/responsabilites_sinistre<br>La responsabilité lors d'un sinistre étant par exemple : Responsabilité Totale</li></ul>",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InfoAcceptationProspect"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/AcceptationRisqueVehicule"
+            }
+          },
+          "400": {
+            "description": "La syntaxe de la requête est erronée. <br> Erreur(s) possible(s): <ul> <li>[_F00194_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1568)</li> <li>[_F00196_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1570)</li> <li>[_F00200_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1574)</li> <li>[_F00202_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1576)</li> <li>[_F00644_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1827)</li> <li>[_F00660_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2445)</li> <li>[_F00710_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2316)</li> <li>[_F01081_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2648)</li> <li>[_F01188_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2806)</li> <li>[_F01495_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=3071)</li></ul>"
+          },
+          "403": {
+            "description": "Accès refusé.<br> Ce type d'erreur est remonté lorsqu'il y a eu un problème d'authentification.<br> **Exemple :** appel d'un endpoint sécurisé avec un jeton expiré."
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/jouer_acceptation/societaire/{referenceSocietaire}": {
+      "post": {
+        "tags": [
+          "Acceptation risque véhicule"
+        ],
+        "summary": "Permet de jouer l'acceptation du risque pour un societaire à partir de critères fournis en paramètres",
+        "operationId": "jouerAcceptationSocietaire",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Dans ce endpoint, on joue l'acceptation en fonction du futur véhicule et du futur coducteur. <br> Le contexte de cette acceptation est l'ajout ou la modification d'un véhicule pour une personne physique déjà connu à la Maif. Il faut néanmoins passer plusieurs données qui sont: <br><ul><li>L'objet **contexteAcceptation** contient toutes les informations pour déterminer l'acte de gestion.</li> <li>L'objet **vehicule** qui contient les données permettant d'identifier le futur véhicule et son usage.</li><li>L'objet **conducteur** regroupe toutes les données qui permettent de le caractériser.</li></ul><br> Pour récupérer les codes MAIF nécessaires pour l'utilisation de ce endpoint, il faut utiliser les endpoint suivants: <br><ul><li>GET /usages/vehicule/{numeroRepertoire}<br>L'usage étant par exemple : Usage privé et professionnel</li> <li>GET /types_conducteur<br>Le type de conducteur étant par exemple : Conjoint</li><li>GET ?/experiences_conducteur<br>L'expérience du conducteur étant par exemple : Sans expérience </li> <li>GET ?/responsabilites_sinistre<br>La responsabilité lors d'un sinistre étant par exemple : Responsabilité Totale</li></ul>",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InfoAcceptationSocietaire"
+            }
+          },
+          {
+            "name": "referenceSocietaire",
+            "in": "path",
+            "description": "Référence du sociétaire _(numéro sur 7 chiffres + lettre clé)_<br> Ce paramètre doit comporter exactement **8 caractères**.<br> _Exemples :_<br> <ul>   <li><i>Correct: <b>0</b>101017J</i></li>   <li><i>Incorrect: <span style='text-decoration:line-through'>101017J</span></i></li> </ul> ",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/AcceptationRisqueVehicule"
+            }
+          },
+          "400": {
+            "description": "La syntaxe de la requête est erronée. <br> Erreur(s) possible(s): <ul> <li>[_F00202_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1576)</li> <li>[_F00200_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1574)</li> <li>[_F00194_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1568)</li></ul>"
+          },
+          "401": {
+            "description": "Non autorisé.<br> Ce type d'erreur est remonté lorsque l'appelant est bien identifié mais n'a pas les droits pour réaliser l'action demandée.<br> **Exemple :**   <ul>   <li>sociétaire voulant consulter le ou les contrats d'un autre sociétaire.</li>    <li>pas de contrats pour un potentiel.</li> </ul>            "
+          },
+          "403": {
+            "description": "Accès refusé.<br> Ce type d'erreur est remonté lorsqu'il y a eu un problème d'authentification.<br> **Exemple :** appel d'un endpoint sécurisé avec un jeton expiré."
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/jouer_acceptation/vehicule": {
+      "post": {
+        "tags": [
+          "Acceptation risque véhicule"
+        ],
+        "summary": "Permet de jouer l'acceptation du risque à partir d'un vehicule uniquement",
+        "operationId": "jouerAcceptationVehicule",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Dans ce endpoint, il ne faut passer que le numéro de répertoire du véhicule (code interne à la Maif). Le numéro de répertoire peut être recherché via l'**API referentiel/modeles_vehicules**.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InfoAcceptationVehicule"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/AcceptationRisqueVehicule"
+            }
+          },
+          "400": {
+            "description": "La syntaxe de la requête est erronée. <br> Erreur(s) possible(s): <ul> <li>[_F00202_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1576)</li> <li>[_F00200_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1574)</li> <li>[_F00194_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1568)</li></ul>"
+          },
+          "401": {
+            "description": "Non autorisé.<br> Ce type d'erreur est remonté lorsque l'appelant est bien identifié mais n'a pas les droits pour réaliser l'action demandée.<br> **Exemple :**   <ul>   <li>sociétaire voulant consulter le ou les contrats d'un autre sociétaire.</li>    <li>pas de contrats pour un potentiel.</li> </ul>            "
+          },
+          "403": {
+            "description": "Accès refusé.<br> Ce type d'erreur est remonté lorsqu'il y a eu un problème d'authentification.<br> **Exemple :** appel d'un endpoint sécurisé avec un jeton expiré."
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/passe_autre_assurance": {
+      "get": {
+        "tags": [
+          "Nomenclatures"
+        ],
+        "summary": "Permet de récupérer les codes et libellés possibles pour la nomenclature codeOrigineSocietaire.",
+        "description": "La liste des codes et libellés est différente en fonction du contexte d'appel.(paramètre Header HTTP).",
+        "operationId": "recupererValeursOrigineSocietaire",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Nomenclature"
+            }
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/responsabilites_sinistre": {
+      "get": {
+        "tags": [
+          "Nomenclatures"
+        ],
+        "summary": "Permet de récupérer les codes et libellés possibles pour la nomenclature codeResponsabilite.",
+        "description": "La liste des codes et libellés est différente en fonction du contexte d'appel.(paramètre Header HTTP).",
+        "operationId": "recupererValeursResponsabiliteSinistre",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Nomenclature"
+            }
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/solutions_eligibles": {
+      "get": {
+        "tags": [
+          "Risque à assurer"
+        ],
+        "summary": "Permet de récupérer toutes les combinaisons de solutions éligibles pour un risque véhicule et conducteur à assurer créé précédemment.",
+        "operationId": "solutionsEligiblesGet",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "idRisqueVehiculeConducteurAAssurer",
+            "in": "query",
+            "description": "Identifiant du risque véhicule et conducteur à assurer",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "filtre",
+            "in": "query",
+            "description": "Critère de filtrage sur la liste des solutions éligibles à remonter. Si aucun filtre n'est passé, toutes les solutions éligibles sont remontées.<br>_Valeurs Possibles :_<br><ul><li> **TIERS** : Pour ne remonter que les solutions éligibles de type formule au tiers</li> <li> **TOUS-RISQUES** : Pour ne remonter que les solutions éligibles de type formule tous risques</li></ul>",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "TIERS",
+              "TOUS-RISQUES"
+            ]
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Header d'autorisation.<br>Format attendu : **Bearer [_token_](http://croupier.outillage-socle-api.lb.prod.cloud.maif.local/)**",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/SolutionsEligiblesPresentation"
+            }
+          },
+          "400": {
+            "description": "La syntaxe de la requête est erronée. <br> Erreur(s) possible(s): <ul> <li>[_F00071_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1502)</li> <li>[_F00194_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1568)</li> <li>[_F00200_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1574)</li> <li>[_F00220_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1593)</li> <li>[_F00233_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1738)</li> <li>[_F00315_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1985)</li></ul>"
+          },
+          "401": {
+            "description": "Non autorisé.<br> Ce type d'erreur est remonté lorsque l'appelant est bien identifié mais n'a pas les droits pour réaliser l'action demandée.<br> **Exemple :**   <ul>   <li>sociétaire voulant consulter le ou les contrats d'un autre sociétaire.</li>    <li>pas de contrats pour un potentiel.</li> </ul>            "
+          },
+          "403": {
+            "description": "Accès refusé.<br> Ce type d'erreur est remonté lorsqu'il y a eu un problème d'authentification.<br> **Exemple :** appel d'un endpoint sécurisé avec un jeton expiré."
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/types_conducteur": {
+      "get": {
+        "tags": [
+          "Nomenclatures"
+        ],
+        "summary": "Permet de récupérer les codes et libellés possibles pour la nomenclature codeTypeConducteur.",
+        "description": "La liste des codes et libellés est différente en fonction du contexte d'appel.(paramètre Header HTTP).",
+        "operationId": "recupererValeursTypeConducteur",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Nomenclature"
+            }
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/types_permis/vehicule/{numeroRepertoire}": {
+      "get": {
+        "tags": [
+          "Nomenclatures"
+        ],
+        "summary": "Permet de récupérer les codes et libellés possibles pour la nomenclature codeTypePermis en fonction d'un véhicule.",
+        "description": "Le numéro de répertoire peut être recherché via l'**API referentiel/modeles_vehicules**.<br> La liste des codes et libellés est différente en fonction du contexte d'appel.(paramètre Header HTTP).",
+        "operationId": "recupererValeursTypePermis",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "numeroRepertoire",
+            "in": "path",
+            "description": "Numéro de répertoire du véhicule",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Nomenclature"
+            }
+          },
+          "404": {
+            "description": "Ressource non trouvée. <br> Erreur(s) possible(s): <ul><li> [_F01622_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=3226) </li></ul>"
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/usages/vehicule/{numeroRepertoire}": {
+      "get": {
+        "tags": [
+          "Nomenclatures"
+        ],
+        "summary": "Permet de récupérer les codes et libellés possibles pour la nomenclature codeUsageVehicule en fonction d'un véhicule.",
+        "description": "Le numéro de répertoire peut être recherché via l'**API referentiel/modeles_vehicules**.<br> La liste des codes et libellés est différente en fonction du contexte d'appel.(paramètre Header HTTP).",
+        "operationId": "recupererValeursUsage",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "numeroRepertoire",
+            "in": "path",
+            "description": "Numéro de répertoire du véhicule",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Nomenclature"
+            }
+          },
+          "404": {
+            "description": "Ressource non trouvée. <br> Erreur(s) possible(s): <ul><li> [_F01622_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=3226) </li></ul>"
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/vehicule_conducteur_a_assurer": {
+      "post": {
+        "tags": [
+          "Risque à assurer"
+        ],
+        "summary": "Permet d'enregistrer un risque (véhicule et conducteur) à assurer pour une personne connue, dans le cas d'une souscription, à partir des critères fournis en paramètres",
+        "operationId": "creerRisqueAAssurerSocPotentiel",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Le contexte de cet enregistrement de risque (véhicule et conducteur) à assurer est l'ajout d'un premier véhicule pour une personne physique connue à la MAIF.<br> Données à fournir pour effectuer l'enregistrement : <br><ul> <li>L'**identifiant de la personne** </li> <li>L'**identifiant du besoin** </li> <li>La **dateEffet** qui correspond à la date à laquelle le futur sociétaire souhaite assurer son véhicule.</li> <li>L'objet **vehicule** qui contient les données permettant d'identifier le futur véhicule et son usage.</li> <li>L'objet **conducteur** regroupe toutes les données qui permettent de le caractériser.</li></ul><br> Pour récupérer les codes MAIF nécessaires pour l'utilisation de ce endpoint, il faut utiliser les endpoints suivants : <br><ul><li>GET /usages/vehicule/{numeroRepertoire}<br>L'usage étant par exemple : Usage privé et professionnel</li> <li>GET /types_conducteur<br>Le type de conducteur étant par exemple : Conjoint</li><li>GET ?/experiences_conducteur<br>L'expérience du conducteur étant par exemple : Sans expérience</li><li>GET ?/responsabilites_sinistre<br>La responsabilité lors d'un sinistre étant par exemple : Responsabilité Totale</li><li>GET ?/antecedents_sinistralite/dates<br>Les antécédents de sinistralité sont les dates dateDebutCollecteSinistre et dateAnterioriteBonus050</li> <li>GET /types_permis/vehicule/{numeroRepertoire}<br>Le type de permis étant par exemple : B</li></ul>",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RisqueVehiculeConducteurAAssurer"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Header d'autorisation.<br>Format attendu : **Bearer [_token_](http://croupier.outillage-socle-api.lb.prod.cloud.maif.local/)**",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CreationRisqueVehiculeConducteurAAssurerSynthese"
+            }
+          },
+          "201": {
+            "description": "Ressource créée",
+            "schema": {
+              "$ref": "#/definitions/CreationRisqueVehiculeConducteurAAssurerSynthese"
+            }
+          },
+          "400": {
+            "description": "La syntaxe de la requête est erronée. <br> Erreurs possibles: <ul><li> [_F00075_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1506)</li><li> [_F00194_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1568)</li><li> [_F00196_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1570)</li><li> [_F00200_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1574)</li><li> [_F00202_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1576)</li><li> [_F00210_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1583)</li><li> [_F00216_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1589)</li><li> [_F00449_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1957)</li><li> [_F00644_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=1827)</li><li> [_F00710_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2316)</li><li> [_F00771_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2237)</li><li> [_F01030_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2571)</li><li> [_F01044_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2585)</li><li> [_F01081_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2648)</li><li> [_F01188_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=2806)</li><li> [_F01495_](http://slapp819:30101/GdrConsult/detail_message.do?idMessage=3071)</li></ul>"
+          },
+          "401": {
+            "description": "Non autorisé.<br> Ce type d'erreur est remonté lorsque l'appelant est bien identifié mais n'a pas les droits pour réaliser l'action demandée.<br> **Exemple :**   <ul>   <li>sociétaire voulant consulter le ou les contrats d'un autre sociétaire.</li>    <li>pas de contrats pour un potentiel.</li> </ul>            "
+          },
+          "403": {
+            "description": "Accès refusé.<br> Ce type d'erreur est remonté lorsqu'il y a eu un problème d'authentification.<br> **Exemple :** appel d'un endpoint sécurisé avec un jeton expiré."
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AcceptationRisqueVehicule": {
+      "type": "object",
+      "required": [
+        "codeAcceptation",
+        "libelleAcceptation"
+      ],
+      "properties": {
+        "codeAcceptation": {
+          "type": "string",
+          "example": "01",
+          "description": "Code du retour de l'acceptation du risque. Exemple: Accepté.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CACPRIS)",
+          "allowEmptyValue": false
+        },
+        "libelleAcceptation": {
+          "type": "string",
+          "example": "Accepté",
+          "description": "Libellé du retour de l'acceptation du risque",
+          "allowEmptyValue": false
+        },
+        "justifications": {
+          "type": "array",
+          "description": "Liste de justifications accompagnant l'acceptation du risque (Liste réservée en interne Maif)",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/JustificationAcceptationRisque"
+          }
+        }
+      },
+      "title": "AcceptationRisqueVehicule",
+      "description": "Retour de l'acceptation du risque"
+    },
+    "AutresFranchises": {
+      "type": "object",
+      "required": [
+        "codeNatureFranchise",
+        "libelleNatureFranchise"
+      ],
+      "properties": {
+        "codeNatureFranchise": {
+          "type": "string",
+          "example": "02",
+          "description": "Code nature de la franchise. <br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CNATFRN)",
+          "allowEmptyValue": false
+        },
+        "libelleNatureFranchise": {
+          "type": "string",
+          "example": "Bris d'élément vitré",
+          "description": "Libelle de la nature de la franchise",
+          "allowEmptyValue": false
+        },
+        "detailsFranchise": {
+          "type": "array",
+          "description": "Détails d'une franchise qui contient le montant et les conditions d'application de celui-ci",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/DetailFranchise"
+          }
+        }
+      },
+      "title": "AutresFranchises",
+      "description": "Description d'une franchise"
+    },
+    "CalculCrmRisqueVehicule": {
+      "type": "object",
+      "required": [
+        "coefficientBonusMalusRetenu"
+      ],
+      "properties": {
+        "coefficientBonusMalusRetenu": {
+          "type": "integer",
+          "format": "int32",
+          "example": 55,
+          "description": "Coefficient de Bonus ou Malus du conducteur retenu qui sera appliqué à la Maif. Ce coefficient peut prendre toutes les valeurs entre '050' et '350'. Par exemple : pour un bonus de 45% il faut saisir 055.",
+          "allowEmptyValue": false
+        },
+        "coefficientBonusMalusRetenuAnneeSuivante": {
+          "type": "integer",
+          "format": "int32",
+          "example": 55,
+          "description": "Coefficient de Bonus ou Malus du conducteur retenu qui sera appliqué à la Maif l'année suivante. Ce coefficient peut prendre toutes les valeurs entre '050' et '350'. Par exemple : pour un bonus de 45% il faut saisir 055.",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "CalculCrmRisqueVehicule",
+      "description": "Retour du calcul coefficient de bonus/malus"
+    },
+    "ConditionFranchise": {
+      "type": "object",
+      "required": [
+        "libelleConditionFranchise"
+      ],
+      "properties": {
+        "libelleConditionFranchise": {
+          "type": "string",
+          "example": "en cas de remplacement",
+          "description": "Condition d'application de la franchise",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "ConditionFranchise",
+      "description": "Détail d'une condition"
+    },
+    "ConducteurAAssurer": {
+      "type": "object",
+      "required": [
+        "codeExperienceConducteur",
+        "codeTypeConducteur",
+        "dateNaissance",
+        "nom",
+        "prenom"
+      ],
+      "properties": {
+        "nom": {
+          "type": "string",
+          "example": "DUPOND",
+          "description": "Nom du conducteur. Les caractères autorisés sont les caractères alphabétiques (minuscules, majuscules) y compris les caractères alphabétiques accentués, le tiret, l'espace et l'apostrophe.",
+          "allowEmptyValue": false
+        },
+        "prenom": {
+          "type": "string",
+          "example": "ALAIN",
+          "description": "Prénom du conducteur. Les caractères autorisés sont les caractères alphabétiques (minuscules, majuscules) y compris les caractères alphabétiques accentués, le tiret, l'espace et l'apostrophe.",
+          "allowEmptyValue": false
+        },
+        "dateNaissance": {
+          "type": "string",
+          "description": "Date de naissance du conducteur<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_",
+          "allowEmptyValue": false
+        },
+        "dateObtentionPermis": {
+          "type": "string",
+          "description": "Date d'obtention du permis<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_",
+          "allowEmptyValue": false
+        },
+        "coefficientBonusMalus": {
+          "type": "integer",
+          "format": "int32",
+          "example": 55,
+          "description": "Coefficient de Bonus ou Malus du conducteur. Ce coefficient peut prendre toutes les valeurs entre '050' et '350'. Par exemple : pour un bonus de 45% il faut saisir 055.",
+          "allowEmptyValue": false
+        },
+        "codeExperienceConducteur": {
+          "type": "string",
+          "example": "04",
+          "description": "Code expérience du conducteur. Il s'agit du passé assurantiel du conducteur. Exemple : Sans Expérience.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CEXPCDD)",
+          "allowEmptyValue": false
+        },
+        "codeTypeConducteur": {
+          "type": "string",
+          "example": 2,
+          "description": "Code type de conducteur déclaré. Statut du conducteur vis-à-vis du sociétaire. Exemple : Conjoint.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=TCDD)",
+          "allowEmptyValue": false
+        },
+        "dateDEcheanceAncienAssureur": {
+          "type": "string",
+          "description": "Date d'échéance de l'ancien assureur.<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_<br>_Valeur par défaut : date du jour_",
+          "allowEmptyValue": false
+        },
+        "sinistreAvecCirconstanceAggravante": {
+          "type": "boolean",
+          "example": false,
+          "description": "Booleen indiquant la présence ou pas de sinistre avec des circonstances aggravantes au cours des 24 dernier mois. Si \"true\" alors il y a présence de sinistres qui remplissent cette condition.",
+          "allowEmptyValue": false
+        },
+        "retraitPermis": {
+          "type": "boolean",
+          "example": false,
+          "description": "Booleen indiquant si le permis a été retiré ou annulé au cours des 24 derniers mois. Si \"true\" alors le permis du conducteur remplie cette condition.",
+          "allowEmptyValue": false
+        },
+        "resiliationAssureurPrecedent": {
+          "type": "boolean",
+          "example": false,
+          "description": "Booleen indiquant si le conducteur a été résilié par l'assureur précédent.",
+          "allowEmptyValue": false
+        },
+        "sinistres": {
+          "type": "array",
+          "description": "Sinistres a prendre en compte pour jouer l'acceptation",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/Sinistre"
+          }
+        }
+      },
+      "title": "ConducteurAAssurer",
+      "description": "Conducteur à assurer"
+    },
+    "ConducteurAAssurerCrm": {
+      "type": "object",
+      "required": [
+        "codeExperienceConducteur",
+        "codeTypeConducteur",
+        "dateNaissance",
+        "dateObtentionPermis"
+      ],
+      "properties": {
+        "dateNaissance": {
+          "type": "string",
+          "description": "Date de naissance du conducteur<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_",
+          "allowEmptyValue": false
+        },
+        "codeTypePermis": {
+          "type": "string",
+          "example": "B",
+          "description": "Code du type de permis<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CPRM)",
+          "allowEmptyValue": false
+        },
+        "dateObtentionPermis": {
+          "type": "string",
+          "description": "Date d'obtention du permis<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_",
+          "allowEmptyValue": false
+        },
+        "dateAnterioriteBonus050": {
+          "type": "string",
+          "description": "Date à partir de laquelle le conducteur possède un bonus à 50%.<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_",
+          "allowEmptyValue": false
+        },
+        "coefficientBonusMalus": {
+          "type": "integer",
+          "format": "int32",
+          "example": 55,
+          "description": "Coefficient de Bonus ou Malus du conducteur. Ce coefficient peut prendre toutes les valeurs entre '050' et '350'. Par exemple : pour un bonus de 45% il faut saisir 055.",
+          "allowEmptyValue": false
+        },
+        "codeExperienceConducteur": {
+          "type": "string",
+          "example": "04",
+          "description": "Code expérience du conducteur. Il s'agit du passé assurantiel du conducteur. Exemple : Sans Expérience.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CEXPCDD)",
+          "allowEmptyValue": false
+        },
+        "codeTypeConducteur": {
+          "type": "string",
+          "example": 2,
+          "description": "Code type de conducteur déclaré. Statut du conducteur vis-à-vis du sociétaire. Exemple : Conjoint.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=TCDD)",
+          "allowEmptyValue": false
+        },
+        "dateSouscriptionAncienAssureur": {
+          "type": "string",
+          "description": "Date de souscription chez l'assureur précédent.<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_<br>_Valeur par défaut : date du jour_",
+          "allowEmptyValue": false
+        },
+        "dateDEcheanceAncienAssureur": {
+          "type": "string",
+          "description": "Date d'échéance de l'ancien assureur.<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_<br>_Valeur par défaut : date du jour_",
+          "allowEmptyValue": false
+        },
+        "conduiteAccompagnee": {
+          "type": "boolean",
+          "example": false,
+          "description": "Booleen indiquant si le conducteur a réalisé une conduite accompagnée. Si \"true\" alors le conducteur a bien réalisé une conduite accompagnée.",
+          "allowEmptyValue": false
+        },
+        "conduiteAccompagneeMaif": {
+          "type": "boolean",
+          "example": false,
+          "description": "Booleen indiquant si le conducteur a réalisé une conduite accompagnée en étant assuré à la Maif. Si \"true\" alors le conducteur a bien réalisé une conduite accompagnée en étant assuré à la Maif.",
+          "allowEmptyValue": false
+        },
+        "conduiteAccompagneeMaifAvant2007": {
+          "type": "boolean",
+          "example": false,
+          "description": "Booleen indiquant si le conducteur a réalisé une conduite accompagnée en étant assuré à la Maif avant le 01/01/2007 ou pas. Si \"true\" alors le conducteur a bien réalisé une conduite accompagnée en étant assuré à la Maif avant le 01/01/2007.",
+          "allowEmptyValue": false
+        },
+        "sinistres": {
+          "type": "array",
+          "description": "Sinistres a prendre en compte pour le calcul du coefficient bonus/malus",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/Sinistre"
+          }
+        }
+      },
+      "title": "ConducteurAAssurerCrm",
+      "description": "Conducteur à assurer"
+    },
+    "ConducteurAAssurerDevis": {
+      "type": "object",
+      "required": [
+        "codeExperienceConducteur",
+        "codeTypeConducteur"
+      ],
+      "properties": {
+        "nom": {
+          "type": "string",
+          "example": "DUPOND",
+          "description": "Nom du conducteur. Les caractères autorisés sont les caractères alphabétiques (minuscules, majuscules) y compris les caractères alphabétiques accentués, le tiret, l'espace et l'apostrophe.",
+          "allowEmptyValue": false
+        },
+        "prenom": {
+          "type": "string",
+          "example": "ALAIN",
+          "description": "Prénom du conducteur. Les caractères autorisés sont les caractères alphabétiques (minuscules, majuscules) y compris les caractères alphabétiques accentués, le tiret, l'espace et l'apostrophe.",
+          "allowEmptyValue": false
+        },
+        "dateNaissance": {
+          "type": "string",
+          "description": "Date de naissance du conducteur<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_",
+          "allowEmptyValue": false
+        },
+        "identifiantPersonnePhysiqueConducteur": {
+          "type": "string",
+          "example": "1-5EB-942",
+          "description": "Identifiant technique de la personne physique. Code interne MAIF",
+          "allowEmptyValue": false
+        },
+        "codeTypePermis": {
+          "type": "string",
+          "example": "B",
+          "description": "Code du type de permis<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CPRM)",
+          "allowEmptyValue": false
+        },
+        "dateObtentionPermis": {
+          "type": "string",
+          "description": "Date d'obtention du permis<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_",
+          "allowEmptyValue": false
+        },
+        "dateAnterioriteBonus050": {
+          "type": "string",
+          "description": "Date à partir de laquelle le conducteur possède un bonus à 50%.<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_",
+          "allowEmptyValue": false
+        },
+        "coefficientBonusMalus": {
+          "type": "integer",
+          "format": "int32",
+          "example": 55,
+          "description": "Coefficient de Bonus ou Malus du conducteur. Ce coefficient peut prendre toutes les valeurs entre '050' et '350'. Par exemple : pour un bonus de 45% il faut saisir 055.",
+          "allowEmptyValue": false
+        },
+        "codeExperienceConducteur": {
+          "type": "string",
+          "example": "04",
+          "description": "Code expérience du conducteur. Il s'agit du passé assurantiel du conducteur. Exemple : Sans Expérience.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CEXPCDD)",
+          "allowEmptyValue": false
+        },
+        "codeTypeConducteur": {
+          "type": "string",
+          "example": 2,
+          "description": "Code type de conducteur déclaré. Statut du conducteur vis-à-vis du sociétaire. Exemple : Conjoint.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=TCDD)",
+          "allowEmptyValue": false
+        },
+        "dateSouscriptionAncienAssureur": {
+          "type": "string",
+          "description": "Date de souscription chez l'assureur précédent.<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_<br>_Valeur par défaut : date du jour_",
+          "allowEmptyValue": false
+        },
+        "dateDEcheanceAncienAssureur": {
+          "type": "string",
+          "description": "Date d'échéance de l'ancien assureur.<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_<br>_Valeur par défaut : date du jour_",
+          "allowEmptyValue": false
+        },
+        "conduiteAccompagnee": {
+          "type": "boolean",
+          "example": false,
+          "description": "Booleen indiquant si le conducteur a réalisé une conduite accompagnée. Si \"true\" alors le conducteur a bien réalisé une conduite accompagnée.",
+          "allowEmptyValue": false
+        },
+        "conduiteAccompagneeMaif": {
+          "type": "boolean",
+          "example": false,
+          "description": "Booleen indiquant si le conducteur a réalisé une conduite accompagnée en étant assuré à la Maif. Si \"true\" alors le conducteur a bien réalisé une conduite accompagnée en étant assuré à la Maif.",
+          "allowEmptyValue": false
+        },
+        "conduiteAccompagneeMaifAvant2007": {
+          "type": "boolean",
+          "example": false,
+          "description": "Booleen indiquant si le conducteur a réalisé une conduite accompagnée en étant assuré à la Maif avant le 01/01/2007 ou pas. Si \"true\" alors le conducteur a bien réalisé une conduite accompagnée en étant assuré à la Maif avant le 01/01/2007.",
+          "allowEmptyValue": false
+        },
+        "sinistreAvecCirconstanceAggravante": {
+          "type": "boolean",
+          "example": false,
+          "description": "Booleen indiquant la présence ou pas de sinistre avec des circonstances aggravantes au cours des 24 dernier mois. Si \"true\" alors il y a présence de sinistres qui remplissent cette condition.",
+          "allowEmptyValue": false
+        },
+        "retraitPermis": {
+          "type": "boolean",
+          "example": false,
+          "description": "Booleen indiquant si le permis a été retiré ou annulé au cours des 24 derniers mois. Si \"true\" alors le permis du conducteur remplie cette condition.",
+          "allowEmptyValue": false
+        },
+        "resiliationAssureurPrecedent": {
+          "type": "boolean",
+          "example": false,
+          "description": "Booleen indiquant si le conducteur a été résilié par l'assureur précédent.",
+          "allowEmptyValue": false
+        },
+        "sinistres": {
+          "type": "array",
+          "description": "Sinistres a prendre en compte pour enregistrer un risque à assurer",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/Sinistre"
+          }
+        }
+      },
+      "title": "ConducteurAAssurerDevis",
+      "description": "Conducteur à assurer. Les prénom, nom et date de naissance du conducteur peuvent être défini unitairement ou via l'identifiantPersonnePhysique si la personne est connue."
+    },
+    "ConducteurDevisSynthese": {
+      "type": "object",
+      "required": [
+        "codeAssujettissementClause",
+        "codeConduiteAccompagnee",
+        "codeExperienceConducteur",
+        "codeTypeConducteur",
+        "dateNaissance",
+        "libelleAssujettissementClause",
+        "libelleConduiteAccompagnee",
+        "libelleTypeConducteur",
+        "nom",
+        "prenom"
+      ],
+      "properties": {
+        "nom": {
+          "type": "string",
+          "example": "DUPOND",
+          "description": "Nom du conducteur. Les caractères autorisés sont les caractères alphabétiques (minuscules, majuscules) y compris les caractères alphabétiques accentués, le tiret, l'espace et l'apostrophe.",
+          "allowEmptyValue": false
+        },
+        "prenom": {
+          "type": "string",
+          "example": "ALAIN",
+          "description": "Prénom du conducteur. Les caractères autorisés sont les caractères alphabétiques (minuscules, majuscules) y compris les caractères alphabétiques accentués, le tiret, l'espace et l'apostrophe.",
+          "allowEmptyValue": false
+        },
+        "dateNaissance": {
+          "type": "string",
+          "description": "Date de naissance du conducteur<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_",
+          "allowEmptyValue": false
+        },
+        "codeTypePermis": {
+          "type": "string",
+          "example": "B",
+          "description": "Code du type de permis<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CPRM)",
+          "allowEmptyValue": false
+        },
+        "libelleTypePermis": {
+          "type": "string",
+          "example": "4 roues assujettis (B,BE)",
+          "description": "Libellé associé au code du type de permis",
+          "allowEmptyValue": false
+        },
+        "dateObtentionPermis": {
+          "type": "string",
+          "description": "Date d'obtention du permis<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_",
+          "allowEmptyValue": false
+        },
+        "dateAnterioriteBonus050": {
+          "type": "string",
+          "description": "Date à partir de laquelle le conducteur possède un bonus à 50%.<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_",
+          "allowEmptyValue": false
+        },
+        "codeExperienceConducteur": {
+          "type": "string",
+          "example": "04",
+          "description": "Code expérience du conducteur. Il s'agit du passé assurantiel du conducteur. Exemple : Sans Expérience.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CEXPCDD)",
+          "allowEmptyValue": false
+        },
+        "libelleExperienceConducteur": {
+          "type": "string",
+          "example": "Sans Experience",
+          "description": "Libellé de l'expérience du conducteur",
+          "allowEmptyValue": false
+        },
+        "codeTypeConducteur": {
+          "type": "string",
+          "example": 2,
+          "description": "Code type de conducteur déclaré. Statut du conducteur vis-à-vis du sociétaire. Exemple : Conjoint.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=TCDD)",
+          "allowEmptyValue": false
+        },
+        "libelleTypeConducteur": {
+          "type": "string",
+          "example": "Sociétaire",
+          "description": "Libellé associé au code du type de conducteur",
+          "allowEmptyValue": false
+        },
+        "dateSouscriptionAncienAssureur": {
+          "type": "string",
+          "description": "Date de souscription chez l'assureur précédent.<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_<br>_Valeur par défaut : date du jour_",
+          "allowEmptyValue": false
+        },
+        "dateDEcheanceAncienAssureur": {
+          "type": "string",
+          "description": "Date d'échéance de l'ancien assureur.<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_<br>_Valeur par défaut : date du jour_",
+          "allowEmptyValue": false
+        },
+        "coefficientBonusMalusAncienAssureur": {
+          "type": "integer",
+          "format": "int32",
+          "example": 55,
+          "description": "Coefficient de Bonus ou Malus du conducteur chez son assureur précédent. Ce coefficient peut prendre toutes les valeurs entre '050' et '350'. Par exemple : pour un bonus de 45% il faut saisir 055.",
+          "allowEmptyValue": false
+        },
+        "codeConduiteAccompagnee": {
+          "type": "string",
+          "example": "01",
+          "description": "Code conduite accompagnée. Exemple : Sans AAC.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CAAC).",
+          "allowEmptyValue": false
+        },
+        "libelleConduiteAccompagnee": {
+          "type": "string",
+          "example": "Sans AAC",
+          "description": "Libellé de la conduite accompagnée",
+          "allowEmptyValue": false
+        },
+        "codeAssujettissementClause": {
+          "type": "string",
+          "example": 1,
+          "description": "Code assujettissement à la clause du véhicule<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CASJCLA)",
+          "allowEmptyValue": false
+        },
+        "libelleAssujettissementClause": {
+          "type": "string",
+          "example": true,
+          "description": "Libellé de l'assujettissement à la clause du véhicule",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "ConducteurDevisSynthese",
+      "description": "Synthèse du conducteur à assurer dans le cadre du devis"
+    },
+    "ContexteAcceptation": {
+      "type": "object",
+      "required": [
+        "codeActeGestion",
+        "codeOperationRisque",
+        "modificationConducteur"
+      ],
+      "properties": {
+        "dateEffet": {
+          "type": "string",
+          "description": "Date d'effet <br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_<br>_Exemple : 2018-10-27_<br>",
+          "allowEmptyValue": false
+        },
+        "codeActeGestion": {
+          "type": "string",
+          "example": "001",
+          "description": "Code acte de gestion.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CACTGES)",
+          "allowEmptyValue": false
+        },
+        "codeOperationRisque": {
+          "type": "string",
+          "example": "01",
+          "description": "Code des types d'opérations liés au risque.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=COPERIS)",
+          "allowEmptyValue": false
+        },
+        "modificationConducteur": {
+          "type": "boolean",
+          "example": false,
+          "description": "Booleen indiquant si il s'agit d'un cas de modification du conducteur ou pas.",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "ContexteAcceptation",
+      "description": "Contexte de l'acceptation"
+    },
+    "CreationDevisSynthese": {
+      "type": "object",
+      "required": [
+        "dateEffetDevis",
+        "dateFinValiditeDevis",
+        "dateRealisationDevis",
+        "idDevis",
+        "tarifsFranchiseSyntheseDevis",
+        "vehiculeAAssurer"
+      ],
+      "properties": {
+        "conducteurAAssurer": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/ConducteurDevisSynthese"
+        },
+        "vehiculeAAssurer": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/VehiculeDevis"
+        },
+        "idDevis": {
+          "type": "integer",
+          "format": "int64",
+          "example": 800000436176,
+          "description": "Identifiant technique du devis",
+          "allowEmptyValue": false
+        },
+        "dateRealisationDevis": {
+          "type": "string",
+          "description": "Date à laquelle le devis a été réalisé",
+          "allowEmptyValue": false
+        },
+        "dateFinValiditeDevis": {
+          "type": "string",
+          "description": "Date de fin de validité du devis",
+          "allowEmptyValue": false
+        },
+        "dateEffetDevis": {
+          "type": "string",
+          "description": "Date d'effet <br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_<br>_Exemple : 2018-10-27_<br>",
+          "allowEmptyValue": false
+        },
+        "tarifsFranchiseSyntheseDevis": {
+          "type": "array",
+          "description": "Liste des tarifs et des franchises pour une solution en fonction de l'année pour laquelle ils sont calculés.",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/TarifsFranchiseSyntheseDevis"
+          }
+        }
+      },
+      "title": "CreationDevisSynthese",
+      "description": "Synthèse du devis qui vient d'être créé"
+    },
+    "CreationRisqueVehiculeConducteurAAssurerSynthese": {
+      "type": "object",
+      "required": [
+        "idRisqueVehiculeConducteurAAssurer"
+      ],
+      "properties": {
+        "AcceptationDefinitive": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/AcceptationRisqueVehicule"
+        },
+        "idRisqueVehiculeConducteurAAssurer": {
+          "type": "integer",
+          "format": "int64",
+          "example": 800000436176,
+          "description": "Identifiant du risque véhicule et conducteur à assurer",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "CreationRisqueVehiculeConducteurAAssurerSynthese",
+      "description": "Synthèse du risque véhicule et conducteur à assurer qui vient d'être créé"
+    },
+    "DateAntecedentsSinistralite": {
+      "type": "object",
+      "required": [
+        "dateAnterioriteBonus050",
+        "dateDebutCollecteSinistre"
+      ],
+      "properties": {
+        "dateDebutCollecteSinistre": {
+          "type": "string",
+          "description": "Date de début à partir de laquelle on s'intéresse aux sinistres du conducteur.<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_",
+          "allowEmptyValue": false
+        },
+        "dateAnterioriteBonus050": {
+          "type": "string",
+          "description": "Date à partir de laquelle le conducteur possède un bonus à 50%.<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "DateAntecedentsSinistralite",
+      "description": "Dates en lien avec les antécédents de sinistralité du conducteur"
+    },
+    "DetailFranchise": {
+      "type": "object",
+      "required": [
+        "montantFranchise"
+      ],
+      "properties": {
+        "montantFranchise": {
+          "type": "integer",
+          "format": "int64",
+          "example": 5000,
+          "description": "Montant de la franchise (exprimé en centimes d'euro)",
+          "allowEmptyValue": false
+        },
+        "conditions": {
+          "type": "array",
+          "description": "Liste de condition d'application de la franchise",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/ConditionFranchise"
+          }
+        }
+      },
+      "title": "DetailFranchise",
+      "description": "Détails d'une franchise"
+    },
+    "DetailNomenclature": {
+      "type": "object",
+      "required": [
+        "code",
+        "libelle"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "example": 1,
+          "description": "Code",
+          "allowEmptyValue": false
+        },
+        "libelle": {
+          "type": "string",
+          "example": "description du code",
+          "description": "Libellé associé au code",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "DetailNomenclature",
+      "description": "Code et libellé d'une nomenclature"
+    },
+    "DevisVehiculeConducteur": {
+      "type": "object",
+      "required": [
+        "idRisqueVehiculeConducteurAAssurer",
+        "solutionChoisie"
+      ],
+      "properties": {
+        "solutionChoisie": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/FormuleReferenceChoisie"
+        },
+        "identifiantPersonnePhysique": {
+          "type": "string",
+          "example": "1-5EB-942",
+          "description": "Identifiant technique de la personne physique. Code interne MAIF",
+          "allowEmptyValue": false
+        },
+        "identifiantBesoin": {
+          "type": "string",
+          "example": "1-7EX-999",
+          "description": "Identifiant technique du besoin",
+          "allowEmptyValue": false
+        },
+        "idRisqueVehiculeConducteurAAssurer": {
+          "type": "integer",
+          "format": "int64",
+          "example": 800000436176,
+          "description": "Identifiant du risque véhicule et conducteur à assurer",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "DevisVehiculeConducteur",
+      "description": "Regroupe les informations à passer en entrée pour enregistrer un devis pour une personne physique connue à la MAIF"
+    },
+    "FormuleReferenceChoisie": {
+      "type": "object",
+      "required": [
+        "codeFormule",
+        "codeNiveauFranchise",
+        "codeNiveauGarantie"
+      ],
+      "properties": {
+        "codeFormule": {
+          "type": "string",
+          "example": 7,
+          "description": "Code de la formule de référence. Exemple : Initiale <br/>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CFORREF)",
+          "allowEmptyValue": false
+        },
+        "codeNiveauGarantie": {
+          "type": "string",
+          "example": 1,
+          "description": "Niveau de garantie. Exemple : Standard <br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature_ext.do?nomPhysique=CNIVGARREF)",
+          "allowEmptyValue": false
+        },
+        "codeNiveauFranchise": {
+          "type": "string",
+          "example": 3,
+          "description": "Niveau de franchise. Exemple : Franchise moyenne <br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature_ext.do?nomPhysique=CNIVFRNREF)",
+          "allowEmptyValue": false
+        },
+        "options": {
+          "type": "array",
+          "description": "Liste des options à enregistrer pour cette formule de référence",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/OptionATarifer"
+          }
+        }
+      },
+      "title": "FormuleReferenceChoisie",
+      "description": "Définition de la formule de base dans le cadre de l'enregistrement d'un devis"
+    },
+    "FormuleReferenceEligibilite": {
+      "type": "object",
+      "required": [
+        "codeFormule",
+        "codeNiveauFranchise",
+        "codeNiveauGarantie",
+        "libelleFormule",
+        "libelleNiveauFranchise",
+        "libelleNiveauGarantie"
+      ],
+      "properties": {
+        "codeFormule": {
+          "type": "string",
+          "example": 7,
+          "description": "Code de la formule de référence. Exemple : Initiale <br/>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CFORREF)",
+          "allowEmptyValue": false
+        },
+        "libelleFormule": {
+          "type": "string",
+          "example": "Initiale",
+          "description": "Libellé de la formule de référence",
+          "allowEmptyValue": false
+        },
+        "codeNiveauGarantie": {
+          "type": "string",
+          "example": 1,
+          "description": "Niveau de garantie. Exemple : Standard <br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature_ext.do?nomPhysique=CNIVGARREF)",
+          "allowEmptyValue": false
+        },
+        "libelleNiveauGarantie": {
+          "type": "string",
+          "example": "Standard",
+          "description": "Libellé du niveau de garantie",
+          "allowEmptyValue": false
+        },
+        "codeNiveauFranchise": {
+          "type": "string",
+          "example": 3,
+          "description": "Niveau de franchise. Exemple : Franchise moyenne <br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature_ext.do?nomPhysique=CNIVFRNREF)",
+          "allowEmptyValue": false
+        },
+        "libelleNiveauFranchise": {
+          "type": "string",
+          "example": "Franchise NAVI",
+          "description": "Libellé du niveau de franchise",
+          "allowEmptyValue": false
+        },
+        "montantFranchiseDommage": {
+          "type": "integer",
+          "format": "int64",
+          "example": 17500,
+          "description": "Montant de la franchise dommage (exprimé en centimes d'€)",
+          "allowEmptyValue": false
+        },
+        "options": {
+          "type": "array",
+          "description": "Liste des options éligibles pour cette formule de référence",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/OptionEligibilite"
+          }
+        }
+      },
+      "title": "FormuleReferenceEligibilite",
+      "description": "Définition de la formule de base dans le cadre d'une éligibilité"
+    },
+    "FranchiseEligible": {
+      "type": "object",
+      "required": [
+        "codeNiveauFranchise",
+        "libelleNiveauFranchise",
+        "montantFranchiseDommage"
+      ],
+      "properties": {
+        "codeNiveauFranchise": {
+          "type": "string",
+          "example": 3,
+          "description": "Niveau de franchise. Exemple : Franchise moyenne <br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature_ext.do?nomPhysique=CNIVFRNREF)",
+          "allowEmptyValue": false
+        },
+        "libelleNiveauFranchise": {
+          "type": "string",
+          "example": "Franchise NAVI",
+          "description": "Libellé du niveau de franchise",
+          "allowEmptyValue": false
+        },
+        "montantFranchiseDommage": {
+          "type": "integer",
+          "format": "int64",
+          "example": 17500,
+          "description": "Montant de la franchise dommage (exprimé en centimes d'€)",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "FranchiseEligible",
+      "description": "Détail de la franchise éligible"
+    },
+    "InfoAcceptationProspect": {
+      "type": "object",
+      "required": [
+        "conducteur",
+        "vehicule"
+      ],
+      "properties": {
+        "conducteur": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/ConducteurAAssurer"
+        },
+        "vehicule": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/VehiculeAAssurer"
+        },
+        "dateEffet": {
+          "type": "string",
+          "description": "Date d'effet <br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_<br>_Exemple : 2018-10-27_<br>",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "InfoAcceptationProspect",
+      "description": "Regroupe les informations à passer en entrée pour jouer l'acceptation d'un prospect uniquement"
+    },
+    "InfoAcceptationSocietaire": {
+      "type": "object",
+      "required": [
+        "conducteur",
+        "contexteAcceptation",
+        "vehicule"
+      ],
+      "properties": {
+        "conducteur": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/ConducteurAAssurer"
+        },
+        "contexteAcceptation": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/ContexteAcceptation"
+        },
+        "vehicule": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/VehiculeAAssurer"
+        }
+      },
+      "title": "InfoAcceptationSocietaire",
+      "description": "Regroupe les informations à passer en entrée pour jouer l'acceptation d'un sociétaire"
+    },
+    "InfoAcceptationVehicule": {
+      "type": "object",
+      "required": [
+        "numeroRepertoire"
+      ],
+      "properties": {
+        "numeroRepertoire": {
+          "type": "string",
+          "example": 97836,
+          "description": "Numéro de répertoire issu du référentiel de véhicules MAIF",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "InfoAcceptationVehicule",
+      "description": "Information à passer en entrée pour jouer l'acceptation."
+    },
+    "InfoCalculCrmProspect": {
+      "type": "object",
+      "required": [
+        "conducteur",
+        "vehicule"
+      ],
+      "properties": {
+        "conducteur": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/ConducteurAAssurerCrm"
+        },
+        "vehicule": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/VehiculeAAssurer"
+        },
+        "dateEffet": {
+          "type": "string",
+          "description": "Date d'effet <br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_<br>_Exemple : 2018-10-27_<br>",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "InfoCalculCrmProspect",
+      "description": "Regroupe les informations à passer en entrée pour calculer le coefficient de bonus/malus d'un prospect uniquement"
+    },
+    "InfoEditionDevis": {
+      "type": "object",
+      "properties": {
+        "identifiantPersonne": {
+          "type": "string",
+          "example": "1-5EB-942",
+          "description": "Identifiant technique de la personne physique ou morale. Code interne MAIF",
+          "allowEmptyValue": false
+        },
+        "idDevis": {
+          "type": "integer",
+          "format": "int64",
+          "example": 800000436176,
+          "description": "Identifiant technique du devis",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "InfoEditionDevis",
+      "description": "Informations à fournir pour éditer un devis"
+    },
+    "JustificationAcceptationRisque": {
+      "type": "object",
+      "properties": {
+        "codeJustificationRisque": {
+          "type": "string",
+          "example": 8,
+          "description": "Code de justification associée à l’acceptation du risque<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CJUSRIS)",
+          "allowEmptyValue": false
+        },
+        "libelleJustificationRisque": {
+          "type": "string",
+          "example": "Résiliation assureur précédent",
+          "description": "Libellé associé au code de justification",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "JustificationAcceptationRisque",
+      "description": "Justification associée à l'acceptation du risque"
+    },
+    "LienDetailVehicule": {
+      "type": "object",
+      "required": [
+        "href",
+        "method"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "example": "GET",
+          "description": "Verbe HTTP à utiliser pour l'appel (HATEOAS)",
+          "allowEmptyValue": false
+        },
+        "href": {
+          "type": "string",
+          "example": "referentiel/modeles_vehicules/vehicules/97836",
+          "description": "Lien à utiliser pour accéder à la ressource liée (HATEOAS)",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "LienDetailVehicule",
+      "description": "Lien vers le détail du tarif. Pour les contrats APR et OME, il n'y a pas de lien."
+    },
+    "Mesure": {
+      "type": "object",
+      "required": [
+        "codeFamilleTarifaire",
+        "codeModaliteFamilleTarifaire",
+        "libelleFamilleTarifaire"
+      ],
+      "properties": {
+        "codeFamilleTarifaire": {
+          "type": "string",
+          "example": 26,
+          "description": "Code de la famille tarifaire. Exemple : Portefeuille du sociétaire (croisement société et du public cible). <br> [_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CFTA)",
+          "allowEmptyValue": false
+        },
+        "libelleFamilleTarifaire": {
+          "type": "string",
+          "example": "Mesure de réduction pour les véhicules phares",
+          "description": "Libellé de la famille tarifaire.",
+          "allowEmptyValue": false
+        },
+        "codeModaliteFamilleTarifaire": {
+          "type": "string",
+          "example": "04",
+          "description": "Code modalité de la famille tarifaire",
+          "allowEmptyValue": false
+        },
+        "libelleModaliteFamilleTarifaire": {
+          "type": "string",
+          "example": "Citroen C3",
+          "description": "Libellé de la modalité de la famille tarifaire.",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "Mesure"
+    },
+    "Nomenclature": {
+      "type": "object",
+      "required": [
+        "detailNomenclature",
+        "nomNomenclature"
+      ],
+      "properties": {
+        "nomNomenclature": {
+          "type": "string",
+          "example": "nom de la nomenclature",
+          "description": "Nom de la nomenclature",
+          "allowEmptyValue": false
+        },
+        "detailNomenclature": {
+          "type": "array",
+          "description": "Liste des codes et libellés possibles pour cette nomenclature",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/DetailNomenclature"
+          }
+        }
+      },
+      "title": "Nomenclature",
+      "description": "Valeurs et libellés possibles pour cette nomenclature."
+    },
+    "OptionATarifer": {
+      "type": "object",
+      "required": [
+        "codeOption"
+      ],
+      "properties": {
+        "codeOption": {
+          "type": "string",
+          "example": 15,
+          "description": "Code option. Exemple : Biens transportés plafond 1750 €<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CFORREF)",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "OptionATarifer",
+      "description": "Définition d'une option dans le cadre d'une tarification"
+    },
+    "OptionEligibilite": {
+      "type": "object",
+      "required": [
+        "codeOption",
+        "libelleOption"
+      ],
+      "properties": {
+        "codeOption": {
+          "type": "string",
+          "example": 15,
+          "description": "Code option. Exemple : Biens transportés plafond 1750 €<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CFORREF)",
+          "allowEmptyValue": false
+        },
+        "libelleOption": {
+          "type": "string",
+          "example": "Biens transportés plafond 1750 €",
+          "description": "Libellé de l'option",
+          "allowEmptyValue": false
+        },
+        "montantPlafondOption": {
+          "type": "integer",
+          "format": "int64",
+          "example": 175000,
+          "description": "Montant du plafond de l'option (exprimé en centimes d'€)",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "OptionEligibilite",
+      "description": "Définition d'une option dans le cadre d'une éligibilité"
+    },
+    "OptionEligible": {
+      "type": "object",
+      "required": [
+        "codeOption",
+        "libelleOption"
+      ],
+      "properties": {
+        "codeOption": {
+          "type": "string",
+          "example": 15,
+          "description": "Code option. Exemple : Biens transportés plafond 1750 €<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CFORREF)",
+          "allowEmptyValue": false
+        },
+        "libelleOption": {
+          "type": "string",
+          "example": "Biens transportés plafond 1750 €",
+          "description": "Libellé de l'option",
+          "allowEmptyValue": false
+        },
+        "montantPlafondOption": {
+          "type": "integer",
+          "format": "int64",
+          "example": 175000,
+          "description": "Montant du plafond de l'option (exprimé en centimes d'€)",
+          "allowEmptyValue": false
+        },
+        "optionsIncluses": {
+          "type": "array",
+          "description": "Liste des options incluses avec cette option si elle est sélectionnée",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/OptionEligibilite"
+          }
+        },
+        "optionsExclues": {
+          "type": "array",
+          "description": "Liste des options exclues par cette option si elle est sélectionnée",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/OptionEligibilite"
+          }
+        }
+      },
+      "title": "OptionEligible",
+      "description": "Détail d'une option éligible"
+    },
+    "PresentationSolution": {
+      "type": "object",
+      "required": [
+        "codeFormule",
+        "libelleFormule"
+      ],
+      "properties": {
+        "codeFormule": {
+          "type": "string",
+          "example": 7,
+          "description": "Code de la formule de référence. Exemple : Initiale <br/>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CFORREF)",
+          "allowEmptyValue": false
+        },
+        "libelleFormule": {
+          "type": "string",
+          "example": "Initiale",
+          "description": "Libellé de la formule de référence",
+          "allowEmptyValue": false
+        },
+        "franchisesEligibles": {
+          "type": "array",
+          "description": "Liste des franchises éligibles pour cette formule de référence",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/FranchiseEligible"
+          }
+        },
+        "options": {
+          "type": "array",
+          "description": "Liste des options éligibles pour cette formule de référence",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/OptionEligible"
+          }
+        }
+      },
+      "title": "PresentationSolution",
+      "description": "Détail de la solution"
+    },
+    "RisqueVehiculeConducteurAAssurer": {
+      "type": "object",
+      "required": [
+        "conducteur",
+        "identifiantPersonnePhysique",
+        "vehicule"
+      ],
+      "properties": {
+        "conducteur": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/ConducteurAAssurerDevis"
+        },
+        "vehicule": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/VehiculeAAssurerDevis"
+        },
+        "identifiantPersonnePhysique": {
+          "type": "string",
+          "example": "1-5EB-942",
+          "description": "Identifiant technique de la personne physique. Code interne MAIF",
+          "allowEmptyValue": false
+        },
+        "identifiantBesoin": {
+          "type": "string",
+          "example": "1-7EX-999",
+          "description": "Identifiant technique du besoin",
+          "allowEmptyValue": false
+        },
+        "dateEffet": {
+          "type": "string",
+          "description": "Date d'effet <br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_<br>_Exemple : 2018-10-27_<br>",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "RisqueVehiculeConducteurAAssurer",
+      "description": "Regroupe les informations à passer en entrée pour enregistrer un risque à assurer pour une personne physique connue à la MAIF"
+    },
+    "Sinistre": {
+      "type": "object",
+      "required": [
+        "dateSurvenance"
+      ],
+      "properties": {
+        "dateSurvenance": {
+          "type": "string",
+          "description": "Date de survenance d'un sinistre<br>_Format attendu : cf. [Norme ISO 8601](https://fr.wikipedia.org/wiki/ISO_8601)_",
+          "allowEmptyValue": false
+        },
+        "codeResponsabilite": {
+          "type": "string",
+          "example": 2,
+          "description": "Code indiquant la résponsabilité lors du sinistre. Exemple : Responsabilité totale.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CRSPEVE)",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "Sinistre",
+      "description": "Sinistre qui sera pris en compte"
+    },
+    "SolutionEligible": {
+      "type": "object",
+      "required": [
+        "codeProduit",
+        "formuleReference",
+        "libelleProduit"
+      ],
+      "properties": {
+        "formuleReference": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/FormuleReferenceEligibilite"
+        },
+        "codeProduit": {
+          "type": "string",
+          "example": 5,
+          "description": "Code du produit. Exemple : VAM <br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CPDTREF)",
+          "allowEmptyValue": false
+        },
+        "libelleProduit": {
+          "type": "string",
+          "example": "VAM",
+          "description": "Libellé du produit",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "SolutionEligible",
+      "description": "Détail de la solution"
+    },
+    "SolutionsEligiblesPresentation": {
+      "type": "object",
+      "required": [
+        "solutionsEligibles"
+      ],
+      "properties": {
+        "solutionsEligibles": {
+          "type": "array",
+          "description": "Liste des solutions éligibles",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/SolutionEligible"
+          }
+        },
+        "presentationSolutions": {
+          "type": "array",
+          "description": "Présentation possible pour chaque solution éligible",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/PresentationSolution"
+          }
+        }
+      },
+      "title": "SolutionsEligiblesPresentation",
+      "description": "Liste des solutions éligibles et leur présentation"
+    },
+    "TarifFormuleReference": {
+      "type": "object",
+      "required": [
+        "codeFormule",
+        "libelleFormule",
+        "montantFormuleTTC"
+      ],
+      "properties": {
+        "codeFormule": {
+          "type": "string",
+          "example": 7,
+          "description": "Code de la formule de référence. Exemple : Initiale <br/>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CFORREF)",
+          "allowEmptyValue": false
+        },
+        "libelleFormule": {
+          "type": "string",
+          "example": "Initiale",
+          "description": "Libellé de la formule de référence",
+          "allowEmptyValue": false
+        },
+        "montantFormuleTTC": {
+          "type": "integer",
+          "format": "int64",
+          "example": 32070,
+          "description": "Montant annuel de la formule toutes taxes comprises (exprimé en centimes d'€)",
+          "allowEmptyValue": false
+        },
+        "options": {
+          "type": "array",
+          "description": "Liste des options avec leur montant annuel TTC",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/TarifOption"
+          }
+        }
+      },
+      "title": "TarifFormuleReference",
+      "description": "Montant Annuel TTC qui s'applique pour la formule de référence."
+    },
+    "TarifOption": {
+      "type": "object",
+      "required": [
+        "codeOption",
+        "libelleOption",
+        "montantOptionTTC"
+      ],
+      "properties": {
+        "codeOption": {
+          "type": "string",
+          "example": 15,
+          "description": "Code option. Exemple : Biens transportés plafond 1750 €<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CFORREF)",
+          "allowEmptyValue": false
+        },
+        "libelleOption": {
+          "type": "string",
+          "example": "Biens transportés plafond 1750 €",
+          "description": "Libellé de l'option",
+          "allowEmptyValue": false
+        },
+        "montantOptionTTC": {
+          "type": "integer",
+          "format": "int64",
+          "example": 1690,
+          "description": "Montant annuel de l'option toutes taxes comprises (exprimé en centimes d'€)",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "TarifOption",
+      "description": "Montant Annuel TTC qui s'applique pour l'option."
+    },
+    "TarifsFranchiseSyntheseDevis": {
+      "type": "object",
+      "required": [
+        "anneeTarif",
+        "dateDebutPeriodeTarification",
+        "dateFinPeriodeTarification",
+        "montantAnnuelBrutTTC",
+        "montantAnnuelHT",
+        "montantAnnuelTTC",
+        "tarifsParFormule"
+      ],
+      "properties": {
+        "tarifsParFormule": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/TarifFormuleReference"
+        },
+        "anneeTarif": {
+          "type": "string",
+          "example": 2020,
+          "description": "Année d'exercice du tarif.",
+          "allowEmptyValue": false
+        },
+        "dateDebutPeriodeTarification": {
+          "type": "string",
+          "description": "Date de début de la période tarifée",
+          "allowEmptyValue": false
+        },
+        "dateFinPeriodeTarification": {
+          "type": "string",
+          "description": "Date de fin de la période tarifée",
+          "allowEmptyValue": false
+        },
+        "nombreEcheanceAvecBonus050": {
+          "type": "string",
+          "example": 0,
+          "description": "Nombre d'échéance avec un coefficient de bonus à 50%. Maximum à 4.",
+          "allowEmptyValue": false
+        },
+        "coefficientBonusMalus": {
+          "type": "integer",
+          "format": "int32",
+          "example": 55,
+          "description": "Coefficient de Bonus ou Malus du conducteur. Ce coefficient peut prendre toutes les valeurs entre '050' et '350'. Par exemple : pour un bonus de 45% il faut saisir 055.",
+          "allowEmptyValue": false
+        },
+        "montantAnnuelHT": {
+          "type": "integer",
+          "format": "int64",
+          "example": 28065,
+          "description": "Montant tarif annuel hors taxe (exprimé en centimes d'€)",
+          "allowEmptyValue": false
+        },
+        "montantAnnuelTTC": {
+          "type": "integer",
+          "format": "int64",
+          "example": 32070,
+          "description": "Montant tarif annuel toutes taxes comprises (exprimé en centimes d'€)",
+          "allowEmptyValue": false
+        },
+        "montantAnnuelBrutTTC": {
+          "type": "integer",
+          "format": "int64",
+          "example": 32070,
+          "description": "Montant tarif annuel hors mesure de réduction et/ou majoration toutes taxes comprises (exprimé en centimes d'€)",
+          "allowEmptyValue": false
+        },
+        "montantTarifJourUsageTTC": {
+          "type": "integer",
+          "format": "int64",
+          "example": 390,
+          "description": "Montant du tarif journalié toutes taxes comprises (exprimé en centimes d'€) dans les cas de formule à la demande. C'est le montant payé en plus pour une journée où des garanties supplémentaires sont activées.",
+          "allowEmptyValue": false
+        },
+        "mesuresReductionCommerciale": {
+          "type": "array",
+          "description": "Liste des mesures de réduction commerciale qui s'appliquent à ce tarif",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/Mesure"
+          }
+        },
+        "montantFranchiseContractuelle": {
+          "type": "integer",
+          "format": "int64",
+          "example": 28000,
+          "description": "Montant de la franchise contractuelle (exprimé en centimes d'€)",
+          "allowEmptyValue": false
+        },
+        "autresFranchises": {
+          "type": "array",
+          "description": "Liste d'une ou plusieurs franchises pour le risque.",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/AutresFranchises"
+          }
+        }
+      },
+      "title": "TarifsFranchiseSyntheseDevis"
+    },
+    "VehiculeAAssurer": {
+      "type": "object",
+      "required": [
+        "codeUsageVehicule",
+        "numeroRepertoire"
+      ],
+      "properties": {
+        "numeroRepertoire": {
+          "type": "string",
+          "example": 97836,
+          "description": "Numéro de répertoire issu du référentiel de véhicules MAIF",
+          "allowEmptyValue": false
+        },
+        "codeUsageVehicule": {
+          "type": "string",
+          "example": 1,
+          "description": "Code usage du véhicule. Exemple : Usage privé et professionnel.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CUSARIS)",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "VehiculeAAssurer",
+      "description": "Véhicule à assurer"
+    },
+    "VehiculeAAssurerDevis": {
+      "type": "object",
+      "required": [
+        "anneeMiseEnCirculationVehicule",
+        "codeUsageVehicule",
+        "numeroRepertoire"
+      ],
+      "properties": {
+        "numeroRepertoire": {
+          "type": "string",
+          "example": 97836,
+          "description": "Numéro de répertoire issu du référentiel de véhicules MAIF",
+          "allowEmptyValue": false
+        },
+        "codeUsageVehicule": {
+          "type": "string",
+          "example": 1,
+          "description": "Code usage du véhicule. Exemple : Usage privé et professionnel.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CUSARIS)",
+          "allowEmptyValue": false
+        },
+        "anneeMiseEnCirculationVehicule": {
+          "type": "string",
+          "example": 2019,
+          "description": "Année de la première mise en circulation du véhicule à assurer.",
+          "allowEmptyValue": false
+        },
+        "achatVehiculePost01012021": {
+          "type": "boolean",
+          "example": false,
+          "description": "Booleen indiquant si le véhicule a été acheté après le 01/01/2021 ou pas. Pour un véhicule électrique ce booléen est à renseigner obligatoire jusqu'au 31/12/2023 inclu.",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "VehiculeAAssurerDevis",
+      "description": "Véhicule à assurer"
+    },
+    "VehiculeDevis": {
+      "type": "object",
+      "required": [
+        "codeCategorie",
+        "codeGenre",
+        "dateMiseEnCirculationVehicule",
+        "denominationCommercialeLongue",
+        "libelleCategorie",
+        "libelleFamille",
+        "libelleGenre",
+        "libelleMarque",
+        "numeroRepertoire"
+      ],
+      "properties": {
+        "lienDetailVehicule": {
+          "allowEmptyValue": false,
+          "$ref": "#/definitions/LienDetailVehicule"
+        },
+        "numeroRepertoire": {
+          "type": "string",
+          "example": 97836,
+          "description": "Numéro de répertoire issu du référentiel de véhicules MAIF",
+          "allowEmptyValue": false
+        },
+        "typeImmatriculationVehicule": {
+          "type": "string",
+          "example": 7,
+          "description": "Type d'immatriculation du véhicule<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=TIDEVEH)",
+          "allowEmptyValue": false
+        },
+        "libelleTypeImmatriculationVehicule": {
+          "type": "string",
+          "example": "Immatriculation SIV",
+          "description": "Libellé du type d'immatriculation du véhicule",
+          "allowEmptyValue": false
+        },
+        "immatriculation": {
+          "type": "string",
+          "example": "AA-123-AA",
+          "description": "Immatriculation",
+          "allowEmptyValue": false
+        },
+        "codeCategorie": {
+          "type": "string",
+          "example": "01",
+          "description": "Code catégorie du véhicule<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CCATVEH)",
+          "allowEmptyValue": false
+        },
+        "libelleCategorie": {
+          "type": "string",
+          "example": "4 Roues (VP et utilitaires légers) PTAC <= 3,5 t",
+          "description": "Libellé de la catégorie du véhicule",
+          "allowEmptyValue": false
+        },
+        "codeGenre": {
+          "type": "string",
+          "example": "01",
+          "description": "Code genre du véhicule<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CGENVEH)",
+          "allowEmptyValue": false
+        },
+        "libelleGenre": {
+          "type": "string",
+          "example": "Voiture particulière",
+          "description": "Libellé genre du véhicule",
+          "allowEmptyValue": false
+        },
+        "libelleMarque": {
+          "type": "string",
+          "example": "FIAT",
+          "description": "Libelle de la marque du véhicule",
+          "allowEmptyValue": false
+        },
+        "libelleFamille": {
+          "type": "string",
+          "example": "DUCATO",
+          "description": "Libelle de la famille du véhicule",
+          "allowEmptyValue": false
+        },
+        "denominationCommercialeLongue": {
+          "type": "string",
+          "example": "316 COMPACT 1.6 I 102 CH AUTO",
+          "description": "Dénomination commerciale longue du véhicule",
+          "allowEmptyValue": false
+        },
+        "dateMiseEnCirculationVehicule": {
+          "type": "string",
+          "description": "Date de première mise en circulation du véhicule'",
+          "allowEmptyValue": false
+        },
+        "codeUsageVehicule": {
+          "type": "string",
+          "example": 1,
+          "description": "Code usage du véhicule. Exemple : Usage privé et professionnel.<br>[_Valeurs Possibles_](http://slapp819:30101/GdrConsult/detail_nomenclature.do?nomPhysique=CUSARIS)",
+          "allowEmptyValue": false
+        },
+        "libelleUsageVehicule": {
+          "type": "string",
+          "example": "Usage privé et professionnel occasionnel",
+          "description": "Libellé de l'usage du véhicule",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "VehiculeDevis",
+      "description": "Synthèse du véhicule à assurer dans le cadre du devis"
+    }
+  }
+}

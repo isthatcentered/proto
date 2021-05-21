@@ -1,9 +1,10 @@
 import classNames from "classnames"
 import React, { ComponentProps, ComponentType, InputHTMLAttributes } from "react"
-import { Label } from "./index"
 import { Code, ElementProps } from "../helpers"
-import * as REMOTE from "../../remote"
-import Placeholder from "../placeholder"
+import * as REMOTE from "../remote"
+import Placeholder, { Placeholders } from "../placeholder"
+import * as AR from "fp-ts/Array"
+import { Label } from "./label"
 
 
 
@@ -73,10 +74,10 @@ export const ButtonRadio = <T extends any>( props: RadioProps<T> ) => {
 	return <UnstyledRadio
 		{...props}
 		className={classNames(
-			"py-2 px-4 w-full border-2 sm:text-sm rounded-md focus:border-indigo-500 shadow-sm text-center focus-within:border-indigo-500",
+			"cursor-pointer leading-tight font-bold flex items-center justify-center py-3 px-4 w-full border-2 rounded-md focus:border-indigo-600 text-center focus-within:border-indigo-600",
 			{
-				"border-indigo-500 text-indigo-600 font-bold": checked,
-				"border-gray-300":                             !checked,
+				"border-indigo-600 text-indigo-900 bg-indigo-50": checked,
+				"border-gray-300 shadow":                   !checked,
 			}, props.className,
 		)}
 	>
@@ -99,7 +100,7 @@ export const CheckableRadio = <T extends any>( props: RadioProps<T> ) => {
 	>
 		<div className="mr-3">
 			<div className="ListRadio-radio w-4 h-4 rounded-full border-2 border-gray-300 flex items-center justify-center">
-				{checked && <div className="w-2 h-2 rounded-full bg-indigo-500"/>}
+				{checked && <div className="w-2 h-2 rounded-full bg-indigo-600"/>}
 			</div>
 		</div>
 		{props.children}
@@ -108,7 +109,7 @@ export const CheckableRadio = <T extends any>( props: RadioProps<T> ) => {
 
 
 
-export const CheckableRadioPlaceholder = ( props: ComponentProps<typeof Placeholder>  ) =>
+export const CheckableRadioPlaceholder = ( props: ComponentProps<typeof Placeholder> ) =>
 	(
 		<div className={"flex items-center"}>
 			<Placeholder {...props} className="w-5 h-5 mr-3"/>
@@ -138,6 +139,38 @@ export const AsyncRadioGroup = <T extends any>( props: AsyncRadioProps<T> ) => {
 		</RadioGroup>
 	)
 }
+// the props {children: never} is a hack, the ide complains otherwise
+export const ButtonRadioSelect = <T extends any>( props: ElementProps<{ cols?: number, children?: never }, Omit<AsyncRadioProps<T>, "children" | "placeholder">> ) => (
+	// @todo: the radio group component basically only exists to pass the radio props (checked), remove this
+	<AsyncRadioGroup
+		{...props}
+		placeholder={props => (
+			<div className="grid grid-cols-3 gap-3">
+				<Placeholders count={3}>
+					{AR.map( index =>
+						<ButtonRadioPlaceholder key={index} {...props}/>,
+					)}
+				</Placeholders>
+			</div>)}
+	>
+		
+		{( results, radioProps ) =>
+			<div className={`grid grid-cols-${props.cols || 3} gap-3 auto-rows-fr`}>
+				{results.map( r =>
+					(
+						<ButtonRadio
+							{...radioProps}
+							key={r.value + r.label}
+							value={r.value}
+						>
+							{r.label}
+						</ButtonRadio>
+					),
+				)}
+			</div>
+		}
+	</AsyncRadioGroup>
+)
 
 export const YesNo = ( props: Omit<RadioGroupProps<boolean>, "children"> ) =>
 	<RadioGroup {...props}>

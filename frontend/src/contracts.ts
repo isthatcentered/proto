@@ -2,17 +2,6 @@ import { ComponentType } from "react"
 
 
 
-
-type AnyRecord = Record<any, any>
-
-type Step<TIn extends AnyRecord, TOut extends AnyRecord> = ComponentType<{ onConfirm: ( choices: TOut ) => void } & TIn>
-
-type StepOut<T extends Step<any, any>> = T extends Step<infer O, any> ? Parameters<O["onConfirm"]>[0] : never
-
-type PickStep<T extends Step<any, any>, K extends keyof StepOut<T>> = Pick<StepOut<T>, K>
-
-
-
 // -------------------------------------------------------------------------------------
 // Etape 1 - Identification du véhicule
 // -------------------------------------------------------------------------------------
@@ -21,7 +10,6 @@ export type InitParcoursStep = Step<{}, { codeTypeVehicule: string }>
 export type IdentificationVehiculeStep = Step<PickStep<InitParcoursStep, "codeTypeVehicule">, {
 	numeroRepertoire: string
 	anneeMiseEnCirculationVehicule: number,
-	achatVehiculePost01012021: boolean
 }>
 
 
@@ -32,7 +20,7 @@ export type UsageVehiculeStep = Step<PickStep<IdentificationVehiculeStep, "numer
 	 */
 	dateEffetContratDesiree: Date,
 	codeUsageVehicule: string
-	leasingOuCreditEnCours:boolean
+	leasingOuCreditEnCours: boolean
 }>
 
 // -------------------------------------------------------------------------------------
@@ -65,3 +53,17 @@ export type PasseAssureStep = Step<PickStep<IdentificationVehiculeStep, "numeroR
 		resiliationAssureurPrecedent: boolean,
 		sinistres: { dateSurvenance: Date, codeResponsabilite: string }[]
 	}>
+
+
+
+// -------------------------------------------------------------------------------------
+// Model
+// -------------------------------------------------------------------------------------
+type AnyRecord = Record<any, any>
+
+type Step<TIn extends AnyRecord, TOut extends AnyRecord> = ComponentType<{ onConfirm: ( choices: TOut ) => void } & TIn>
+
+export type StepOut<T extends Step<any, any>> = T extends Step<infer O, any> ? Parameters<O["onConfirm"]>[0] : never
+
+type PickStep<T extends Step<any, any>, K extends keyof StepOut<T>> = Pick<StepOut<T>, K>
+

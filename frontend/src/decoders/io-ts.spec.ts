@@ -4,8 +4,12 @@ import * as t from "io-ts"
 import * as D from "io-ts/Decoder"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
-import * as AP from "fp-ts/Apply"
 import * as AR from "fp-ts/Array"
+import * as AP from "fp-ts/Apply"
+import { HKT, URIS } from "fp-ts/lib/HKT"
+import { Applicative } from "fp-ts/lib/Applicative"
+import { Traversable1, Traversable2 } from "fp-ts/lib/Traversable"
+import { semigroupString } from "fp-ts/lib/Semigroup"
 
 
 
@@ -95,8 +99,6 @@ describe( `fp-ts`, () => {
 		expect( validateCredsValidation( "_", "_" ) ).toEqual( E.left( [ validateUserNameError, validateUserPasswordError ] ) )
 	} )
 	
-	
-	
 	test( `Traverse either`, () => {
 		// traverse is about flipping containers
 		// traverse array[T[_]] => T[Array[_]]
@@ -139,13 +141,80 @@ describe( `fp-ts`, () => {
 		expect( applySequenceSEitherRights ).toEqual( E.right( { prop: 5, otherProp: "5" } ) )
 		expect( applySequenceSEitherLefts ).toEqual( E.left( [ 4, 5 ] ) )
 	} )
+	
+	
+	
+	test( ``, () => {
+		// how the fuck does an applicative help you implement sequence ? -> The 'of' function
+		// applicative lifts a non unary function into an F context (a -> b -> c ==> F[A] -> F[B] -> F[C])
+		// sequence takes an F[G[A]] into G[F[A]]
+		// The traversable[F_]  needs to be a foldable
+		// To implement traverse he needs an applicative[G]
+		// how the fuck does Applicative help sequencing
+		
+		const sequenceEither: Traversable2<"Either">["sequence"] = <F extends URIS>( F_: Applicative<F> ) => <E, A>( ma: E.Either<E, HKT<F, A>> ): HKT<F, E.Either<E, A>> =>
+			E.isLeft( ma ) ?
+			F_.of( ma ) :
+			F_.map<A, E.Either<E, A>>( ma.right, E.right ) // ma.right is an HKT, that's why map works
+		
+		const sequenceOption: Traversable1<"Option">["sequence"] = <F extends URIS>( F_: Applicative<F> ) => <A>( ma: O.Option<HKT<F, A>> ): HKT<F, O.Option<A>> =>
+			O.isNone( ma ) ?
+			F_.of( ma ) :
+			F_.map( ma.value, O.some )
+		
+		const sequenceArray: Traversable1<"Array">["sequence"] = <F extends URIS>( F_: Applicative<F> ) => <A>( ma: Array<HKT<F, A>> ): HKT<F, Array<A>> =>
+			pipe(
+				ma,
+				AR.reduce( F_.of( [] as A[] ), ( acc, curr ) => {
+					const append = F_.map( acc, as => ( a: A ) => [ ...as, a ] )
+					return F_.ap( append, curr )
+				} ),
+			)
+		
+		
+		
+		expect( pipe( O.some( E.right( "a" ) ), sequenceOption( E.Applicative ) ) ).toEqual( E.right( O.some( "a" ) ) )
+		expect( pipe( O.some( E.right( "a" ) ), O.sequence( E.Applicative ) ) ).toEqual( E.right( O.some( "a" ) ) )
+		expect( pipe( O.some( E.left( "a" ) ), sequenceOption( E.Applicative ) ) ).toEqual( E.left( "a" ) )
+		expect( pipe( O.some( E.left( "a" ) ), O.sequence( E.Applicative ) ) ).toEqual( E.left( "a" ) )
+		//                                                                                       ^ We end up without an option because we use E.map. Map does nothing on lefts
+		//                                                                                         If we used apply we would get a left[some["a"]] which would be wierd ?
+		
+		expect( pipe( O.some( E.right( "a" ) ), O.sequence( E.getApplicativeValidation( semigroupString ) ) ) ).toEqual( E.right( O.some( "a" ) ) )
+		expect( pipe( O.some( E.left( "a" ) ), O.sequence( E.getApplicativeValidation( semigroupString ) ) ) ).toEqual( E.left( "a" ) )
+		// ^
+		// Applicative validation changes nothing on single item types (there's nothing to accumulate on the left when there can only be one left anyway)
+		
+		// How does that translate with arrays ?
+		expect( pipe( [ E.left( "a" ), E.left( "b" ) ], AR.sequence( E.Applicative ) ) ).toEqual( E.left( "a" ) )
+		expect( pipe( [ E.right( "a" ), E.left( "b" ) ], AR.sequence( E.Applicative ) ) ).toEqual( E.left( "b" ) )
+		expect( pipe( [ E.right( "a" ), E.right( "b" ) ], AR.sequence( E.Applicative ) ) ).toEqual( E.right( [ "a", "b" ] ) )
+		expect( pipe( [ E.left( "a" ), E.left( "b" ) ], AR.sequence( E.Applicative ) ) ).toEqual( E.left( "a" ) )
+		
+		//            Now we can have more than one left, so there's something to accumulate
+		//            v
+		expect( pipe( [ E.left( "a" ), E.left( "b" ) ], AR.sequence( E.getApplicativeValidation( semigroupString ) ) ) ).toEqual( E.left( "ab" ) )
+		expect( pipe( [ E.right( "a" ), E.right( "b" ) ], AR.sequence( E.getApplicativeValidation( semigroupString ) ) ) ).toEqual( E.right( [ "a", "b" ] ) )
+		expect( pipe( [ E.left( "a" ), E.left( "b" ) ], sequenceArray( E.getApplicativeValidation( semigroupString ) ) ) ).toEqual( E.left( "ab" ) )
+		expect( pipe( [ E.right( "a" ), E.right( "b" ) ], sequenceArray( E.getApplicativeValidation( semigroupString ) ) ) ).toEqual( E.right( [ "a", "b" ] ) )
+		//            ^
+		//            Since we now have multiple items, I was forced to use ap() to merge all lefts into arr
+		//            Since this applicative uses a semigroup to accumulate lefts, then it works
+		
+		// Ok, but how can I sequence two validations with that shit ?
+		
+		// can i compose a validator sequence a => validation with just applicative given there s no dependency (they all use a, no matter what happens to previous valdidation)
+		//
+		// can i implemebt "and" and "or" htat way ???
+		
+	} )
 } )
 
-type Blah = {type: "a", a: string} |{type: "b", b: string}
+type Blah = { type: "a", a: string } | { type: "b", b: string }
 
-type GetTypes<T extends {type: string}> = T["type"]
+type GetTypes<T extends { type: string }> = T["type"]
 
-type GetSpecificUnion<T  extends {type: any}, K extends T["type"]> = T["type"] extends K ? T : never
+type GetSpecificUnion<T extends { type: any }, K extends T["type"]> = T["type"] extends K ? T : never
 
 type indeed = GetTypes<Blah>
 type indeed2 = GetSpecificUnion<Blah, "a">
