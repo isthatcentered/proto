@@ -1,43 +1,88 @@
-import * as REMOTE from "../kit-2/remote"
-import { Code } from "../kit-2/helpers"
 import { UsageVehiculeStep } from "../contracts"
 import { AsyncRadioGroup, CheckableRadio, CheckableRadioPlaceholder, DateInput, useForm, YesNo } from "../kit-2/forms"
 import * as DATES from "../kit-2/dates"
-import { Placeholders } from "../kit-2/placeholder"
+import Placeholder, { Placeholders } from "../kit-2/placeholder"
 import * as AR from "fp-ts/Array"
 import React from "react"
 import * as V from "../kit-2/validation"
+import * as VEHICULES from "../queries/vehicules"
+import * as REMOTE from "../kit-2/remote"
 
 
 
+
+const VehiculeSpecs = ( props: { numeroRepertoire: string, anneeMiseEnCirculation: number, onGoBack: () => void } ) => {
+	const [ specs ] = VEHICULES.useSpecs( { params: props, active: true } )
+	// @todo: use real specs data
+	return REMOTE.isSuccess( specs ) ?
+	       (
+		       <div className="resultat-recherche-objet">
+			       {/* !--PICTOGRAMME GAUCHE -- */}
+			       <div id="divRecapVehImageMarqueModele">
+				       <div className="picto">
+					       <img src="/maiffr/documents/images/illustrations/illus-coupe/suv-illcrop.svg"/>
+				       </div>
+			       </div>
+			
+			       {/* !--CONTENU DE LA RECHERCHE -- */}
+			       <div className="content">
+				       <div className="title">
+					       <strong>RENAULT</strong><br className="visible-xs"/>
+					       CAPTUR II 1.5 BLUEDCI 95 CH BUSINESS
+				       </div>
+				
+				       <ul className="list-unstyled">
+					       {/* !--CARROSSERIE-- */}
+					       <li>Carrosserie :<strong>SUV</strong></li>
+					       {/* !--TYPE-- */}
+					       {/* !--ENERGIE-- */}
+					       <li>Energie :<strong>Diesel</strong></li>
+					       {/* !--TRANSMISSION-- */}
+					       <li>Transmission :<strong>Boîte manuelle</strong></li>
+					       {/* !--MOTORISATION-- */}
+					       <li>Motorisation :<strong>1.5 BLUEDCI 95 CH</strong></li>
+					       {/* !--CHASSIS-- */}
+					       {/* !--ANNEE DE 1ERE MISE EN CIRCULATION -- */}
+					       <li>Année de première mise en circulation :<strong>2020</strong></li>
+				       </ul>
+				
+				       {/* !--BOUTON MODIFICATION DU TYPE DE RECHERCHE -- */}
+				       <button className="link-highlight pull-right"
+				               onClick={props.onGoBack}
+				       >Modifier
+				       </button>
+			       </div>
+		       </div>
+	       ) :
+	       <Placeholder
+		       className="h-48"
+		       state="pending"
+	       />
+}
 
 const schema = V.record( {
 	codeUsageVehicule:       V.string,
-	leasingOuCredit:         V.boolean,
+	leasingOuCreditEnCours:  V.boolean,
 	dateEffetContratDesiree: V.sequence( V.date, V.min( DATES.today() ) ),
 } )
 
-const useCodesTypesUtilisationVehicule = () => {
-	const state = REMOTE.success( [
-		{ value: "01", label: "Usage privé et professionnel" },
-		{ value: "02", label: "Usage privé et professionnel occasionnel" },
-	] as Code<string>[] )
-	return [ state ] as const
-}
-
-const UsageVehicule: UsageVehiculeStep = ( _props ) => {
-	const [ values, form ] = useForm( {
+const UsageVehicule: UsageVehiculeStep = ( props ) => {
+	const [ _values, form ] = useForm( {
 		defaultValue: {
 			dateEffetContratDesiree: new Date(),
 		},
 		schema,
-		onSubmit:     console.log,
+		onSubmit:     props.onConfirm,
 	} )
-	
-	const [ codesTypesUtilisationVehicule ] = useCodesTypesUtilisationVehicule()
+	const [ codesTypesUtilisationVehicule ] = VEHICULES.useCodesTypesUtilisation( { params: props, active: true } )
 	
 	return (
 		<form {...form.props}>
+			<VehiculeSpecs
+				numeroRepertoire={props.numeroRepertoire}
+				anneeMiseEnCirculation={props.anneeMiseEnCirculationVehicule}
+				onGoBack={() => console.log( "go back" )}
+			/>
 			<DateInput
 				{...form.field( "dateEffetContratDesiree" )}
 				min={DATES.today().toISOString()}
@@ -46,7 +91,7 @@ const UsageVehicule: UsageVehiculeStep = ( _props ) => {
 			/>
 			
 			<YesNo
-				{...form.field( "leasingOuCredit" )}
+				{...form.field( "leasingOuCreditEnCours" )}
 				className="mb-4"
 				label="Ce véhicule est-il financé à crédit (leasing, crédit auto) ?"
 			/>

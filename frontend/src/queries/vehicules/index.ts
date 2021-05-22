@@ -3,12 +3,13 @@ import { JustificationAcceptationRisque } from "../../swagger/__generated__/iard
 import { crashOnError, iardDevisVehiculesClient, nomenclatureToCode, referentienModelesVehiculesClient } from "../clients"
 import { pipe } from "fp-ts/function"
 import * as T from "fp-ts/Task"
-import { Code } from "../../kit-2/helpers"
+import { Code, ResolveType } from "../../kit-2/helpers"
+import { Parameter, useFakeTask, UseQueryParams } from "../../kit-2/use-task"
 
 
 
 
-export const getVehicule = ( params: { numeroRepertoire: string } ) =>
+const getVehicule = ( params: { numeroRepertoire: string } ) =>
 	referentienModelesVehiculesClient.vehicules
 		.recupererVehiculeParNumeroRepertoire( params.numeroRepertoire )
 		.then( crashOnError )
@@ -30,7 +31,7 @@ export const getAcceptation = ( _params: {
 // 	)
 
 // @todo: type 404 not found
-export const getTypesUtilisation = ( params: {
+const getTypesUtilisation = ( params: {
 	numeroRepertoire: string
 } ): Promise<Code<string>[]> =>
 	iardDevisVehiculesClient.nomenclatures
@@ -48,3 +49,17 @@ export const getTypesPermis = ( params: { numeroRepertoire: string } ) =>
 		T.map( crashOnError ),
 		T.map( nomenclatureToCode ),
 	)()
+
+export const useSpecs = ( params: UseQueryParams<Parameter<typeof getVehicule>> ) => {
+	return useFakeTask( getVehicule, params, {} as ResolveType<typeof getVehicule> )
+}
+
+export const useCodesTypesUtilisation = ( params: UseQueryParams<Parameter<typeof getTypesUtilisation>> ) =>
+	useFakeTask(
+		getTypesUtilisation,
+		params,
+		[
+			{ value: "01", label: "Usage privé et professionnel" },
+			{ value: "02", label: "Usage privé et professionnel occasionnel" },
+		],
+	)

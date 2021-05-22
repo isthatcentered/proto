@@ -13,7 +13,7 @@ export type IdentificationVehiculeStep = Step<PickStep<InitParcoursStep, "codeTy
 }>
 
 
-export type UsageVehiculeStep = Step<PickStep<IdentificationVehiculeStep, "numeroRepertoire">, {
+export type UsageVehiculeStep = Step<PickStep<IdentificationVehiculeStep, "numeroRepertoire"| "anneeMiseEnCirculationVehicule">, {
 	/*
 	 * - Date du jour par défaut
 	 * - Doit être supérieure ou égale à la date du jour ]

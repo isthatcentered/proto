@@ -28,3 +28,5 @@ export const pick = <T extends AnyRecord, K extends keyof T>( keys: K[] ) => ( t
 		keys,
 		AR.reduce( {} as Pick<T, K>, ( acc, key ) => ({ ...acc, [ key ]: thing[ key ] }) ),
 	)
+
+export type ResolveType<T> = T extends PromiseLike<infer U> ? U | T : never;

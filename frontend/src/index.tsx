@@ -20,10 +20,11 @@ type Step =
 	| { type: "identification-conducteur", data: IdentificationConducteurData }
 	| { type: "passe-assure", data: PasseAssureData }
 
-const stepOverride: Step = undefined as any//{ type: "identification-vehicule", data: { codeTypeVehicule: "code_type_vehicule" } }
+const stepOverride: Step = { type: "usage-vehicule", data: { codeTypeVehicule: "code_type_vehicule", numeroRepertoire: "1234", anneeMiseEnCirculationVehicule: 2020 } }
 
 const initialState: Step = stepOverride || { type: "init-parcours" }
 
+// @todo: allow going back to previous step
 const App = () => {
 	const [ step, setNextStep ] = useState<Step>( initialState )
 	console.log( step )
