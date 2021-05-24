@@ -6,7 +6,7 @@ import { IdentificationVehiculeStep } from "../contracts"
 import { ButtonRadioSelect, NumberInput, Select, useForm } from "../kit-2/forms"
 import { constant, pipe } from "fp-ts/function"
 import { ClickableStyles, SectionHeaderStyles } from "../kit-2/shared"
-import React from "react"
+import React, { useEffect } from "react"
 import * as REMOTE from "../kit-2/remote"
 import * as V from "../kit-2/validation"
 import * as E from "fp-ts/Either"
@@ -132,6 +132,10 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 						              } ),
 				              ) ),
 	} )
+	
+	useEffect( () => {
+		AUTOS.getMarques( {} ).then( console.log ).catch(console.log )
+	}, [] )
 	
 	
 	const [ marquesVehicule ] = useMarquesVehicule()

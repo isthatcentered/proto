@@ -20,7 +20,8 @@ type Step =
 	| { type: "identification-conducteur", data: IdentificationConducteurData }
 	| { type: "passe-assure", data: PasseAssureData }
 
-const stepOverride: Step = { type: "usage-vehicule", data: { codeTypeVehicule: "code_type_vehicule", numeroRepertoire: "1234", anneeMiseEnCirculationVehicule: 2020 } }
+const stepOverride: Step = {type: "identification-vehicule", data: {codeTypeVehicule: "1234"}}
+	      // { type: "usage-vehicule", data: { codeTypeVehicule: "code_type_vehicule", numeroRepertoire: "1234", anneeMiseEnCirculationVehicule: 2020 } }
 
 const initialState: Step = stepOverride || { type: "init-parcours" }
 
@@ -46,6 +47,7 @@ const App = () => {
 						/>
 					case "usage-vehicule":
 						return <UsageVehicule
+							anneeMiseEnCirculationVehicule={step.data.anneeMiseEnCirculationVehicule}
 							numeroRepertoire={step.data.numeroRepertoire}
 							onConfirm={values => setNextStep( { type: "identification-conducteur", data: { ...step.data, ...values } } )}
 						/>
