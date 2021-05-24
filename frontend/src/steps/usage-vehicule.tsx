@@ -8,7 +8,10 @@ import * as V from "../kit-2/validation"
 import * as VEHICULES from "../queries/vehicules"
 import * as REMOTE from "../kit-2/remote"
 
-
+// @todo: [::MONDAY::] go through all step 1 steps
+// @todo: [::MONDAY::] verify all posts done
+// @todo: [::MONDAY::] verify data correct
+// @todo: [::MONDAY::] implement queries
 
 
 const VehiculeSpecs = ( props: { numeroRepertoire: string, anneeMiseEnCirculation: number, onGoBack: () => void } ) => {

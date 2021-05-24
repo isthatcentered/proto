@@ -207,6 +207,10 @@ describe( `fp-ts`, () => {
 		//
 		// can i implemebt "and" and "or" htat way ???
 		
+		
+		
+		 const blah  = AR.traverse(E.getApplicativeValidation(semigroupString))
+		
 	} )
 } )
 

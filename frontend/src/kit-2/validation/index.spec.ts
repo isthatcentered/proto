@@ -127,11 +127,6 @@ describe( `validation<A,B> `, () => {
 			const value = { a: "a_value", b: "b_value" }
 			
 			expect( recordValidation( value ) ).toEqual( E.right( value ) )
-			
-			
-			console.log( V.record( {
-				blah: V.par( V.fail( "nope1" ), V.fail( "nope1" ) ),
-			} )({blah:""}) )
 		} )
 	} )
 } )
