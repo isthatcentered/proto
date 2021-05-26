@@ -77,15 +77,21 @@ export const useDatesAntecedentsSinistralites = ( params: UseQueryParams<Paramet
 	)
 
 
-export const getResponsabilitesSinistre =
-	             pipe(
-		             () => iardDevisVehiculesClient.nomenclatures.recupererValeursResponsabiliteSinistre(),
-		             T.map( crashOnError ),
-		             T.map( nomenclatureToCode ),
-	             )
+const getResponsabilitesSinistre =
+	      pipe(
+		      () => iardDevisVehiculesClient.nomenclatures.recupererValeursResponsabiliteSinistre(),
+		      T.map( crashOnError ),
+		      T.map( nomenclatureToCode ),
+	      )
 
-export enum CODES_NATURES_SINISTRE
-{
-	COLLISION = "01",
-	AUTRE     = "02",
-}
+export const useResponsabilitesSinistre = () =>
+	useFakeTask(
+		getResponsabilitesSinistre,
+		{ active: true, params: {} },
+		[
+			{ value: "Pas moi", label: "pasmoi" },
+			{ value: "Moi", label: "moi" },
+		],
+	)
+
+

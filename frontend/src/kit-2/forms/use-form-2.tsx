@@ -1,11 +1,10 @@
 import * as V from "../validation"
-import { NumberInput } from "./input"
 import { FormEvent, useState } from "react"
 import { constant, identity, pipe } from "fp-ts/lib/function"
 import * as R from "fp-ts/Record"
 import * as E from "fp-ts/Either"
 import * as NEA from "fp-ts/NonEmptyArray"
-import { prop } from "../helpers"
+import { Kinda, prop } from "../helpers"
 import * as AR from "fp-ts/Array"
 
 
@@ -117,10 +116,11 @@ type RecordField<T> = {
 			                RecordField<T[K]>
 			                )
 	}
-	setValues: ( value: Partial<T> | undefined ) => void
+	set: ( value: Partial<Kinda<T>> | undefined ) => void
 	clear: () => void,
-	isEmpty: boolean
+	empty: boolean
 	value: T | undefined
+	valid: boolean
 }
 
 type ListField<T> = {
@@ -130,6 +130,8 @@ type ListField<T> = {
 	add: ( value?: T ) => void
 	remove: ( at: number ) => void
 	clear: () => void
+	empty: boolean
+	valid: boolean
 }
 
 type PrimitiveField<T> = {
@@ -139,10 +141,11 @@ type PrimitiveField<T> = {
 		name: string,
 		value: T | undefined
 	}
-	set: (value: T|undefined) => void
-	value: T|undefined
+	set: ( value: T | undefined ) => void
+	value: T | undefined
 	fold: <A, B>( map: { onInvalid: () => A, onValid: ( value: T ) => B } ) => A | B
 	errors: string[] | undefined
+	valid: boolean
 }
 
 type ConnectParams<T> = { value: T | undefined, setValue: ( value: T | undefined ) => void, parentName: string }
@@ -178,12 +181,8 @@ type StructType<T extends Structure<any>> =
 
 export const record = <T extends Record<string, Structure<any>>>( struct: T ): RecordStruct<{ [K in keyof T]: StructType<T[K]> }> => ({
 	_tag:    "RecordStruct",
-	connect: ( link ) => ({
-		_tag:      "RecordField",
-		setValues: values => link.setValue( { ...link.value, ...values } as any ),
-		clear:     () => link.setValue( undefined ),
-		isEmpty:   link.value === undefined || R.isEmpty( link.value ),
-		fields:    pipe(
+	connect: ( link ) => {
+		const fields = pipe(
 			struct,
 			R.mapWithIndex( ( key, field ) =>
 				field.connect( {
@@ -191,18 +190,24 @@ export const record = <T extends Record<string, Structure<any>>>( struct: T ): R
 					setValue:   ( value: any ) => link.setValue( { ...link.value, [ key ]: value } as any ),
 					parentName: key,
 				} ) ),
-		) as Record<keyof T, any>,
-		value:     link.value,
-	}),
+		)
+		return ({
+			_tag:   "RecordField",
+			set:    values => link.setValue( { ...link.value, ...values } as any ),
+			clear:  () => link.setValue( undefined ),
+			empty:  link.value === undefined || R.isEmpty( link.value ),
+			fields: fields as Record<keyof T, any>,
+			value:  link.value,
+			valid:  !pipe( fields, R.some( field => field.valid === false ) ),
+		})
+	},
 })
 
 export const list = <T extends any>( struct: Structure<T> ): ListStruct<T> => {
 	return {
 		_tag:    "ListStruct",
-		connect: ( link ) => ({
-			_tag:     "ListField",
-			value:    link.value,
-			elements: pipe(
+		connect: ( link ) => {
+			const elements = pipe(
 				link.value || [],
 				AR.mapWithIndex( ( index, value ) => struct.connect( {
 					value:      value as any,
@@ -213,17 +218,24 @@ export const list = <T extends any>( struct: Structure<T> ): ListStruct<T> => {
 						link.setValue( copy )
 					},
 				} ) ),
-			) as any[],
-			add:      ( value?: T ) => {
-				link.setValue( [ ...(link.value || []), value as any ] )
-			},
-			clear:    () => {
-				link.setValue( [] )
-			},
-			remove:   at => {
-				link.setValue( link.value?.filter( ( _, index ) => index !== at ) )
-			},
-		}),
+			)
+			return ({
+				_tag:     "ListField",
+				value:    link.value,
+				elements: elements as any[],
+				add:      ( value?: T ) => {
+					link.setValue( [ ...(link.value || []), value as any ] )
+				},
+				clear:    () => {
+					link.setValue( [] )
+				},
+				remove:   at => {
+					link.setValue( link.value?.filter( ( _, index ) => index !== at ) )
+				},
+				empty:    (link.value || []).length === 0,
+				valid:    !pipe( elements, AR.some( el => el.valid === false ) ),
+			})
+		},
 	}
 }
 
@@ -239,10 +251,11 @@ export const field = <T extends any>( validation: V.Validation<T> ): PrimitiveSt
 					onChange: link.setValue,
 					value:    link.value,
 				},
-				set: link.setValue,
-				value:    link.value,
+				set:    link.setValue,
+				value:  link.value,
 				fold:   ( map ) => pipe( validationResult, E.foldW( () => map.onInvalid(), map.onValid ) ),
 				errors: pipe( validationResult, E.mapLeft( NEA.map( prop( "message" ) ) ), E.foldW( identity, constant( undefined ) ) ),
+				valid:  !E.isLeft( validationResult ),
 			})
 		},
 	}
