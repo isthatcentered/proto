@@ -7,6 +7,7 @@ import * as AR from "fp-ts/Array"
 import * as STR from "fp-ts/string"
 import * as V from "../validation"
 import { constant, flow, identity, pipe } from "fp-ts/function"
+import { getPath, setPath } from "./paths"
 
 
 
@@ -23,6 +24,21 @@ const getFailedProps = <T extends any>( result: V.Validated<T> ): string[] =>
 		E.fold( identity, constant( [] ) ),
 	)
 
+const getFieldProps: {
+	<T extends AnyRecord | any[]>( values: T, form: { setData: ( value: any ) => void, isPending: boolean } ): <K extends keyof T, K2 extends keyof T[K], K3 extends keyof T[K][K2]>( keys:[key: K, key2: K2, key3: K3] ) => FieldProps<T[K][K2][K3]>
+	<T extends AnyRecord | any[]>( values: T, form: { setData: ( value: any ) => void, isPending: boolean } ): <K extends keyof T, K2 extends keyof T[K]>(keys:[ key: K, key2: K2 ]) => FieldProps<T[K][K2]>
+	<T extends AnyRecord | any[]>( values: T, form: { setData: ( value: any ) => void, isPending: boolean } ): <K extends keyof T>( keys:[key: K] ) => FieldProps<T[K]>
+} =
+	      ( values: AnyRecord | any[], form: { setData: ( value: any ) => void, isPending: boolean } ) => ( keys: any[] ) =>
+		      ({
+			      name:     keys.join( "." ),
+			      value:    getPath( keys, values ),
+			      onChange: ( value: any ) => {
+				      if ( form.isPending )
+					      return
+				      form.setData( setPath( keys, value, values ) )
+			      },
+		      })
 
 const useForm = <TFormValues extends AnyRecord>(
 	config: {
@@ -37,7 +53,7 @@ const useForm = <TFormValues extends AnyRecord>(
 	const failedProps = pipe( validation, getFailedProps )
 	const isValid = E.isRight( validation )
 	
-	console.log( failedProps, validation )
+	// console.log( failedProps, validation )
 	useEffect( () => {
 		if ( !isPending )
 			return
@@ -67,27 +83,8 @@ const useForm = <TFormValues extends AnyRecord>(
 		},
 	})
 	
+	const field2 = getFieldProps(values, {isPending, setData})
 	
-	// function field2<K extends keyof TFormValues, K2 extends keyof TFormValues[K]>( key: K, subKey: K2 ): FieldProps<TFormValues[K][K2]>
-	// function field2<K extends keyof TFormValues>( key: K ): FieldProps<TFormValues[K]>
-	// function field2( ...paths: string[] ): FieldProps<any>
-	// {
-	// 	return {
-	// 		name:     paths.join( "." ),
-	// 		value:    paths.reduce(
-	// 			( acc, key ) =>
-	// 				acc ?
-	// 				acc[ key ] :
-	// 				undefined,
-	// 			values as Record<any, any>,
-	// 		),
-	// 		onChange: ( value ) => {
-	// 			if ( isPending )
-	// 				return
-	// 			setData( { ...values, [ name ]: value } )
-	// 		},
-	// 	}
-	// }
 	
 	
 	const props = ({
@@ -105,7 +102,7 @@ const useForm = <TFormValues extends AnyRecord>(
 		       O.some( pipe( values as TFormValues, pick( keys ) ) )
 	}
 	
-	return [ values, { props, field, isValid, isPending, pickValids } ] as const
+	return [ values, { props, field, isValid, isPending, pickValids, field2 } ] as const
 }
 
 type FieldProps<T> = {

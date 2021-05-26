@@ -2,7 +2,7 @@ import * as T from "fp-ts/Task"
 import { crashOnError, iardDevisVehiculesClient, iardStringDate, nomenclatureToCode } from "../clients";
 import { pipe } from "fp-ts/function";
 import { Code } from "../../kit-2/helpers"
-import { useFakeTask } from "../../kit-2/use-task"
+import { Parameter, useFakeTask, UseQueryParams } from "../../kit-2/use-task"
 
 
 
@@ -53,7 +53,7 @@ export const useExperiencesConducteur = () => {
 	] )
 }
 
-export const getAntecedentsSinistralites = ( params: { dateEcheanceAncienAssureur: Date } ) =>
+const getAntecedentsSinistralites = ( params: { dateEcheanceAncienAssureur: Date } ) =>
 	pipe(
 		() => iardDevisVehiculesClient.acceptationRisqueVehicule.recupererDatesAntecedentsSinistralite( {
 			dateDEcheanceAncienAssureur: iardStringDate( params.dateEcheanceAncienAssureur ),
@@ -64,6 +64,17 @@ export const getAntecedentsSinistralites = ( params: { dateEcheanceAncienAssureu
 			dateDebutCollecteSinistre: new Date( data.dateDebutCollecteSinistre ),
 		}) ),
 	)()
+
+
+export const useDatesAntecedentsSinistralites = ( params: UseQueryParams<Parameter<typeof getAntecedentsSinistralites>> ) =>
+	useFakeTask(
+		getAntecedentsSinistralites,
+		params,
+		{
+			dateAnterioriteBonus050:   new Date(),
+			dateDebutCollecteSinistre: new Date(),
+		},
+	)
 
 
 export const getResponsabilitesSinistre =

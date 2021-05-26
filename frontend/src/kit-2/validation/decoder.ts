@@ -203,14 +203,14 @@ export const Monad: Monad2<URI> = {
 // -------------------------------------------------------------------------------------
 // Primitives
 // -------------------------------------------------------------------------------------
-const _typeofMessage = ( expectedType: string ) => ( value: unknown ) => `Expected a "${expectedType}" but got "${value}" of type ${typeof value}`
+const _typeofMessage = ( expectedType: string ) => ( value: unknown ) => `Expected a ${expectedType} but got "${value}"`
 export const string: Decoder<unknown, string> = satisfy(
 	( value ): value is string => typeof value === "string",
 	_typeofMessage( "string" ),
 )
 
 export const number: Decoder<unknown, number> = satisfy(
-	( value ): value is number => typeof value === "number",
+	( value ): value is number => typeof value === "number" && !isNaN( value ),
 	_typeofMessage( "number" ),
 )
 

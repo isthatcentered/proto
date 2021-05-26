@@ -30,3 +30,8 @@ export const pick = <T extends AnyRecord, K extends keyof T>( keys: K[] ) => ( t
 	)
 
 export type ResolveType<T> = T extends PromiseLike<infer U> ? U | T : never;
+
+export  type Constructable = {
+	new(): any;
+	new( ...args: any[] ): any;
+}

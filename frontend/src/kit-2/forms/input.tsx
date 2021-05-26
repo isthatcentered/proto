@@ -44,7 +44,7 @@ const safeNumberValue = flow( defaultTo<string | number>( "" ), v => v.toString(
 export const NumberInput = ( props: PreconfiguredInputProps<number> ) =>
 	<Input
 		{...props}
-		decodeValue={parseInt}
+		decodeValue={parseFloat}
 		encodeValue={safeNumberValue}
 		type="number"
 	/>
@@ -54,10 +54,10 @@ const stringifyDate = ( date?: Date ) =>
 	date ?
 	date.toISOString().slice( 0, 10 ) :
 	"" // 2021-05-13 -> Date
-export const DateInput = ( props: PreconfiguredInputProps<Date> ) =>
+export const DateInput = ( props: PreconfiguredInputProps<Date> & { type?: "date" | "month" } ) =>
 	<Input
 		{...props}
 		decodeValue={parseDate}
 		encodeValue={stringifyDate}
-		type="date"
+		type={props.type || "date"}
 	/>
