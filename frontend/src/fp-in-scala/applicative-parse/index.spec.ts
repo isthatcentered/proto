@@ -203,5 +203,5 @@ test( `With dependant args`, () => {
 		      ),
 	})
 	
-	console.log( and( string, notEmpty, "nonEmptyString" ).run( 4 ) )
+	// console.log( and( string, notEmpty, "nonEmptyString" ).run( 4 ) )
 } )

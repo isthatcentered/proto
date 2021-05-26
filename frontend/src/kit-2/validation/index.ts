@@ -1,11 +1,9 @@
-import * as NEA from "fp-ts/NonEmptyArray"
 import * as E from "fp-ts/Either"
-import { constant, flow, pipe, Predicate, Refinement } from "fp-ts/function"
+import { constant, pipe, Predicate } from "fp-ts/function"
 import * as AR from "fp-ts/Array"
-import * as AP from "fp-ts/Apply"
-import * as REC from "fp-ts/Record"
-import { Clazz } from "../helpers"
 import * as DATES from "../dates"
+import * as EQ from "fp-ts/Eq"
+import * as D from "./decoder"
 
 
 
@@ -17,191 +15,44 @@ const TODO = ( reason?: string ): any => {
 const assertType = <TExpected>( value: TExpected ) => value
 
 
-
 // -------------------------------------------------------------------------------------
 // Models
 // -------------------------------------------------------------------------------------
-type Failure<T = never> = { path: string, message: string, value: any, data: T }
-export type Validated<T> = E.Either<NEA.NonEmptyArray<Failure>, T>
-export type Validation<B, A = B> = ( value: A ) => Validated<B>
-export type AnyValidation = Validation<any>
+export type Validated<A> = D.Validated<A>
 
-type Refined<T extends Validation<any>> = T extends Validation<infer R> ? R : never
-type Base<T extends Validation<any, any>> = T extends Validation<any, infer R> ? R : never
+export type Validation<A> = D.Decoder<A, A>
 
-// -------------------------------------------------------------------------------------
-// Private
-// -------------------------------------------------------------------------------------
-const failure = <T = never>( failure: Partial<Failure<T>> ): Failure<T> => ({
-	path:    "",
-	message: "",
-	value:   undefined,
-	data:    undefined as any as T,
-	...failure,
-})
-
-const mapFailure = <A, B>( f: ( failure: Failure<A> ) => Failure<B> ) => ( failure: Failure<A> ): Failure<B> =>
-	f( failure )
-
-const addParentPath = ( parentPath: string ) => <T>( failure: Failure<T> ) =>
-	pipe(
-		failure,
-		mapFailure( failure => ({
-			...failure,
-			path: failure.path ?
-			      [ parentPath, failure.path ].join( "." ) :
-			      parentPath,
-		}) ),
-	)
 
 // -------------------------------------------------------------------------------------
 // Constructors
 // -------------------------------------------------------------------------------------
-export const defaultTo = <A>( a: A ): Validation<A, A> => () => E.right( a )
+export const defaultTo = <A>( a: A ): Validation<A> => sequence( nil as Validation<any>, () => E.right( a ) )
 
-export const identity = <A>( a: A ) => E.right( a ) as Validated<A>
+export const identity =
+	             D.identity
 
-export const fail = ( message: string ): Validation<any> => () =>
-	E.left(
-		NEA.of(
-			failure( {
-				message,
-			} ),
-		),
+export const fail: ( message: string ) => Validation<any> =
+	             D.fail
+
+const satisfy: <A>( predicate: Predicate<A>, message: ( a: A ) => string ) => Validation<A> =
+	      D.satisfy
+
+export const contramap: <A, B, C extends B>( map: ( a: A ) => B, validation: Validation<C> ) => Validation<A> =
+	             D.contramap
+
+export const eq = <A>( expected: A, Eq: EQ.Eq<A> ): Validation<A> =>
+	satisfy(
+		actual => Eq.equals( expected, actual ),
+		value => `Expected "${expected}" but got ${value}`,
 	)
 
-
-function fromRefinement<A, B extends A>( refinement: Refinement<A, B>, message: ( value: A ) => string ): Validation<B, A>
-function fromRefinement<A>( predicate: Predicate<A>, message: ( value: A ) => string ): Validation<A>
-function fromRefinement( refinement: ( value: any ) => boolean, message: ( value: any ) => string ): Validation<any>
-{
-	return E.fromPredicate( refinement, value => NEA.of( failure( { message: message( value ) } ) ) )
-}
-
-
-const typeOf = <T>( kind: "string" | "boolean" | "number" | "undefined" | "object" ) =>
-	fromRefinement<T>(
-		value => typeof value === kind,
-		value => `Expected value of type "${kind}", got "${value}" of type ${typeof value}`,
-	)
-
-const instanceOf = <T>( clazz: Clazz<T> ) =>
-	fromRefinement<T>(
-		value => value instanceof clazz,
-		value => `Expected value "${value}" to be an instance of "${clazz.name}" but was an instance of "${(value as any as object)?.constructor?.name}"`,
-	)
-
-export const contramap = <A, B>( map: ( a: A ) => B ) => ( validation: Validation<B>, message: ( value: A ) => string ): Validation<A> =>
-	a =>
-		pipe(
-			validation( map( a ) ),
-			E.map( constant( a ) ),
-			E.mapLeft( NEA.map( mapFailure( f => ({ ...f, message: message( a ) }) ) ) ),
-		)
-
-
-// -------------------------------------------------------------------------------------
-// Combinators
-// -------------------------------------------------------------------------------------
-export const when = <A, B>( fab: ( a: A ) => Validation<B, A> ) => <C>( fa: Validation<A, C> ): Validation<B, C> =>
-	flow(
-		fa,
-		E.chain( a => fab( a )( a ) ),
-	)
-
-
-export const par = <A>( ...validations: Validation<A, A>[] ): Validation<A, A> => a =>
-	pipe(
-		validations,
-		AR.map( v => v( a ) ),
-		AR.sequence( E.getApplicativeValidation( NEA.getSemigroup<Failure>() ) ),
-		E.map( constant( a ) ), // sequence returns an array of As, we just need one
-	)
-
-
-export function sequence<A, B, C, D, E, F, G>( ab: Validation<B, A>, bc: Validation<C, B>, cd: Validation<D, C>, de: Validation<E, D>, ef: Validation<F, E>, fg: Validation<G, F> ): Validation<G, A>
-export function sequence<A, B, C, D, E, F>( ab: Validation<B, A>, bc: Validation<C, B>, cd: Validation<D, C>, de: Validation<E, D>, ef: Validation<F, E> ): Validation<F, A>
-export function sequence<A, B, C, D, E>( ab: Validation<B, A>, bc: Validation<C, B>, cd: Validation<D, C>, de: Validation<E, D> ): Validation<E, A>
-export function sequence<A, B, C, D, >( ab: Validation<B, A>, bc: Validation<C, B>, cd: Validation<D, C> ): Validation<D, A>
-export function sequence<A, B, C>( ab: Validation<B, A>, bc: Validation<C, B> ): Validation<C, A>
-export function sequence<A, B, C>( ab: Validation<B, A> ): Validation<B, A>
-export function sequence( ...validations: Validation<any, any>[] ): Validation<any, any>
-{
-	return value =>
-		validations.reduce(
-			( acc, curr ) =>
-				pipe(
-					acc,
-					E.chain( curr ),
-				),
-			identity( value ),
-		)
-}
-
-
-export const either = <A, B>( left: Validation<B, A>, right: Validation<B, A> ): Validation<B, A> =>
-	a =>
-		pipe(
-			left( a ),
-			E.orElse( leftFailures =>
-				pipe(
-					right( a ),
-					E.mapLeft( rightFailures => NEA.concat( leftFailures, rightFailures ) ),
-				),
-			),
-		)
-
-export const record = <B extends Record<keyof A, any>, A extends Record<string, any>>( map: {
-	[K in keyof A]: Validation<B[K], A[K]>
-} ): Validation<B, A> =>
-	value =>
-		(pipe(
-			map as Record<string, AnyValidation>,
-			REC.mapWithIndex(
-				( key, v ) =>
-					pipe(
-						v( value[ key ] ),
-						E.mapLeft( NEA.map( addParentPath( key ) ) ),
-					),
-			),
-			AP.sequenceS( E.getApplicativeValidation( NEA.getSemigroup<Failure>() ) ),
-		) as Validated<B>)
-
-assertType<Validation<{ key: number }, { key: string }>>( record( { key: identity as Validation<number, string> } ) )
-assertType<Validation<{ key: string }, { key: string }>>( record( { key: identity as Validation<string, string> } ) )
-
-
-// -------------------------------------------------------------------------------------
-// Primitives
-// -------------------------------------------------------------------------------------
-export const required = <T>(): Validation<T> =>
-	fromRefinement( value => value !== undefined && value !== null, () => "Required" )
-
-export const string = sequence( required<string>(), typeOf( "string" ) )
-
-export const number = sequence( required<number>(), typeOf( "number" ) )
-
-export const boolean = sequence( required<boolean>(), typeOf( "boolean" ) )
-
-export const date = sequence( required<Date>(), instanceOf( Date ) )
-
-export const nonEmpty = fromRefinement(
-	<T>( value: string | T[] ) =>
-		Array.isArray( value ) ?
-		value.length > 0 :
-		value.trim() !== "",
-	() => "Cannot be empty",
-)
-
-export const nonEmptyString = sequence( string, nonEmpty )
-
-const gteNumber = ( n: number ) => fromRefinement(
+const gteNumber = ( n: number ) => satisfy(
 	( value: number ) => value >= n,
 	value => `Must be more than or equal to "${n}", got "${value}"`,
 )
 
 export const gteDate = ( min: Date ): Validation<Date> =>
-	fromRefinement(
+	satisfy(
 		date => DATES.isSame( min )( date ) || DATES.isAfter( min )( date ),
 		() => `Cannot be before ${min}`,
 	)
@@ -219,15 +70,83 @@ export function gte( min: any ): Validation<any>
 
 export const min = gte
 
-export const lte = ( n: number ) => fromRefinement(
+export const lteNumber = ( n: number ) => satisfy(
 	( value: number ) => value <= n,
 	value => `Must be less than or equal to "${n}", got "${value}"`,
 )
+
+export const lteDate = ( max: Date ): Validation<Date> =>
+	satisfy(
+		date => DATES.isSame( max )( date ) || DATES.isBefore( max )( date ),
+		() => `Cannot be after ${max}`,
+	)
+
+
+export function lte( max: Date ): Validation<Date>
+export function lte( max: number ): Validation<number>
+export function lte( max: any ): Validation<any>
+{
+	return typeof max === "number" ?
+	       lteNumber( max ) :
+	       lteDate( max )
+}
+
 
 export const max = lte
 
 export const between = ( min: number, max: number ) =>
 	sequence( gte( min ), lte( max ) )
+
+
+
+// -------------------------------------------------------------------------------------
+// Combinators
+// -------------------------------------------------------------------------------------
+export const given = <A>( predicate: Predicate<A>, validation: Validation<A> ): Validation<A> =>
+	value =>
+		predicate( value ) ?
+		validation( value ) :
+		identity( value )
+
+export const par = <A>( ...validations: Validation<A>[] ): Validation<A> =>
+	a =>
+		pipe(
+			AR.sequence( D.Applicative )( validations )( a ),
+			E.map( constant( a ) ), // sequence returns an array of As, we just need one
+		)
+
+export const sequence: <A>( ...validations: Validation<A>[] ) => Validation<A> = D.andThen
+
+export const either: <A, B>( left: Validation<A>, right: Validation<B> ) => Validation<A | B> = D.either
+
+export const record: <T extends Record<string, any>>( map: {
+	[K in keyof T]: Validation<T[K]>
+} ) => Validation<T> = D.record
+
+assertType<Validation<{ hello: string }>>( record( { hello: null as any as Validation<string> } ) )
+
+export const array: <A>( validation: Validation<A> ) => Validation<A[]> = D.array
+
+
+// -------------------------------------------------------------------------------------
+// Primitives
+// -------------------------------------------------------------------------------------
+export const required = D.required
+
+export const nil: Validation<undefined> = D.nil
+
+export const string: Validation<string> = D.string
+
+export const number: Validation<number> = D.number
+
+export const boolean: Validation<boolean> = D.boolean
+
+export const date: Validation<Date> = D.date
+
+export const nonEmpty: Validation<string> = D.nonEmpty
+
+export const nonEmptyString: Validation<string> = sequence( string, nonEmpty )
+
 
 // export const year
 /**

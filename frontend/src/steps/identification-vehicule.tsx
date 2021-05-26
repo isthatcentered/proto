@@ -5,7 +5,7 @@ import { Code } from "../kit-2/helpers"
 import { IdentificationVehiculeStep } from "../contracts"
 import { ButtonRadioSelect, NumberInput, Select, useForm } from "../kit-2/forms"
 import { constant, pipe } from "fp-ts/function"
-import { ClickableStyles, SectionHeaderStyles } from "../kit-2/shared"
+import { FormSubmitButton, FormTitle } from "../kit-2/shared"
 import React, { useEffect } from "react"
 import * as REMOTE from "../kit-2/remote"
 import * as V from "../kit-2/validation"
@@ -122,7 +122,7 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 		defaultValue: {},
 		schema,
 		onSubmit:     values =>
-			              VEHICULES.getAcceptation( values.codeFinition )
+			              VEHICULES.getAcceptation( { numeroRepertoire: values.codeFinition } )
 				              .then( E.foldW( () => {
 						              // @todo: display vehicule refused error
 					              }, () =>
@@ -134,7 +134,7 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 	} )
 	
 	useEffect( () => {
-		AUTOS.getMarques( {} ).then( console.log ).catch(console.log )
+		AUTOS.getMarques( {} ).then( console.log ).catch( console.log )
 	}, [] )
 	
 	
@@ -184,7 +184,7 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 	
 	return (
 		<form {...form.props}>
-			<h2 className="mb-8"><SectionHeaderStyles>Votre véhicule</SectionHeaderStyles></h2>
+			<FormTitle>Votre véhicule</FormTitle>
 			<Select
 				className="mb-8"
 				label="Marque de votre véhicule :"
@@ -253,12 +253,9 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 			/>
 			
 			{form.isValid && (
-				<button
-					type="submit"
-					disabled={form.isPending}
-				>
-					<ClickableStyles>Valider</ClickableStyles>
-				</button>)}
+				<FormSubmitButton disabled={form.isPending}>
+					Valider
+				</FormSubmitButton>)}
 		</form>)
 }
 

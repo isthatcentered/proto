@@ -7,52 +7,58 @@ import React from "react"
 import * as V from "../kit-2/validation"
 import * as VEHICULES from "../queries/vehicules"
 import * as REMOTE from "../kit-2/remote"
-
-// @todo: [::MONDAY::] go through all step 1 steps
-// @todo: [::MONDAY::] verify all posts done
-// @todo: [::MONDAY::] verify data correct
-// @todo: [::MONDAY::] implement queries
+import { FormSubmitButton, FormTitle } from "../kit-2/shared"
 
 
-const VehiculeSpecs = ( props: { numeroRepertoire: string, anneeMiseEnCirculation: number, onGoBack: () => void } ) => {
+
+
+const VehiculeSpecs = ( props: { numeroRepertoire: string, anneeMiseEnCirculation: number, onModify: () => void } ) => {
 	const [ specs ] = VEHICULES.useSpecs( { params: props, active: true } )
-	// @todo: use real specs data
 	return REMOTE.isSuccess( specs ) ?
 	       (
-		       <div className="resultat-recherche-objet">
-			       {/* !--PICTOGRAMME GAUCHE -- */}
-			       <div id="divRecapVehImageMarqueModele">
-				       <div className="picto">
-					       <img src="/maiffr/documents/images/illustrations/illus-coupe/suv-illcrop.svg"/>
-				       </div>
+		       <div className="card rounded-md shadow border-2 border-gray-300 p-4">
+			       <div className="mb-4">✅</div>
+			       
+			       <div className="uppercase mb-2 text-indigo-700 text-lg font-bold">
+				       <span className="">{specs.value.libelleMarque}</span>&nbsp;
+				       {specs.value.denominationCommercialeCourte}
 			       </div>
 			
-			       {/* !--CONTENU DE LA RECHERCHE -- */}
-			       <div className="content">
-				       <div className="title">
-					       <strong>RENAULT</strong><br className="visible-xs"/>
-					       CAPTUR II 1.5 BLUEDCI 95 CH BUSINESS
-				       </div>
+			       <ul className="mb-2">
+				       <li className="mb-1">
+					       <span className="text-gray-600 font-medium">Carrosserie :&nbsp;</span>
+					       <span className="font-bold">{specs.value.libelleCarrosserie}</span>
+				       </li>
 				
-				       <ul className="list-unstyled">
-					       {/* !--CARROSSERIE-- */}
-					       <li>Carrosserie :<strong>SUV</strong></li>
-					       {/* !--TYPE-- */}
-					       {/* !--ENERGIE-- */}
-					       <li>Energie :<strong>Diesel</strong></li>
-					       {/* !--TRANSMISSION-- */}
-					       <li>Transmission :<strong>Boîte manuelle</strong></li>
-					       {/* !--MOTORISATION-- */}
-					       <li>Motorisation :<strong>1.5 BLUEDCI 95 CH</strong></li>
-					       {/* !--CHASSIS-- */}
-					       {/* !--ANNEE DE 1ERE MISE EN CIRCULATION -- */}
-					       <li>Année de première mise en circulation :<strong>2020</strong></li>
-				       </ul>
+				       <li className="mb-1">
+					       <span className="text-gray-600 font-medium">Energie :&nbsp;</span>
+					       <span className="font-bold">{specs.value.libelleEnergie}</span>
+				       </li>
 				
-				       {/* !--BOUTON MODIFICATION DU TYPE DE RECHERCHE -- */}
-				       <button className="link-highlight pull-right"
-				               onClick={props.onGoBack}
-				       >Modifier
+				       <li className="mb-1">
+					       <span className="text-gray-600 font-medium">Transmission :&nbsp;</span>
+					       <span className="font-bold">{specs.value.libelleTransmission}</span>
+				       </li>
+				
+				       <li className="mb-1">
+					       <span className="text-gray-600 font-medium">Motorisation :&nbsp;</span>
+					       <span className="font-bold">{specs.value.libelleMotorisation}</span>
+				       </li>
+				
+				       <li className="mb-1">
+							<span className="text-gray-600 font-medium">
+								Année de première mise en circulation :&nbsp;
+							</span>
+					       <span className="font-bold">{props.anneeMiseEnCirculation}</span>
+				       </li>
+			       </ul>
+			       <div className="flex">
+				       <button
+					       type="button"
+					       onClick={props.onModify}
+					       className="ml-auto font-bold text-sm text-gray-600"
+				       >
+					       Modifier
 				       </button>
 			       </div>
 		       </div>
@@ -64,7 +70,7 @@ const VehiculeSpecs = ( props: { numeroRepertoire: string, anneeMiseEnCirculatio
 }
 
 const schema = V.record( {
-	codeUsageVehicule:       V.string,
+	codeUsageVehicule:       V.nonEmptyString,
 	leasingOuCreditEnCours:  V.boolean,
 	dateEffetContratDesiree: V.sequence( V.date, V.min( DATES.today() ) ),
 } )
@@ -81,11 +87,13 @@ const UsageVehicule: UsageVehiculeStep = ( props ) => {
 	
 	return (
 		<form {...form.props}>
+			<FormTitle>Usage</FormTitle>
 			<VehiculeSpecs
 				numeroRepertoire={props.numeroRepertoire}
 				anneeMiseEnCirculation={props.anneeMiseEnCirculationVehicule}
-				onGoBack={() => console.log( "go back" )}
+				onModify={() => console.log( "go back" )}
 			/>
+			<div className="pt-8" />
 			<DateInput
 				{...form.field( "dateEffetContratDesiree" )}
 				min={DATES.today().toISOString()}
@@ -129,7 +137,10 @@ const UsageVehicule: UsageVehiculeStep = ( props ) => {
 					)
 				}
 			</AsyncRadioGroup>
-			<button type="submit">Etape suivante</button>
+			{form.isValid && (
+				<FormSubmitButton disabled={form.isPending}>
+					Étape suivante
+				</FormSubmitButton>)}
 		</form>)
 }
 

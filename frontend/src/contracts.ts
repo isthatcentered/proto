@@ -34,6 +34,7 @@ export type IdentificationConducteurStep = Step<PickStep<IdentificationVehiculeS
 	codeTypeConducteur: string,
 	codeTypePermis: string,
 	codeExperienceConducteur: string,
+	codeCivilite: string,
 }>
 
 

@@ -24,11 +24,11 @@ const getFailedProps = <T extends any>( result: V.Validated<T> ): string[] =>
 	)
 
 
-const useForm = <TFormValues extends AnyRecord, TValidatedValues extends Record<keyof TFormValues, any>>(
+const useForm = <TFormValues extends AnyRecord>(
 	config: {
 		defaultValue: Partial<TFormValues>,
-		schema: V.Validation<TValidatedValues, TFormValues>,
-		onSubmit: ( values: TValidatedValues ) => Promise<void> | void
+		schema: V.Validation<TFormValues>,
+		onSubmit: ( values: TFormValues ) => Promise<void> | void
 	},
 ) => {
 	const [ values, setData ] = useState( config.defaultValue as Kinda<TFormValues> )
@@ -67,6 +67,29 @@ const useForm = <TFormValues extends AnyRecord, TValidatedValues extends Record<
 		},
 	})
 	
+	
+	// function field2<K extends keyof TFormValues, K2 extends keyof TFormValues[K]>( key: K, subKey: K2 ): FieldProps<TFormValues[K][K2]>
+	// function field2<K extends keyof TFormValues>( key: K ): FieldProps<TFormValues[K]>
+	// function field2( ...paths: string[] ): FieldProps<any>
+	// {
+	// 	return {
+	// 		name:     paths.join( "." ),
+	// 		value:    paths.reduce(
+	// 			( acc, key ) =>
+	// 				acc ?
+	// 				acc[ key ] :
+	// 				undefined,
+	// 			values as Record<any, any>,
+	// 		),
+	// 		onChange: ( value ) => {
+	// 			if ( isPending )
+	// 				return
+	// 			setData( { ...values, [ name ]: value } )
+	// 		},
+	// 	}
+	// }
+	
+	
 	const props = ({
 		onSubmit: ( e: FormEvent<HTMLFormElement> ) => {
 			e.preventDefault()
@@ -79,10 +102,16 @@ const useForm = <TFormValues extends AnyRecord, TValidatedValues extends Record<
 		const requiresInvalidProp = keys.some( key => failedProps.includes( key as string ) )
 		return requiresInvalidProp ?
 		       O.none :
-		       O.some( pipe( values as TValidatedValues, pick( keys ) ) )
+		       O.some( pipe( values as TFormValues, pick( keys ) ) )
 	}
 	
 	return [ values, { props, field, isValid, isPending, pickValids } ] as const
+}
+
+type FieldProps<T> = {
+	name: T,
+	value: T | undefined,
+	onChange: ( value: T | undefined ) => void
 }
 
 export default useForm

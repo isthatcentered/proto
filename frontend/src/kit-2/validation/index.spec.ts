@@ -129,4 +129,22 @@ describe( `validation<A,B> `, () => {
 			expect( recordValidation( value ) ).toEqual( E.right( value ) )
 		} )
 	} )
+	
+	describe( `array(validation)`, () => {
+		test( `Accumulates failures with the correct path`, () => {
+			const arrayValidation = V.array( V.fail( "validation_failure" ) )
+			
+			const result = arrayValidation( [ "item_1", "item_2" ] )
+			
+			expect( result ).toEqual( E.left( [ expect.anything(), expect.anything() ] ) )
+			expect( pipe( result, E.mapLeft( NEA.map( prop( "path" ) ) ) ) ).toEqual( E.left( [ "0", "1" ] ) )
+		} )
+		
+		test( `All validations passing returns right(value)`, () => {
+			const arrayValidation = V.array(  V.identity )
+			const value = [ "item_1", "item_2" ]
+			
+			expect( arrayValidation( value ) ).toEqual( E.right( value ) )
+		} )
+	} )
 } )

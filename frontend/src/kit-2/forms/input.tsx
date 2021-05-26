@@ -23,7 +23,7 @@ export const Input = <T extends any>( { encodeValue, decodeValue, label, classNa
 	>
 		<input
 			{...inputProps}
-			className={"py-2 px-3 w-full sm:text-sm rounded-md border-2 focus:border-indigo-500 block shadow-sm border-gray-300 outline-none focus:text-indigo-800"}
+			className={"py-2 px-3 w-full sm:text-sm rounded-md border-2 focus:border-indigo-500 block shadow-sm border-gray-300 outline-none focus:text-indigo-800 cursor-text"}
 			value={encodeValue( inputProps.value )}
 			onChange={e => pipe( e.target.value, decodeValue, inputProps.onChange )}
 		/>

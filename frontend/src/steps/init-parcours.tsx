@@ -2,7 +2,7 @@ import * as REMOTE from "../kit-2/remote"
 import { Code } from "../kit-2/helpers"
 import { InitParcoursStep } from "../contracts"
 import { ButtonRadioSelect, useForm } from "../kit-2/forms"
-import { ClickableStyles, SectionHeaderStyles } from "../kit-2/shared"
+import { ClickableStyles, FormSubmitButton, FormTitle, SectionHeaderStyles } from "../kit-2/shared"
 import React from "react"
 import * as V from "../kit-2/validation"
 
@@ -18,10 +18,10 @@ const useCodesTypeVehicule = () => {
 	return [ state ] as const
 }
 
-const schema = V.record( {
-	codeTypeVehicule:  V.string,
-	alreadyHasAccount: V.boolean,
-} )
+const schema =  V.record( {
+		codeTypeVehicule:  V.nonEmptyString,
+		alreadyHasAccount: V.boolean,
+	} )
 
 const InitParcours: InitParcoursStep = ( props ) => {
 	const [ values, form ] = useForm( {
@@ -38,7 +38,7 @@ const InitParcours: InitParcoursStep = ( props ) => {
 	
 	return (
 		<form {...form.props}>
-			<h2 className="mb-8"><SectionHeaderStyles>Assurer un véhicule</SectionHeaderStyles></h2>
+			<FormTitle>Assurer un véhicule</FormTitle>
 			<ButtonRadioSelect
 				{...form.field( "codeTypeVehicule" )}
 				data={codesTypeVehicules}
@@ -86,9 +86,9 @@ const InitParcours: InitParcoursStep = ( props ) => {
 			)}
 			
 			{showSubmitButton && (
-				<button type="submit">
-					<ClickableStyles>Démarrer mon devis</ClickableStyles>
-				</button>)}
+				<FormSubmitButton disabled={form.isPending}>
+					Démarrer mon devis
+				</FormSubmitButton>)}
 		</form>)
 }
 
