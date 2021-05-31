@@ -18,10 +18,10 @@ const useCodesTypeVehicule = () => {
 	return [ state ] as const
 }
 
-const schema =  V.record( {
-		codeTypeVehicule:  V.nonEmptyString,
-		alreadyHasAccount: V.boolean,
-	} )
+const schema = V.record( {
+	codeTypeVehicule:  V.nonEmptyString,
+	alreadyHasAccount: V.boolean,
+} )
 
 const InitParcours: InitParcoursStep = ( props ) => {
 	const [ values, form ] = useForm( {
@@ -40,7 +40,7 @@ const InitParcours: InitParcoursStep = ( props ) => {
 		<form {...form.props}>
 			<FormTitle>Assurer un véhicule</FormTitle>
 			<ButtonRadioSelect
-				{...form.field( "codeTypeVehicule" )}
+				{...form.connect( [ "codeTypeVehicule" ] )}
 				data={codesTypeVehicules}
 				label="Pour quelle catégorie de véhicule souhaitez-vous réaliser un devis ?"
 			/>
@@ -60,7 +60,7 @@ const InitParcours: InitParcoursStep = ( props ) => {
 			<div className="pt-8"/>
 			
 			<ButtonRadioSelect
-				{...form.field( "alreadyHasAccount" )}
+				{...form.connect( [ "alreadyHasAccount" ] )}
 				cols={2}
 				data={REMOTE.success( [ { value: true, label: "J'ai un espace personnel" }, { value: false, label: "Je n'ai pas (encore) d'espace" } ] )}
 				label="Avez-vous déjà un compte Maif.fr ?"

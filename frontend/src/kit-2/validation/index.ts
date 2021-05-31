@@ -1,5 +1,5 @@
 import * as E from "fp-ts/Either"
-import { constant, pipe, Predicate } from "fp-ts/function"
+import { constant, flow, pipe, Predicate } from "fp-ts/function"
 import * as AR from "fp-ts/Array"
 import * as DATES from "../dates"
 import * as EQ from "fp-ts/Eq"
@@ -21,6 +21,8 @@ const assertType = <TExpected>( value: TExpected ) => value
 export type Validated<A> = D.Validated<A>
 
 export type Validation<A> = D.Decoder<A, A>
+
+export type ValidatedType<T extends Validation<any>> = T extends Validation<infer R > ? R : never
 
 
 // -------------------------------------------------------------------------------------
@@ -45,6 +47,8 @@ export const eq = <A>( expected: A, Eq: EQ.Eq<A> ): Validation<A> =>
 		actual => Eq.equals( expected, actual ),
 		value => `Expected "${expected}" but got ${value}`,
 	)
+
+
 
 const gteNumber = ( n: number ) => satisfy(
 	( value: number ) => value >= n,
@@ -121,11 +125,11 @@ export const either: <A, B>( left: Validation<A>, right: Validation<B> ) => Vali
 
 export const record: <T extends Record<string, any>>( map: {
 	[K in keyof T]: Validation<T[K]>
-} ) => Validation<T> = D.record
+} ) => Validation<T> = flow( D.record, D.required )
 
 assertType<Validation<{ hello: string }>>( record( { hello: null as any as Validation<string> } ) )
 
-export const array: <A>( validation: Validation<A> ) => Validation<A[]> = D.array
+export const array: <A>( validation: Validation<A> ) => Validation<A[]> = flow( D.array, D.required )
 
 
 // -------------------------------------------------------------------------------------
@@ -135,13 +139,13 @@ export const required = D.required
 
 export const nil: Validation<undefined> = D.nil
 
-export const string: Validation<string> = D.string
+export const string: Validation<string> = pipe( D.string, required )
 
-export const number: Validation<number> = D.number
+export const number: Validation<number> = pipe( D.number, required )
 
-export const boolean: Validation<boolean> = D.boolean
+export const boolean: Validation<boolean> = pipe( D.boolean, required )
 
-export const date: Validation<Date> = D.date
+export const date: Validation<Date> = pipe( D.date, required )
 
 export const nonEmpty: Validation<string> = D.nonEmpty
 

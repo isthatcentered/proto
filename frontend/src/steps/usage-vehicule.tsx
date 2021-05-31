@@ -17,8 +17,6 @@ const VehiculeSpecs = ( props: { numeroRepertoire: string, anneeMiseEnCirculatio
 	return REMOTE.isSuccess( specs ) ?
 	       (
 		       <div className="card rounded-md shadow border-2 border-gray-300 p-4">
-			       <div className="mb-4">✅</div>
-			       
 			       <div className="uppercase mb-2 text-indigo-700 text-lg font-bold">
 				       <span className="">{specs.value.libelleMarque}</span>&nbsp;
 				       {specs.value.denominationCommercialeCourte}
@@ -95,23 +93,23 @@ const UsageVehicule: UsageVehiculeStep = ( props ) => {
 			/>
 			<div className="pt-8" />
 			<DateInput
-				{...form.field( "dateEffetContratDesiree" )}
+				{...form.connect( ["dateEffetContratDesiree"] )}
+				className="mb-8"
 				min={DATES.today().toISOString()}
-				className="mb-4"
 				label="A partir de quelle date souhaitez-vous être assuré"
 			/>
 			
 			<YesNo
-				{...form.field( "leasingOuCreditEnCours" )}
-				className="mb-4"
+				{...form.connect( ["leasingOuCreditEnCours"] )}
+				className="mb-8"
 				label="Ce véhicule est-il financé à crédit (leasing, crédit auto) ?"
 			/>
 			{/* @todo: iplement using radio select */}
 			<AsyncRadioGroup
-				{...form.field( "codeUsageVehicule" )}
-				className="mb-4"
+				{...form.connect( ["codeUsageVehicule"] )}
+				className="mb-8"
 				label="Pour quels types de déplacements ce véhicule est-il utilisé ?"
-				value={form.field( "codeUsageVehicule" ).value}
+				value={form.connect( ["codeUsageVehicule"] ).value}
 				data={codesTypesUtilisationVehicule}
 				placeholder={props => (
 					<div className="grid gap-3">

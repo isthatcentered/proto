@@ -1,10 +1,10 @@
-import * as V from "../validation"
+import * as V from "../../validation"
 import { FormEvent, useState } from "react"
 import { constant, identity, pipe } from "fp-ts/lib/function"
 import * as R from "fp-ts/Record"
 import * as E from "fp-ts/Either"
 import * as NEA from "fp-ts/NonEmptyArray"
-import { Kinda, prop } from "../helpers"
+import { Kinda, prop } from "../../helpers"
 import * as AR from "fp-ts/Array"
 
 

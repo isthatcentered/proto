@@ -97,7 +97,6 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 		},
 	} )
 	
-	
 	const [ responsabilitesSinistre ] = DRIVERS.useResponsabilitesSinistre()
 	const [ autoDateAnterioriteBonus050 ] = DRIVERS.useDatesAntecedentsSinistralites(
 		fields.dateDEcheanceAncienAssureur.fold( {
@@ -273,12 +272,28 @@ type Step =
 
 const stepOverride: Step | undefined =
 	      // undefined
-	      // { type: "init-parcours" }
 	      // {type: "identification-vehicule", data: {codeTypeVehicule: "1234"}}
 	      // { type: "usage-vehicule", data: {  } as any }
 	      // { type: "identification-conducteur", data: {  }as any }
-	      { type: "passe-assure", data: {} as any }
-
+	      {
+		      type: "passe-assure",
+		      data: {
+			            // codeTypeVehicule:          "code_type_vehicule",
+			            //    numeroRepertoire:               "1234",
+			            //    anneeMiseEnCirculationVehicule: 2020,
+			            //    leasingOuCreditEnCours:         false,
+			            //    dateEffetContratDesiree:        new Date(),
+			            //    codeUsageVehicule:              "1234",
+			            //    nom:                            "nom",
+			            //    prenom:                         "prenom",
+			            //    dateNaissance:                  new Date(),
+			            //    dateObtentionPermis:            new Date(),
+			            //    codeTypeConducteur:             "codeTypeConducteur",
+			            //    codeTypePermis:                 "codeTypePermis",
+			            //    codeExperienceConducteur:       "codeExperienceConducteur",
+			            //    codeCivilite:                   "codeCivilite",
+		            } as any,
+	      }
 const initialState: Step = stepOverride || { type: "init-parcours" }
 
 // @todo: allow going back to previous step

@@ -137,7 +137,6 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 		AUTOS.getMarques( {} ).then( console.log ).catch( console.log )
 	}, [] )
 	
-	
 	const [ marquesVehicule ] = useMarquesVehicule()
 	const [ famillesVehicule ] = useFamillesVehicule(
 		pipe(
@@ -189,11 +188,11 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 				className="mb-8"
 				label="Marque de votre véhicule :"
 				data={marquesVehicule}
-				{...form.field( "codeMarque" )}
+				{...form.connect( ["codeMarque"] )}
 			/>
 			
 			<NumberInput
-				{...form.field( "anneeMiseEnCirculation" )}
+				{...form.connect( ["anneeMiseEnCirculation"] )}
 				className="mb-8"
 				label="Date de 1ère mise en circulation"
 				max={new Date().getFullYear()}
@@ -204,12 +203,12 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 				className="mb-8"
 				label="Modèle de votre véhicule :"
 				data={famillesVehicule}
-				{...form.field( "codeFamille" )}
+				{...form.connect( ["codeFamille"] )}
 			/>
 			
 			{/* @note: Maif does essence, diesel, autre */}
 			<ButtonRadioSelect
-				{...form.field( "codeEnergie" )}
+				{...form.connect( ["codeEnergie"] )}
 				className="mb-8"
 				data={energiesVehicule}
 				label="Énergie :"
@@ -217,7 +216,7 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 			
 			{/* @note: Maif does Boite manuelle ? Oui/non */}
 			<ButtonRadioSelect
-				{...form.field( "codeTransmission" )}
+				{...form.connect( ["codeTransmission"] )}
 				className="mb-8"
 				data={transmissionsVehicule}
 				label="Transmission :"
@@ -227,19 +226,19 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 				className="mb-8"
 				label="Motorisation :"
 				data={motorisationsVehicule}
-				{...form.field( "codeMotorisation" )}
+				{...form.connect( ["codeMotorisation"] )}
 			/>
 			
 			{/* @note: Maif does Berline/autres */}
 			<ButtonRadioSelect
-				{...form.field( "codeCarosserie" )}
+				{...form.connect( ["codeCarosserie"] )}
 				className="mb-8"
 				data={carosseriesVehicule}
 				label="Type de carosserie :"
 			/>
 			
 			<ButtonRadioSelect
-				{...form.field( "codeConfigurationPortes" )}
+				{...form.connect( ["codeConfigurationPortes"] )}
 				className="mb-8"
 				data={configurationsPortesVehicule}
 				label="Nombre de portes :"
@@ -249,7 +248,7 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 				className="mb-8"
 				label="Finition :"
 				data={finitionsVehicule}
-				{...form.field( "codeFinition" )}
+				{...form.connect( ["codeFinition"] )}
 			/>
 			
 			{form.isValid && (

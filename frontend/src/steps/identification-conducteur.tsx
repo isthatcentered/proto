@@ -47,7 +47,7 @@ const IdentificationConducteur: IdentificationConducteurStep = ( props ) => {
 				className="mb-8"
 				data={typesConducteur}
 				label="Conducteur principal"
-				{...form.field( "codeTypeConducteur" )}
+				{...form.connect( ["codeTypeConducteur"] )}
 			/>
 			
 			<ButtonRadioSelect
@@ -55,31 +55,31 @@ const IdentificationConducteur: IdentificationConducteurStep = ( props ) => {
 				data={codesCivilite}
 				label="Civilité"
 				cols={2}
-				{...form.field( "codeCivilite" )}
+				{...form.connect( ["codeCivilite"] )}
 			/>
 			
 			<TextInput
 				className="mb-8"
 				label="Nom"
-				{...form.field( "nom" )}
+				{...form.connect( ["nom"] )}
 			/>
 			
 			<TextInput
 				className="mb-8"
 				label="Prénom"
-				{...form.field( "prenom" )}
+				{...form.connect( ["prenom"] )}
 			/>
 			
 			<DateInput
 				className="mb-8"
 				label="Date de naissance"
-				{...form.field( "dateNaissance" )}
+				{...form.connect( ["dateNaissance"] )}
 			/>
 			
 			<DateInput
 				className="mb-8"
 				label="Date d'obtention du permis"
-				{...form.field( "dateObtentionPermis" )}
+				{...form.connect( ["dateObtentionPermis"] )}
 			/>
 			
 			<ButtonRadioSelect
@@ -87,14 +87,14 @@ const IdentificationConducteur: IdentificationConducteurStep = ( props ) => {
 				data={typesPermis}
 				label="Permis obtenu"
 				cols={2}
-				{...form.field( "codeTypePermis" )}
+				{...form.connect( ["codeTypePermis"] )}
 			/>
 			
 			<AsyncRadioGroup
-				{...form.field( "codeExperienceConducteur" )}
+				{...form.connect( ["codeExperienceConducteur"] )}
 				className="mb-8"
 				label="Quel est son passé d'assuré ?"
-				value={form.field( "codeExperienceConducteur" ).value}
+				value={form.connect( ["codeExperienceConducteur"] ).value}
 				data={codesExperienceConducteur}
 				placeholder={props => (
 					<div className="grid gap-3">
