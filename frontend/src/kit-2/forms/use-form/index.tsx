@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react"
-import { AnyRecord, DeepKinda, Get, Kinda, MergeUnions, Paths, pick } from "../../helpers"
+import { AnyRecord, DeepKinda, Kinda, MergeUnions, pick } from "../../helpers"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import * as AR from "fp-ts/Array"
@@ -25,8 +25,9 @@ const navigator = <T extends any>( thing: T ): T => {
 	
 	const _builder = ( value: any, path: (string | number)[] ): any =>
 		new Proxy( value, {
+			
 			get: ( target, prop ) => {
-				if(prop === PATH_KEY)
+				if ( prop === PATH_KEY )
 					return path
 				
 				const propAsNumber = parseInt( prop.toString() )
@@ -40,14 +41,14 @@ const navigator = <T extends any>( thing: T ): T => {
 				
 				return pipe(
 					canBeProxied( nextValue ) ?
-					_builder( target[ prop ], [...path, segement] ) :
+					_builder( target[ prop ], [ ...path, segement ] ) :
 					nextValue,
-					_monkeyPatchPath( [...path, segement] ),
+					_monkeyPatchPath( [ ...path, segement ] ),
 				)
 			},
 		} )
 	
-	return _builder( thing ,[])
+	return _builder( thing, [] )
 }
 
 
@@ -135,7 +136,6 @@ const useForm = <TFormValues extends AnyRecord>(
 ) => {
 	type _TFlattenedValues = MergeUnions<TFormValues>
 	type _TFlattenedKindaValues = NonNullable<DeepKinda<MergeUnions<TFormValues>>>
-	type _Paths = Paths<_TFlattenedValues>
 	const [ values, _setData ] = useState( config.defaultValue as Kinda<_TFlattenedValues> )
 	const [ fieldsStatuses, _setFieldsStatuses ] = useState<Record<string, FieldStatus>>( {} )
 	const [ isPending, setIsPending ] = useState<boolean>( false )
@@ -150,8 +150,6 @@ const useForm = <TFormValues extends AnyRecord>(
 		getFieldStatus: getFieldStatus( fieldsStatuses ),
 		getFieldErrors: getFieldErrors( _errorsLog ),
 	}
-	
-	console.log( validation )
 	
 	console.log( "errors", _errorsLog )
 	
@@ -195,7 +193,7 @@ const useForm = <TFormValues extends AnyRecord>(
 			setIsPending( true )
 		},
 	})
-	//
+	
 	// const connectz: {
 	// 	<A extends Record<any, any>, K extends keyof A, K2 extends keyof A[K], K3 extends keyof A[K][K2], K4 extends keyof A[K][K2][K3]>( path: [ K, K2, K3, K4 ], a: A ): FieldProps<A[K][K2][K3][K4]>
 	// 	<A extends Record<any, any>, K extends keyof A, K2 extends keyof A[K], K3 extends keyof A[K][K2]>( path: [ K, K2, K3 ], a: A ): FieldProps<A[K][K2][K3]>
@@ -216,7 +214,7 @@ const useForm = <TFormValues extends AnyRecord>(
 	// 	})
 	// }
 	//
-	
+	//
 	
 	
 	const connect: {
@@ -232,22 +230,6 @@ const useForm = <TFormValues extends AnyRecord>(
 			status:   utils.getFieldStatus( name ),
 			errors:   _errorsLog[ name ] || [],
 			onChange: ( value: any ) => {
-				if ( isPending )
-					return
-				setData( path, value )
-			},
-		})
-	}
-	
-	
-	const _connect = <T extends _Paths>( path: T ): FieldProps<Get<_TFlattenedValues, T>> => {
-		const name = path.join( "." )
-		return ({
-			name,
-			value:    pathOr( undefined, path, values ),
-			status:   utils.getFieldStatus( name ),
-			errors:   _errorsLog[ name ] || [],
-			onChange: value => {
 				if ( isPending )
 					return
 				setData( path, value )
@@ -324,7 +306,7 @@ const useForm = <TFormValues extends AnyRecord>(
 		       O.some( pipe( values as TFormValues, pick( keys ) ) )
 	}
 	
-	return [ navigator( values ), { props, isValid, isPending, pickValids, connect, fields, collection, invariants } ] as const
+	return [  values, { props, isValid, isPending, pickValids, connect, fields, collection, invariants } ] as const
 }
 
 type Field<T> = {

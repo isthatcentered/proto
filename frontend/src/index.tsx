@@ -201,13 +201,6 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 	const showCustomDateCoefficinentQuestion = showIsAutoDateCoefficinentValidQuestion && values.isAutoDateCoefficientValid === false
 	const showSinistres = REMOTE.isSuccess( autoDateAnterioriteBonus050 ) && values.coefficientBonusMalus === .5
 	
-	console.log( "values", values )
-	
-	console.log("path",  (values.ca as any).__path )
-	console.log("path",  (values.coefficientBonusMalus as any).__path )
-	
-	
-	
 	return (
 		<form {...form2.props}>
 			<FormTitle>Le passé du conducteur</FormTitle>
