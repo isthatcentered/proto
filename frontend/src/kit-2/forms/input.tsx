@@ -3,6 +3,7 @@ import { flow, identity, pipe } from "fp-ts/function"
 import { ElementProps } from "../helpers"
 import { Label } from "./label"
 import { FieldErrors } from "./error"
+import { FieldStatus } from "./types"
 
 
 
@@ -14,13 +15,14 @@ type InputProps<T> = ElementProps<{
 	onChange: ( value: T ) => void,
 	value: T | undefined
 	errors: string[]
+	status: FieldStatus
 	decodeValue: ( value: string ) => T,            // go from input value to desired type
 	encodeValue: ( value: T | undefined ) => string // go from your type to input value
 }, InputHTMLAttributes<HTMLInputElement>>
 
 // @todo: errors accessibility
 // @todo: error state styles
-export const Input = <T extends any>( { encodeValue, decodeValue, label, className, errors, ...inputProps }: InputProps<T> ) =>
+export const Input = <T extends any>( { encodeValue, decodeValue, label, className, errors, status, ...inputProps }: InputProps<T> ) =>
 	<Label
 		label={label}
 		className={className}
@@ -32,7 +34,9 @@ export const Input = <T extends any>( { encodeValue, decodeValue, label, classNa
 			onChange={e => pipe( e.target.value, decodeValue, inputProps.onChange )}
 		/>
 		
-		<FieldErrors errors={errors}/>
+		<FieldErrors errors={errors}
+		             status={status}
+		/>
 	</Label>
 
 type PreconfiguredInputProps<T> = Omit<InputProps<T>, "decodeValue" | "encodeValue" | "type">

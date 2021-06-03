@@ -20,6 +20,9 @@ import * as E from "fp-ts/Either"
 
 // @todo: Business rules validation
 // @todo: go back and make all fields required
+// @todo: field dirty, show errors
+// @todo: ca: false | {maif, maif2007}
+// @todo: navigator.ca !== false && (div props(navigator.ca.maif2007)) <- deal with unions ??? but how ?
 
 
 
@@ -74,7 +77,6 @@ const schema = V.sequence(
 		),
 	} ),
 )
-
 
 
 const is = <A extends any>( a: A ) => ( b: A | undefined ) => a === b
@@ -145,8 +147,6 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 	} )
 	const sinistresCollection = form2.collection( form2.fields.field( "sinistres" ) )
 	
-	console.log( values )
-	
 	const [ responsabilitesSinistre ] = DRIVERS.useResponsabilitesSinistre()
 	const [ autoDateAnterioriteBonus050 ] = DRIVERS.useDatesAntecedentsSinistralites(
 		form2.fields.field( "dateDEcheanceAncienAssureur" ).validated( {
@@ -202,6 +202,11 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 	const showSinistres = REMOTE.isSuccess( autoDateAnterioriteBonus050 ) && values.coefficientBonusMalus === .5
 	
 	console.log( "values", values )
+	
+	console.log("path",  (values.ca as any).__path )
+	console.log("path",  (values.coefficientBonusMalus as any).__path )
+	
+	
 	
 	return (
 		<form {...form2.props}>

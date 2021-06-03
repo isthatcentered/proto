@@ -6,6 +6,7 @@ import Placeholder, { Placeholders } from "../placeholder"
 import * as AR from "fp-ts/Array"
 import { Label } from "./label"
 import { FieldErrors } from "./error"
+import { FieldStatus } from "./types"
 
 
 
@@ -22,6 +23,7 @@ type RadioGroupProps<T extends any> = ElementProps<{
 	label: string,
 	value: T | undefined,
 	name: string,
+	status: FieldStatus,
 	children: (
 		radioProps: Omit<RadioProps<T>, "value" | "children">,
 	) => any
@@ -35,6 +37,7 @@ export const RadioGroup = <T extends any>( props: RadioGroupProps<T> ) => {
 		      className,
 		      style,
 		      errors,
+				status,
 		      ...propz
 	      } = props
 	
@@ -54,7 +57,7 @@ export const RadioGroup = <T extends any>( props: RadioGroupProps<T> ) => {
 			/>
 			{children( radioProps )}
 			
-			<FieldErrors errors={errors} />
+			<FieldErrors errors={errors} status={status}/>
 		</fieldset>)
 }
 

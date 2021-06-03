@@ -71,6 +71,7 @@ test( `MergeUnions<T>`, () => {
 // 	] )
 // } )
 
+
 test( `Paths<T>`, () => {
 	checks( [
 		// Primitives are not decomposed
@@ -108,3 +109,4 @@ test( `Path<T, P>`, () => {
 		check<Get<{ a: { b: string }[] }, [ "a", 0, "b" ]>, string, Test.Pass>(),
 	] )
 } )
+
