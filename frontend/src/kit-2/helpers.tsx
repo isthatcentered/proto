@@ -18,9 +18,18 @@ export type Code<T> = {
 export const prop = <T extends AnyRecord, K extends keyof T>( key: K ) => ( record: T ): T[K] => record[ key ]
 
 // The Partial<T> type allows us to not specify a key, we want a type error if a key is missing.
+
 export type Kinda<T extends AnyRecord> = {
 	[K in keyof T]: T[K] | undefined
 }
+
+export type DeepKinda<T> =
+	T extends Primitives ? T | undefined :
+	T extends Array<infer I> ? (DeepKinda<I>[]) | undefined :
+	T extends Record<string, any> ? {
+		[K in keyof T]: DeepKinda<T[K]>
+	} | undefined : never
+
 
 export type Clazz<T> = new ( ...args: any[] ) => T;
 
@@ -139,3 +148,9 @@ export type Get<T, P extends (string | number)[], hasUndefined extends 1 | 0 = 0
 // export type Path<T extends object, P extends (string | number | symbol)[]> = Object.Path<DeepMerge<T>, P>
 
 
+export type DeepPartial<T> =
+	T extends Primitives ? T :
+	T extends Array<infer I> ? DeepPartial<I>[] :
+	T extends Record<string, any> ? Partial<{
+		[K in keyof T]: Partial<T[K]>
+	}> : never

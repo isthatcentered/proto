@@ -1,68 +1,36 @@
-import { FormEvent, useEffect, useRef, useState } from "react"
-import { AnyRecord, Get, Kinda, MergeUnions, Paths, pick, prop } from "../../helpers"
-import * as NEA from "fp-ts/NonEmptyArray"
+import { FormEvent, useEffect, useState } from "react"
+import { AnyRecord, DeepKinda, Get, Kinda, MergeUnions, Paths, pick } from "../../helpers"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import * as AR from "fp-ts/Array"
-import * as STR from "fp-ts/string"
+import * as REC from "fp-ts/Record"
 import * as V from "../../validation"
-import { constant, flow, identity, pipe } from "fp-ts/function"
+import { constant, identity, pipe, Predicate } from "fp-ts/function"
 import { pathOr } from "ramda"
 import setPathValue from "./set-path-value"
 
 
 
 
-type FieldProps<T> = {
-	name: string,
-	value: T | undefined,
-	onChange: ( value: T | undefined ) => void
-}
+const bagMonoid = REC.getMonoid( AR.getMonoid<string>() )
 
-type ArrayField<T> = {
-	push: ( value?: T ) => void
-	remove: ( at: number ) => void
-}
-
-export type Field<T> = {
-	props: FieldProps<T>
-	value: T
-	errors: string[] | undefined
-	isValid: boolean
-	isEmpty: boolean
-	fold: <A, B>( map: { onInvalid: () => A, onValid: ( value: T ) => B } ) => A | B
-	set: ( value: T | undefined ) => void
-	setPartial: ( value: Partial<T> ) => void
-	clear: () => void
-}
-
-
-
-const getFailedProps = <T extends any>( result: V.Validated<T> ): string[] =>
+const getErrorsLog = ( validated: V.Validated<any> ): Record<string, string[]> =>
 	pipe(
-		result,
+		validated,
 		E.mapLeft(
-			flow(
-				NEA.map( prop( "path" ) ),
-				AR.uniq( STR.Eq ),
+			AR.reduce( {} as Record<string, string[]>, ( acc, failure ) =>
+				bagMonoid.concat( acc, { [ failure.path ]: [ failure.message ] } ),
 			),
 		),
-		E.fold( identity, constant( [] ) ),
+		E.fold( identity, constant( {} ) ),
 	)
 
 
-const getFieldErrors = ( path: string ) => <T extends any>( result: V.Validated<T> ): string[] =>
-	pipe(
-		result,
-		E.mapLeft(
-			flow(
-				AR.filter( flow( prop( "path" ), ( p ) => p === path ) ),
-				AR.map( prop( "message" ) ),
-			),
-		),
-		E.fold( identity, constant( [] ) ),
-	)
-
+const getFieldErrors = ( log: Record<string, string[]> ) => ( path: (string | number)[] ): string[] => {
+	const parentName = path[ path.length - 2 ]
+	const name = path.join( "." )
+	return [ ...(log[ parentName ] || []), ...(log[ name ] || []) ]
+}
 
 
 const useForm = <TFormValues extends AnyRecord>(
@@ -72,14 +40,34 @@ const useForm = <TFormValues extends AnyRecord>(
 		onSubmit: ( values: TFormValues ) => Promise<void> | void
 	},
 ) => {
-	const _fieldsCache = useRef<Record<string, Field<any>>>( {} )
-	const [ values, setData ] = useState( config.defaultValue as Kinda<TFormValues> )
+	type _TFlattenedValues = MergeUnions<TFormValues>
+	type _TFlattenedKindaValues = NonNullable<DeepKinda<MergeUnions<TFormValues>>>
+	type _Paths = Paths<_TFlattenedValues>
+	const [ values, _setData ] = useState( config.defaultValue as Kinda<_TFlattenedValues> )
 	const [ isPending, setIsPending ] = useState<boolean>( false )
+	const _fields: Record<string, Field<any>> = {}
+	const _invariants: Array<[ Predicate<_TFlattenedKindaValues>, ( value: _TFlattenedKindaValues ) => _TFlattenedKindaValues ]> = []
 	const validation = config.schema( values as TFormValues )
-	const failedProps = pipe( validation, getFailedProps )
+	const _errorsLog = getErrorsLog( validation )
+	const _getFieldErrors = getFieldErrors( _errorsLog )
+	
 	const isValid = E.isRight( validation )
 	
-	console.log( failedProps, validation )
+	console.log( "errors", _errorsLog )
+	
+	const setData = ( path: (string | number)[], value: any ): void => {
+		pipe(
+			_invariants,
+			AR.reduce(
+				setPathValue( path, value, values ),
+				( acc, [ predicate, update ] ) =>
+					predicate( acc as _TFlattenedKindaValues ) ?
+					update( acc as _TFlattenedKindaValues ) as _TFlattenedValues :
+					acc,
+			),
+			_setData,
+		)
+	}
 	
 	useEffect( () => {
 		if ( !isPending )
@@ -100,7 +88,6 @@ const useForm = <TFormValues extends AnyRecord>(
 		}
 	}, [ isPending ] )
 	
-	
 	const props = ({
 		onSubmit: ( e: FormEvent<HTMLFormElement> ) => {
 			e.preventDefault()
@@ -109,47 +96,105 @@ const useForm = <TFormValues extends AnyRecord>(
 		},
 	})
 	
-	const connect = <T extends Paths<MergeUnions<TFormValues>>>( path: T ): Props<Get<MergeUnions<TFormValues>, T>> => {
+	const connect = <T extends _Paths>( path: T ): Props<Get<_TFlattenedValues, T>> => {
 		const name = path.join( "." )
 		return ({
 			name,
 			value:    pathOr( undefined, path, values ),
+			errors:   _errorsLog[ name ] || [],
 			onChange: value => {
 				if ( isPending )
 					return
-				setData( setPathValue( path, value, values ) as TFormValues )
+				setData( path, value )
 			},
 		})
 	}
 	
-	const set = <T extends Paths<MergeUnions<TFormValues>>>( path: T, value: Get<MergeUnions<TFormValues>, T> ): void =>
-		setData( setPathValue( path, value, values ) as TFormValues )
 	
-	const setPartial = <T extends Paths<MergeUnions<TFormValues>>>( path: T, value: Partial<Get<MergeUnions<TFormValues>, T>> ): void =>
-		set( path, value as any )
+	const collection = <T extends any>( field: Field<T[]> | Field<T[] | undefined> ) =>
+		({
+			isEmpty: !(field.props.value || []).length,
+			push:    ( item: Partial<T> ) => setData( field.path, [ ...field.props.value || [], item ] ),
+			remove:  ( at: number ) => setData( field.path, (field.props.value || []).filter( ( _, index ) => index !== at ) ),
+		})
 	
-	const clear = <T extends Paths<MergeUnions<TFormValues>>>( path: T ): void =>
-		set( path, undefined as any )
 	
-	const validated = <T extends Paths<MergeUnions<TFormValues>>, A, B>( path: T, fold: { onInvalid: () => A, onValid: ( value: Get<MergeUnions<TFormValues>, T> ) => B } ): A | B =>
-		failedProps.includes( path.join( "." ) ) ?
-		fold.onInvalid() :
-		fold.onValid( pathOr( undefined as any, path, values ) )
 	
-	// collection
+	const makeField = <T extends any>( path: (string | number)[] ): Field<T> =>
+		pipe(
+			_fields,
+			REC.lookup( path.join( "." ) ),
+			O.getOrElse( () => {
+					const name = path.join( "." )
+					const setValue = ( value: T | undefined ) => setData( path, value )
+					const value = pathOr( undefined, path, values ) as T
+					const errors = _getFieldErrors( path )
+					const isValid = !errors.length
+					const nextField = ( key: any ): Field<any> => makeField( [ ...path, key as string | number ] )
+					
+					
+					const field: Field<T> = {
+						path,
+						value,
+						set:       fnOrNextValue => {
+							const update = typeof fnOrNextValue === "function" ?
+							               (fnOrNextValue as ( currentValue: T ) => T)( value! ) :
+							               fnOrNextValue
+							setValue( update )
+						},
+						clear:     () => setValue( undefined ),
+						props:     {
+							errors,
+							value,
+							name,
+							onChange: setValue,
+						},
+						isValid,
+						field:     nextField,
+						force:     nextField,
+						validated: fold =>
+							           isValid ?
+							           fold.onValid( pathOr( undefined as any, path, values ) ) :
+							           fold.onInvalid(),
+					}
+					
+					_fields[ name ] = field
+					
+					return field
+				},
+			),
+		)
+	const fields = makeField<TFormValues>( [] )
+	
+	const invariants = ( rules: typeof _invariants ): void => {
+		_invariants.push( ...rules )
+	}
 	
 	const pickValids = <K extends keyof TFormValues>( keys: K[] ): O.Option<Pick<TFormValues, K>> => {
-		const requiresInvalidProp = keys.some( key => failedProps.includes( key as string ) )
+		const requiresInvalidProp = keys.some( key => _getFieldErrors( [ key as string ] ).length )
 		return requiresInvalidProp ?
 		       O.none :
 		       O.some( pipe( values as TFormValues, pick( keys ) ) )
 	}
 	
-	return [ values, { props, isValid, isPending, pickValids, connect, set, setPartial, clear } ] as const
+	return [ values, { props, isValid, isPending, pickValids, connect, fields, collection, invariants } ] as const
+}
+
+type Field<T> = {
+	path: (string | number)[]
+	props: Props<T>
+	value: T
+	set: ( value: T | (( currentValue: T ) => T) ) => void
+	clear: () => void
+	isValid: boolean
+	validated: <A, B>( fold: { onInvalid: () => A, onValid: ( value: T ) => B } ) => A | B
+	field: <K extends keyof T>( key: K ) => Field<T[K]>
+	force: <K extends keyof MergeUnions<T>>( key: K ) => Field<MergeUnions<T>[K]>
 }
 
 type Props<T> = {
 	name: string,
+	errors: string[]
 	value: T | undefined,
 	onChange: ( value: T | undefined ) => void
 }

@@ -3,6 +3,8 @@ import { crashOnError, iardDevisVehiculesClient, iardStringDate, nomenclatureToC
 import { pipe } from "fp-ts/function";
 import { Code } from "../../kit-2/helpers"
 import { Parameter, useFakeTask, UseQueryParams } from "../../kit-2/use-task"
+import { ConducteurAAssurer, VehiculeAAssurer } from "../../swagger/__generated__/iard-devis-vehicules"
+import * as E from "fp-ts/Either"
 
 
 
@@ -89,9 +91,60 @@ export const useResponsabilitesSinistre = () =>
 		getResponsabilitesSinistre,
 		{ active: true, params: {} },
 		[
-			{ value: "Pas moi", label: "pasmoi" },
-			{ value: "Moi", label: "moi" },
+			{ value: "01", label: "Exclue" },
+			{ value: "02", label: "Totale" },
+			{ value: "03", label: "Demie" },
 		],
 	)
+
+type   _ConducteurAAssurer = Pick<ConducteurAAssurer,
+	"nom"
+	| "prenom"
+	| "coefficientBonusMalus"
+	| "codeExperienceConducteur"
+	| "codeTypeConducteur"
+	| "sinistreAvecCirconstanceAggravante"
+	| "retraitPermis"
+	| "resiliationAssureurPrecedent"
+	> &
+	{
+		dateNaissance: Date,
+		dateObtentionPermis: Date,
+		dateDEcheanceAncienAssureur: Date,
+		sinistres: {
+			dateSurvenance: Date;
+			codeResponsabilite?: string;
+		}[]
+	}
+
+export const jouerAcceptationProspect = ( _params: { dateEffet: Date, vehicule: VehiculeAAssurer, conducteur: _ConducteurAAssurer } ): Promise<E.Either<string[], true>> =>
+	Promise.resolve( E.right( true ) )
+// @todo: queries, re-activate
+// pipe(
+// 	() => iardDevisVehiculesClient.acceptationRisqueVehicule.jouerAcceptationProspect( {
+// 		...params,
+// 		conducteur: {
+// 			...params.conducteur,
+// 			dateObtentionPermis:         iardStringDate( params.conducteur.dateObtentionPermis ),
+// 			dateNaissance:               iardStringDate( params.conducteur.dateNaissance ),
+// 			dateDEcheanceAncienAssureur: iardStringDate( params.conducteur.dateDEcheanceAncienAssureur ),
+// 		},
+// 		dateEffet:  iardStringDate( params.dateEffet ),
+// 	} ),
+// 	T.map( crashOnError ),
+// 	T.map(
+// 		result =>
+// 			result.codeAcceptation === "01"
+// 			?
+// 			E.right( <true>true ) :
+// 			E.left( result.justifications || [] ),
+// 	),
+// 	TE.mapLeft(
+// 		flow(
+// 			AR.map( prop( "libelleJustificationRisque" ) ),
+// 			AR.filter( ( value ): value is string => !!value ),
+// 		),
+// 	),
+// )()
 
 

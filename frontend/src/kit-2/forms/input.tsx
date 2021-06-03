@@ -2,6 +2,7 @@ import React, { InputHTMLAttributes } from "react"
 import { flow, identity, pipe } from "fp-ts/function"
 import { ElementProps } from "../helpers"
 import { Label } from "./label"
+import { FieldErrors } from "./error"
 
 
 
@@ -12,11 +13,14 @@ type InputProps<T> = ElementProps<{
 	label: string
 	onChange: ( value: T ) => void,
 	value: T | undefined
+	errors: string[]
 	decodeValue: ( value: string ) => T,            // go from input value to desired type
 	encodeValue: ( value: T | undefined ) => string // go from your type to input value
 }, InputHTMLAttributes<HTMLInputElement>>
 
-export const Input = <T extends any>( { encodeValue, decodeValue, label, className, ...inputProps }: InputProps<T> ) =>
+// @todo: errors accessibility
+// @todo: error state styles
+export const Input = <T extends any>( { encodeValue, decodeValue, label, className, errors, ...inputProps }: InputProps<T> ) =>
 	<Label
 		label={label}
 		className={className}
@@ -27,9 +31,11 @@ export const Input = <T extends any>( { encodeValue, decodeValue, label, classNa
 			value={encodeValue( inputProps.value )}
 			onChange={e => pipe( e.target.value, decodeValue, inputProps.onChange )}
 		/>
+		
+		<FieldErrors errors={errors}/>
 	</Label>
 
-type PreconfiguredInputProps<T> = Omit<InputProps<T>, "decodeValue" | "encodeValue">
+type PreconfiguredInputProps<T> = Omit<InputProps<T>, "decodeValue" | "encodeValue" | "type">
 
 const safeTextValue = defaultTo( "" )
 export const TextInput = ( props: PreconfiguredInputProps<string> ) =>
@@ -54,10 +60,22 @@ const stringifyDate = ( date?: Date ) =>
 	date ?
 	date.toISOString().slice( 0, 10 ) :
 	"" // 2021-05-13 -> Date
-export const DateInput = ( props: PreconfiguredInputProps<Date> & { type?: "date" | "month" } ) =>
+export const DateInput = ( props: PreconfiguredInputProps<Date> ) =>
 	<Input
 		{...props}
 		decodeValue={parseDate}
 		encodeValue={stringifyDate}
-		type={props.type || "date"}
+		type={"date"}
+	/>
+
+const stringifyDateMonth = ( date?: Date ) =>
+	date ?
+	date.toISOString().slice( 0, 7 ) :
+	"" // 2021-05 -> Date
+export const MonthInput = ( props: PreconfiguredInputProps<Date> ) =>
+	<Input
+		{...props}
+		decodeValue={parseDate}
+		encodeValue={stringifyDateMonth}
+		type={"month"}
 	/>

@@ -61,7 +61,6 @@ describe( `validation<A,B> `, () => {
 		} )
 	} )
 	
-	
 	describe( `par(...validations)`, () => {
 		test( "All validations passing returns right(value)", () => {
 			const alwaysPassingPar = V.sequence( V.identity, V.identity )

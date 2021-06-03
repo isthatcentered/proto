@@ -9,6 +9,7 @@ export * from "./input"
 export * from "./radio"
 export * from "./select"
 export * from "./label"
+export * from "./error"
 
 export { useForm }
 

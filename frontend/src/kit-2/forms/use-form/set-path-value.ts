@@ -1,4 +1,6 @@
 const setPathValue = <A, B>( path: (string | number)[], value: B, thing: A ): B => {
+	if ( !path.length )
+		return value
 	const [ head, ...tail ] = path
 	const isArray = Array.isArray( thing ) || typeof head === "number"
 	const copy = isArray ?

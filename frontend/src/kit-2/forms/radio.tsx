@@ -5,6 +5,7 @@ import * as REMOTE from "../remote"
 import Placeholder, { Placeholders } from "../placeholder"
 import * as AR from "fp-ts/Array"
 import { Label } from "./label"
+import { FieldErrors } from "./error"
 
 
 
@@ -17,9 +18,10 @@ type RadioProps<T extends any> = ElementProps<{
 }, InputHTMLAttributes<HTMLInputElement>>
 
 type RadioGroupProps<T extends any> = ElementProps<{
+	errors: string[]
 	label: string,
 	value: T | undefined,
-	name:string,
+	name: string,
 	children: (
 		radioProps: Omit<RadioProps<T>, "value" | "children">,
 	) => any
@@ -32,6 +34,7 @@ export const RadioGroup = <T extends any>( props: RadioGroupProps<T> ) => {
 		      value: groupValue,
 		      className,
 		      style,
+		      errors,
 		      ...propz
 	      } = props
 	
@@ -50,6 +53,8 @@ export const RadioGroup = <T extends any>( props: RadioGroupProps<T> ) => {
 				as="legend"
 			/>
 			{children( radioProps )}
+			
+			<FieldErrors errors={errors} />
 		</fieldset>)
 }
 
@@ -78,7 +83,7 @@ export const ButtonRadio = <T extends any>( props: RadioProps<T> ) => {
 			"cursor-pointer leading-tight font-bold flex items-center justify-center py-3 px-4 w-full border-2 rounded-md focus:border-indigo-600 text-center focus-within:border-indigo-600",
 			{
 				"border-indigo-600 text-indigo-900 bg-indigo-50": checked,
-				"border-gray-300 shadow":                   !checked,
+				"border-gray-300 shadow":                         !checked,
 			}, props.className,
 		)}
 	>

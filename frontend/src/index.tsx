@@ -6,49 +6,22 @@ import IdentificationVehicule from "./steps/identification-vehicule"
 import UsageVehicule from "./steps/usage-vehicule"
 import IdentificationConducteur from "./steps/identification-conducteur"
 import { FormSubmitButton, FormTitle } from "./kit-2/shared"
-import { ButtonRadioSelect, DateInput, NumberInput, useForm, YesNo } from "./kit-2/forms"
+import { ButtonRadioSelect, DateInput, Label, MonthInput, NumberInput, useForm, YesNo } from "./kit-2/forms"
 import * as V from "./kit-2/validation"
-import { pick } from "./kit-2/helpers"
-import * as UF2 from "./kit-2/forms/use-form/use-form-2"
 import * as DRIVERS from "./queries/drivers"
 import * as REMOTE from "./kit-2/remote"
 import { constant } from "fp-ts/lib/function"
 import * as BOOL from "fp-ts/boolean"
+import * as STR from "fp-ts/string"
+import { flow, pipe } from "fp-ts/function"
+import { prop } from "./kit-2/helpers"
+import * as AR from "fp-ts/Array"
+import * as E from "fp-ts/Either"
 
 // @todo: Business rules validation
 // @todo: go back and make all fields required
-const schema = V.sequence(
-	V.record( {
-		dateAnterioriteBonus050:            V.date,
-		coefficientBonusMalus:              V.number,
-		dateSouscriptionAncienAssureur:     V.date,
-		dateDEcheanceAncienAssureur:        V.date,
-		conduiteAccompagnee:                V.boolean,
-		conduiteAccompagneeMaif:            V.either( V.nil, V.boolean ),
-		conduiteAccompagneeMaifAvant2007:   V.either( V.nil, V.boolean ),
-		sinistreAvecCirconstanceAggravante: V.boolean,
-		retraitPermis:                      V.boolean,
-		resiliationAssureurPrecedent:       V.boolean,
-		sinistres:                          V.array( V.record( { dateSurvenance: V.date, codeResponsabilite: V.string } ) ),
-		conduiteAccompagnee2:               V.either(
-			V.record( {
-				conduiteAccompagnee: V.eq<boolean>( false, BOOL.Eq ),
-			} ),
-			V.record( {
-				conduiteAccompagnee:              V.eq<boolean>( true, BOOL.Eq ),
-				conduiteAccompagneeMaif:          V.boolean,
-				conduiteAccompagneeMaifAvant2007: V.boolean,
-			} ),
-		),
-	} ),
-	V.given(
-		values => values.conduiteAccompagnee === true,
-		V.contramap( pick( [ "conduiteAccompagneeMaifAvant2007", "conduiteAccompagneeMaif" ] ), V.record( {
-			conduiteAccompagneeMaifAvant2007: V.boolean,
-			conduiteAccompagneeMaif:          V.boolean,
-		} ) ),
-	),
-)
+
+
 
 export enum CODES_NATURES_SINISTRE
 {
@@ -56,133 +29,225 @@ export enum CODES_NATURES_SINISTRE
 	AUTRE     = "02",
 }
 
-const codesNaturesSinistre = REMOTE.success( [ { value: CODES_NATURES_SINISTRE.AUTRE, label: "Autre" }, { value: CODES_NATURES_SINISTRE.COLLISION, label: "Collision" } ] )
+const sinistreCollisionSchema = V.record( {
+	dateSurvenance:     V.date,
+	codeNature:         V.eq( CODES_NATURES_SINISTRE.COLLISION, STR.Eq ),
+	codeResponsabilite: V.string,
+} )
 
+const sinistreAutreSchema = V.record( {
+	dateSurvenance: V.date,
+	codeNature:     V.eq( CODES_NATURES_SINISTRE.AUTRE, STR.Eq ),
+} )
 
-const struct = {
-	dateAnterioriteBonus050:            UF2.field( V.date ),
-	coefficientBonusMalus:              UF2.field( V.number ),
-	dateSouscriptionAncienAssureur:     UF2.field( V.date ),
-	dateDEcheanceAncienAssureur:        UF2.field( V.date ),
-	conduiteAccompagnee:                UF2.field( V.boolean ),
-	conduiteAccompagneeMaif:            UF2.field( V.either( V.nil, V.boolean ) ),
-	conduiteAccompagneeMaifAvant2007:   UF2.field( V.either( V.nil, V.boolean ) ),
-	sinistreAvecCirconstanceAggravante: UF2.field( V.boolean ),
-	retraitPermis:                      UF2.field( V.boolean ),
-	resiliationAssureurPrecedent:       UF2.field( V.boolean ),
-	isAutoDateCoefficientValid:         UF2.field( V.boolean ),
-	sinistres:                          UF2.list( UF2.record( {
-		dateSurvenance:     UF2.field( V.date ),
-		codeNature:         UF2.field( V.string ),
-		codeResponsabilite: UF2.field( V.either( V.nil, V.string ) ), // @todo: this should be an either
-	} ) ),
+const isSinistreCollision = ( sinistre: V.ValidatedType<typeof sinistreCollisionSchema | typeof sinistreAutreSchema> ): sinistre is V.ValidatedType<typeof sinistreCollisionSchema> => {
+	return sinistre.codeNature === CODES_NATURES_SINISTRE.COLLISION && !!sinistre.codeResponsabilite
 }
 
+const codesNaturesSinistre = [ { value: CODES_NATURES_SINISTRE.AUTRE, label: "Autre" }, { value: CODES_NATURES_SINISTRE.COLLISION, label: "Collision" } ]
+
+
+const schema = V.sequence(
+	V.record( {
+		dateAnterioriteBonus050:            V.date,
+		coefficientBonusMalus:              V.number,
+		dateSouscriptionAncienAssureur:     V.date,
+		dateDEcheanceAncienAssureur:        V.date,
+		sinistreAvecCirconstanceAggravante: V.boolean,
+		retraitPermis:                      V.boolean,
+		resiliationAssureurPrecedent:       V.boolean,
+		isAutoDateCoefficientValid:         V.boolean,
+		hasSinistres:                       V.boolean,
+		sinistres:                          V.either(
+			V.nil,
+			V.array( V.either( sinistreAutreSchema, sinistreCollisionSchema ) ),
+		),
+		ca:                                 V.either(
+			V.record( {
+				conduiteAccompagnee: V.eq( false, BOOL.Eq ),
+			} ),
+			V.record( {
+				conduiteAccompagnee:              V.eq( true, BOOL.Eq ),
+				conduiteAccompagneeMaif:          V.boolean,
+				conduiteAccompagneeMaifAvant2007: V.either( V.nil, V.boolean ),
+			} ),
+		),
+	} ),
+)
+
+
+
+const is = <A extends any>( a: A ) => ( b: A | undefined ) => a === b
+
 const PasseAssure: PasseAssureStep = ( props ) => {
-	const [ { fields, ...form } ] = UF2.useForm( {
-		struct,
-		onSubmit: values =>
-			          props.onConfirm( {
-				          ...values,
-				          conduiteAccompagneeMaif:          values.conduiteAccompagneeMaif || false,
-				          conduiteAccompagneeMaifAvant2007: values.conduiteAccompagneeMaifAvant2007 || false,
-				          sinistres:                        [], // @todo: @note filter out non collision sinistres ? codeResponsabilite is required but we only ask when collision
-			          } ),
-	} )
-	const [ _values, form2 ] = useForm( {
-		defaultValue: {},
+	const [ values, form2 ] = useForm( {
+		defaultValue: {
+			// sinistres: [ {} as any ], coefficientBonusMalus: .5, dateAnterioriteBonus050: new Date(), dateSouscriptionAncienAssureur: new Date(), dateDEcheanceAncienAssureur: new Date()
+		},
 		schema,
 		onSubmit:     values => {
-			console.log( values )
+			const sinistresCollision = pipe(
+				values.sinistres || [],
+				AR.filter( isSinistreCollision ),
+			)
+			const conduiteAccompagnee =
+				      values.ca.conduiteAccompagnee === true ?
+				      {
+					      ...values.ca,
+					      conduiteAccompagneeMaifAvant2007: values.ca.conduiteAccompagneeMaifAvant2007 || false,
+				      } :
+				      {
+					      conduiteAccompagnee:              false,
+					      conduiteAccompagneeMaif:          false,
+					      conduiteAccompagneeMaifAvant2007: false,
+				      }
+			
+			return DRIVERS.jouerAcceptationProspect( {
+					conducteur: {
+						codeExperienceConducteur:           props.codeExperienceConducteur,
+						codeTypeConducteur:                 props.codeTypeConducteur,
+						dateNaissance:                      props.dateNaissance,
+						dateObtentionPermis:                props.dateObtentionPermis,
+						nom:                                props.nom,
+						prenom:                             props.prenom,
+						coefficientBonusMalus:              values.coefficientBonusMalus,
+						dateDEcheanceAncienAssureur:        values.dateDEcheanceAncienAssureur,
+						resiliationAssureurPrecedent:       values.resiliationAssureurPrecedent,
+						retraitPermis:                      values.retraitPermis,
+						sinistreAvecCirconstanceAggravante: values.sinistreAvecCirconstanceAggravante,
+						sinistres:                          sinistresCollision,
+					},
+					vehicule:   {
+						numeroRepertoire:  props.numeroRepertoire,
+						codeUsageVehicule: props.codeUsageVehicule,
+					},
+					dateEffet:  props.dateEffetContratDesiree,
+				} )
+				.then( E.foldW(
+					() => {
+						// @todo: display rejected error
+						// @todo: display errors
+					},
+					() => props.onConfirm( {
+						...conduiteAccompagnee,
+						coefficientBonusMalus:              values.coefficientBonusMalus,
+						dateAnterioriteBonus050:            values.dateAnterioriteBonus050,
+						dateDEcheanceAncienAssureur:        values.dateDEcheanceAncienAssureur,
+						dateSouscriptionAncienAssureur:     values.dateSouscriptionAncienAssureur,
+						resiliationAssureurPrecedent:       values.resiliationAssureurPrecedent,
+						retraitPermis:                      values.retraitPermis,
+						sinistreAvecCirconstanceAggravante: values.sinistreAvecCirconstanceAggravante,
+						sinistres:                          sinistresCollision,
+					} ),
+					),
+				)
 		},
 	} )
+	const sinistresCollection = form2.collection( form2.fields.field( "sinistres" ) )
 	
+	console.log( values )
 	
 	const [ responsabilitesSinistre ] = DRIVERS.useResponsabilitesSinistre()
 	const [ autoDateAnterioriteBonus050 ] = DRIVERS.useDatesAntecedentsSinistralites(
-		fields.dateDEcheanceAncienAssureur.fold( {
+		form2.fields.field( "dateDEcheanceAncienAssureur" ).validated( {
 			onInvalid: constant( { active: false } ),
 			onValid:   value => ({ params: { dateEcheanceAncienAssureur: value }, active: true }),
 		} ),
 	)
-	const handleChangedAccompaniedDriving = ( answer: boolean ) => {
-		fields.conduiteAccompagnee.set( true )
-		if ( !answer ) form.set( {
-			conduiteAccompagnee:              false,
-			conduiteAccompagneeMaif:          undefined,
-			conduiteAccompagneeMaifAvant2007: undefined,
-		} )
-	}
-	const handleChangedAutoDateAnterioriteCoefficientValid = ( answer: boolean ) => {
-		REMOTE.isSuccess( autoDateAnterioriteBonus050 ) &&
-		form.set( {
-			dateAnterioriteBonus050:    answer ?
-			                            autoDateAnterioriteBonus050.value.dateAnterioriteBonus050 :
-			                            undefined,
-			isAutoDateCoefficientValid: answer,
-		} )
-	}
 	
-	const handleToggleSinistres = ( hasSinistres: boolean ) =>
-		hasSinistres ?
-		fields.sinistres.add() :
-		fields.sinistres.clear()
+	form2.invariants( [
+		[
+			flow( prop( "isAutoDateCoefficientValid" ), is( true ) ),
+			values => ({
+				...values,
+				dateAnterioriteBonus050: REMOTE.isSuccess( autoDateAnterioriteBonus050 ) ?
+				                         autoDateAnterioriteBonus050.value.dateAnterioriteBonus050 :
+				                         undefined,
+			}),
+		],
+		[
+			flow( prop( "hasSinistres" ), is( false ) ),
+			values => ({
+				...values,
+				sinistres: [],
+			}),
+		],
+		[
+			values => values.hasSinistres === true && (values.sinistres || []).length === 0,
+			values => ({
+				...values,
+				sinistres: [ { dateSurvenance: undefined, codeNature: undefined, codeResponsabilite: undefined } ],
+			}),
+		],
+		[
+			values => values.ca?.conduiteAccompagnee === false,
+			values => ({
+				...values,
+				ca: { conduiteAccompagnee: false, conduiteAccompagneeMaif: undefined, conduiteAccompagneeMaifAvant2007: undefined },
+			}),
+		],
+		[
+			values => values.ca?.conduiteAccompagneeMaif === false,
+			values => ({
+				...values,
+				ca: { ...values.ca!, conduiteAccompagneeMaifAvant2007: undefined },
+			}),
+		],
+	] )
 	
-	const showConduiteAccompaniedDrivingWithMaifQuestion = fields.conduiteAccompagnee.value === true
-	const showConduiteAccompaniedDrivingBefore2007Question = showConduiteAccompaniedDrivingWithMaifQuestion && fields.conduiteAccompagneeMaif.value === true
-	const showIsAutoDateCoefficinentValidQuestion = fields.coefficientBonusMalus.value === .5 && REMOTE.isSuccess( autoDateAnterioriteBonus050 )
-	const showCustomDateCoefficinentQuestion = showIsAutoDateCoefficinentValidQuestion && fields.isAutoDateCoefficientValid.value === false
+	const showConduiteAccompaniedDrivingWithMaifQuestion = values.ca?.conduiteAccompagnee === true
+	const showConduiteAccompaniedDrivingBefore2007Question = values.ca?.conduiteAccompagnee === true && values.ca.conduiteAccompagneeMaif === true
+	const showIsAutoDateCoefficinentValidQuestion = values.coefficientBonusMalus === .5 && REMOTE.isSuccess( autoDateAnterioriteBonus050 )
+	const showCustomDateCoefficinentQuestion = showIsAutoDateCoefficinentValidQuestion && values.isAutoDateCoefficientValid === false
+	const showSinistres = REMOTE.isSuccess( autoDateAnterioriteBonus050 ) && values.coefficientBonusMalus === .5
 	
-	console.log( form.value )
-	console.log( fields.sinistres )
+	console.log( "values", values )
 	
 	return (
-		<form {...form.props}>
+		<form {...form2.props}>
 			<FormTitle>Le passé du conducteur</FormTitle>
 			<YesNo
 				className="mb-8"
 				label="Le conducteur a-t-il fait l’objet d’une résiliation par son dernier assureur ou a-t-il provoqué, au cours des 24 derniers mois, un ou plusieurs sinistres avec circonstances aggravantes ?"
-				{...fields.sinistreAvecCirconstanceAggravante.props}
+				{...form2.fields.field( "sinistreAvecCirconstanceAggravante" ).props}
 			/>
 			
 			
 			<YesNo
 				className="mb-8"
 				label="Le conducteur a-t-il fait l’objet d’une suspension, d’une annulation ou d’un retrait de permis dans les 2 ans précédent la demande ?"
-				{...fields.retraitPermis.props}
+				{...form2.fields.field( "retraitPermis" ).props}
 			/>
 			
 			<YesNo
 				className="mb-8"
 				label="A-t-il bénéficié de l’apprentissage anticipé de la conduite (conduite accompagnée) ?"
-				{...fields.conduiteAccompagnee.props}
-				onChange={handleChangedAccompaniedDriving}
+				{...form2.fields.field( "ca" ).force( "conduiteAccompagnee" ).props}
 			/>
 			{showConduiteAccompaniedDrivingWithMaifQuestion && (
 				<YesNo
 					className="mb-8"
 					label="A-t-il bénéficié de l’apprentissage anticipé de la conduite (conduite accompagnée) auprès d’une personne assurée MAIF ?"
-					{...fields.conduiteAccompagneeMaif.props}
+					{...form2.fields.field( "ca" ).force( "conduiteAccompagneeMaif" ).props}
 				/>)}
 			
 			{showConduiteAccompaniedDrivingBefore2007Question && (
 				<YesNo
 					className="mb-8"
 					label="Cet apprentissage a-t-il débuté avant le 01/01/2007 ?"
-					{...fields.conduiteAccompagneeMaifAvant2007.props}
+					{...form2.fields.field( "ca" ).force( "conduiteAccompagneeMaifAvant2007" ).props}
 				/>)}
 			
 			<DateInput
 				className="mb-8"
 				label="Date de la dernière échéance du contrat actuel"
-				{...fields.dateDEcheanceAncienAssureur.props}
+				{...form2.fields.field( "dateDEcheanceAncienAssureur" ).props}
 			/>
 			
-			<DateInput
+			<MonthInput
 				className="mb-8"
 				label="Depuis quand le conducteur est-il assuré sans interruption chez son assureur actuel (mm/aaaa)"
-				type="month"
-				{...fields.dateSouscriptionAncienAssureur.props}
+				{...form2.fields.field( "dateSouscriptionAncienAssureur" ).props}
 			/>
 			
 			<NumberInput
@@ -191,69 +256,93 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 				placeholder=".5"
 				step="0.1"
 				min="0.5"
-				{...fields.coefficientBonusMalus.props}
+				{...form2.fields.field( "coefficientBonusMalus" ).props}
 			/>
 			
 			{showIsAutoDateCoefficinentValidQuestion && REMOTE.isSuccess( autoDateAnterioriteBonus050 ) && (
 				<YesNo
 					className="mb-8"
 					label={`Avez-vous un coefficient de 0,5 depuis le ${autoDateAnterioriteBonus050.value.dateAnterioriteBonus050.toLocaleDateString()}`}
-					{...fields.isAutoDateCoefficientValid.props}
-					onChange={handleChangedAutoDateAnterioriteCoefficientValid}
+					{...form2.fields.field( "isAutoDateCoefficientValid" ).props}
 				/>)}
 			
 			{showCustomDateCoefficinentQuestion && (
 				<DateInput
 					className="mb-8"
 					label="Depuis quelle date avez-vous le bonus 0,50 ?"
-					type="month"
-					{...fields.dateAnterioriteBonus050.props}
+					{...form2.fields.field( "dateAnterioriteBonus050" ).props}
 				/>)}
 			
-			{REMOTE.isSuccess( autoDateAnterioriteBonus050 ) && (
-				<YesNo
-					className="mb-8"
-					label={`Le conducteur a-t-il un ou plusieurs sinistres à déclarer depuis le ${autoDateAnterioriteBonus050.value.dateDebutCollecteSinistre.toLocaleDateString()} ?`}
-					name="sinistrasADeclarer"
-					value={fields.sinistres.value === undefined ?
-					       undefined :
-					       !fields.sinistres.empty}
-					onChange={handleToggleSinistres}
-				/>)}
-			<ul className="">
-				{fields.sinistres.elements.map( ( el, index ) =>
-					(
-						<li
-							key={index}
-							className="pl-4 border-l-2 pb-4"
-						>
-							<DateInput
-								label="Date du sinistre"
+			{showSinistres && (
+				<>
+					<div className="pt-8"/>
+					<FormTitle>Sinistres</FormTitle>
+					{
+						REMOTE.isSuccess( autoDateAnterioriteBonus050 ) && (
+							<YesNo
 								className="mb-8"
-								{...el.fields.dateSurvenance.props}
-							/>
-							
-							<ButtonRadioSelect
-								label="Nature du sinsitre"
-								className="mb-8"
-								data={codesNaturesSinistre}
-								{...el.fields.codeNature.props}
-							/>
-							{el.fields.codeNature.value === CODES_NATURES_SINISTRE.COLLISION && (
-								<ButtonRadioSelect
-									label="Responsabilité"
-									className="mb-8"
-									data={responsabilitesSinistre}
-									{...el.fields.codeResponsabilite.props}
-								/>)}
-						</li>) )}
-			</ul>
+								label={`Le conducteur a-t-il un ou plusieurs sinistres à déclarer depuis le ${autoDateAnterioriteBonus050.value.dateDebutCollecteSinistre.toLocaleDateString()} ?`}
+								{...form2.fields.field( "hasSinistres" ).props}
+							/>)
+					}
+					{values.sinistres && (
+						<ul className="">
+							{values.sinistres.map( ( el, index ) => (
+								<li
+									key={index}
+									className="flex flex-row pb-4"
+								>
+									<div className="font-bold text-lg text-gray-400 pr-4">{index + 1}.</div>
+									<div className="w-full pt-0.5">
+										<DateInput
+											label="Date du sinistre"
+											className="mb-8"
+											{...form2.connect( [ "sinistres", index, "dateSurvenance" ] )}
+										/>
+										
+										<ButtonRadioSelect
+											label="Nature du sinsitre"
+											className="mb-8"
+											data={REMOTE.success( codesNaturesSinistre )}
+											{...form2.connect( [ "sinistres", index, "codeNature" ] )}
+										/>
+										{el.codeNature === CODES_NATURES_SINISTRE.COLLISION && (
+											<ButtonRadioSelect
+												label="Responsabilité"
+												className="mb-8"
+												data={responsabilitesSinistre}
+												{...form2.connect( [ "sinistres", index, "codeResponsabilite" ] )}
+											/>)}
+										
+										{index > 0 && (
+											<button
+												className="font-medium right-0 text-gray-400 top-0 underline"
+												onClick={() => sinistresCollection.remove( index )}
+											>
+												Supprimer
+											</button>)}
+									</div>
+								</li>
+							) )}
+							{form2.fields.field( "sinistres" ).isValid && (
+								<li className="flex flex-row mb-12">
+									<div className="font-bold text-lg text-gray-400 pr-4">{values.sinistres.length + 1}.</div>
+									<div className="pt-0.5">
+										<Label label="Ajouter un sinistre ?">
+											<button
+												onClick={() => sinistresCollection.push( {} )}
+												className="w-10 h-10 text-xl leading-none pb-0.5 cursor-pointer font-bold inline-flex items-center justify-center border-2 rounded-md focus:border-indigo-600 text-center border-gray-300 shadow"
+											>
+												+
+											</button>
+										</Label>
+									</div>
+								</li>)}
+						</ul>
+					)}
+				</>)}
 			
-			{!fields.sinistres.empty && fields.sinistres.valid && <button>Ajouter un autre sinistre ?</button>}
-			
-			{/*// @todo: MONDAY has sinistre ? jouer acceptation: pass*/}
-			
-			{form.isValid && <FormSubmitButton disabled={form.isPending}>Valider</FormSubmitButton>}
+			{form2.isValid && <FormSubmitButton disabled={form2.isPending}>Valider</FormSubmitButton>}
 		</form>
 	)
 }
