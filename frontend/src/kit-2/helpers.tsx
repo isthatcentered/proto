@@ -47,6 +47,12 @@ export  type Constructable = {
 }
 
 
+
+
+
+export type Lookup<T, K extends Partial<T>> = T extends K ? T : never
+
+
 export type Primitives = string | number | boolean | null | undefined | Date
 
 export type MergeUnions<T> =

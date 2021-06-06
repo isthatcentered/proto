@@ -47,8 +47,15 @@ const sinistreAutreSchema = V.record( {
 	codeNature:     V.eq( CODES_NATURES_SINISTRE.AUTRE, STR.Eq ),
 } )
 
-const isSinistreCollision = ( sinistre: V.ValidatedType<typeof sinistreCollisionSchema | typeof sinistreAutreSchema> ): sinistre is V.ValidatedType<typeof sinistreCollisionSchema> => {
-	return sinistre.codeNature === CODES_NATURES_SINISTRE.COLLISION && !!sinistre.codeResponsabilite
+const sinistreSchema = V.either(
+	sinistreCollisionSchema,
+	sinistreAutreSchema,
+)
+
+type SinisteCollision = V.ValidatedType<typeof sinistreCollisionSchema>
+
+const isSinistreCollision = ( sinistre: V.ValidatedType<typeof sinistreSchema> ): sinistre is SinisteCollision => {
+	return sinistre.codeNature === CODES_NATURES_SINISTRE.COLLISION
 }
 
 const codesNaturesSinistre = [ { value: CODES_NATURES_SINISTRE.AUTRE, label: "Autre" }, { value: CODES_NATURES_SINISTRE.COLLISION, label: "Collision" } ]
@@ -56,22 +63,22 @@ const codesNaturesSinistre = [ { value: CODES_NATURES_SINISTRE.AUTRE, label: "Au
 // -------------------------------------------------------------------------------------
 // Conduite accompagnee
 // -------------------------------------------------------------------------------------
-const conduiteAccompagneeSchema = V.either(
-	V.either(
-		V.record( {
-			conduiteAccompagnee: V.eq( false, BOOL.Eq ),
-		} ),
-		V.record( {
-			conduiteAccompagnee:     V.eq( true, BOOL.Eq ),
-			conduiteAccompagneeMaif: V.eq( false, BOOL.Eq ),
-		} ),
-	),
-	V.record( {
-		conduiteAccompagnee:              V.eq( true, BOOL.Eq ),
-		conduiteAccompagneeMaif:          V.eq( true, BOOL.Eq ),
-		conduiteAccompagneeMaifAvant2007: V.boolean,
-	} ),
-)
+const noCA = V.record( {
+	conduiteAccompagnee: V.eq( false, BOOL.Eq ),
+} )
+
+const caWithoutMaif = V.record( {
+	conduiteAccompagnee:     V.eq( true, BOOL.Eq ),
+	conduiteAccompagneeMaif: V.eq( false, BOOL.Eq ),
+} )
+
+const caWithMaif = V.record( {
+	conduiteAccompagnee:              V.eq( true, BOOL.Eq ),
+	conduiteAccompagneeMaif:          V.eq( true, BOOL.Eq ),
+	conduiteAccompagneeMaifAvant2007: V.boolean,
+} )
+
+const conduiteAccompagneeSchema = V.either( V.either( noCA, caWithoutMaif ), caWithMaif )
 
 const flattenCa = ( ca: V.ValidatedType<typeof conduiteAccompagneeSchema> ): { conduiteAccompagnee: boolean, conduiteAccompagneeMaif: boolean, conduiteAccompagneeMaifAvant2007: boolean } => {
 	if ( ca.conduiteAccompagnee && ca.conduiteAccompagneeMaif === false )
@@ -105,7 +112,7 @@ const schema = V.sequence(
 		hasSinistres:                       V.boolean,
 		sinistres:                          V.either(
 			V.nil,
-			V.array( V.either( sinistreAutreSchema, sinistreCollisionSchema ) ),
+			V.array( sinistreSchema ),
 		),
 		ca:                                 conduiteAccompagneeSchema,
 	} ),
@@ -287,7 +294,7 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 				<DateInput
 					className="mb-8"
 					label="Depuis quelle date avez-vous le bonus 0,50 ?"
-					{...form.connect( ["dateAnterioriteBonus050"] )}
+					{...form.connect( [ "dateAnterioriteBonus050" ] )}
 				/>)}
 			
 			{showSinistres && (
@@ -299,7 +306,7 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 							<YesNo
 								className="mb-8"
 								label={`Le conducteur a-t-il un ou plusieurs sinistres à déclarer depuis le ${autoDateAnterioriteBonus050.value.dateDebutCollecteSinistre.toLocaleDateString()} ?`}
-								{...form.connect( [ "hasSinistres"] )}
+								{...form.connect( [ "hasSinistres" ] )}
 							/>)
 					}
 					{values.sinistres && (
