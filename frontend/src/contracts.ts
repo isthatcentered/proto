@@ -51,7 +51,6 @@ export type PasseAssureStep = Step<PickStep<IdentificationVehiculeStep, "numeroR
 		conduiteAccompagneeMaifAvant2007: boolean,
 		sinistreAvecCirconstanceAggravante: boolean,
 		retraitPermis: boolean,
-		resiliationAssureurPrecedent: boolean,
 		sinistres: { dateSurvenance: Date, codeResponsabilite: string }[]
 	}>
 

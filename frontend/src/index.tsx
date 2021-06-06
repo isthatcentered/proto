@@ -20,12 +20,16 @@ import * as E from "fp-ts/Either"
 
 // @todo: Business rules validation
 // @todo: go back and make all fields required
-// @todo: field dirty, show errors
 // @todo: ca: false | {maif, maif2007}
 // @todo: navigator.ca !== false && (div props(navigator.ca.maif2007)) <- deal with unions ??? but how ?
 
+// @todo: try, is everything still working ?
+// @todo: remove field
 
 
+// -------------------------------------------------------------------------------------
+// Sinistres
+// -------------------------------------------------------------------------------------
 export enum CODES_NATURES_SINISTRE
 {
 	COLLISION = "01",
@@ -49,7 +53,46 @@ const isSinistreCollision = ( sinistre: V.ValidatedType<typeof sinistreCollision
 
 const codesNaturesSinistre = [ { value: CODES_NATURES_SINISTRE.AUTRE, label: "Autre" }, { value: CODES_NATURES_SINISTRE.COLLISION, label: "Collision" } ]
 
+// -------------------------------------------------------------------------------------
+// Conduite accompagnee
+// -------------------------------------------------------------------------------------
+const conduiteAccompagneeSchema = V.either(
+	V.either(
+		V.record( {
+			conduiteAccompagnee: V.eq( false, BOOL.Eq ),
+		} ),
+		V.record( {
+			conduiteAccompagnee:     V.eq( true, BOOL.Eq ),
+			conduiteAccompagneeMaif: V.eq( false, BOOL.Eq ),
+		} ),
+	),
+	V.record( {
+		conduiteAccompagnee:              V.eq( true, BOOL.Eq ),
+		conduiteAccompagneeMaif:          V.eq( true, BOOL.Eq ),
+		conduiteAccompagneeMaifAvant2007: V.boolean,
+	} ),
+)
 
+const flattenCa = ( ca: V.ValidatedType<typeof conduiteAccompagneeSchema> ): { conduiteAccompagnee: boolean, conduiteAccompagneeMaif: boolean, conduiteAccompagneeMaifAvant2007: boolean } => {
+	if ( ca.conduiteAccompagnee && ca.conduiteAccompagneeMaif === false )
+		return {
+			...ca,
+			conduiteAccompagneeMaifAvant2007: false,
+		}
+	
+	if ( ca.conduiteAccompagnee && ca.conduiteAccompagneeMaif === true )
+		return ca
+	
+	return {
+		conduiteAccompagnee:              false,
+		conduiteAccompagneeMaif:          false,
+		conduiteAccompagneeMaifAvant2007: false,
+	}
+}
+
+// -------------------------------------------------------------------------------------
+// Schema
+// -------------------------------------------------------------------------------------
 const schema = V.sequence(
 	V.record( {
 		dateAnterioriteBonus050:            V.date,
@@ -58,23 +101,13 @@ const schema = V.sequence(
 		dateDEcheanceAncienAssureur:        V.date,
 		sinistreAvecCirconstanceAggravante: V.boolean,
 		retraitPermis:                      V.boolean,
-		resiliationAssureurPrecedent:       V.boolean,
 		isAutoDateCoefficientValid:         V.boolean,
 		hasSinistres:                       V.boolean,
 		sinistres:                          V.either(
 			V.nil,
 			V.array( V.either( sinistreAutreSchema, sinistreCollisionSchema ) ),
 		),
-		ca:                                 V.either(
-			V.record( {
-				conduiteAccompagnee: V.eq( false, BOOL.Eq ),
-			} ),
-			V.record( {
-				conduiteAccompagnee:              V.eq( true, BOOL.Eq ),
-				conduiteAccompagneeMaif:          V.boolean,
-				conduiteAccompagneeMaifAvant2007: V.either( V.nil, V.boolean ),
-			} ),
-		),
+		ca:                                 conduiteAccompagneeSchema,
 	} ),
 )
 
@@ -82,27 +115,15 @@ const schema = V.sequence(
 const is = <A extends any>( a: A ) => ( b: A | undefined ) => a === b
 
 const PasseAssure: PasseAssureStep = ( props ) => {
-	const [ values, form2 ] = useForm( {
-		defaultValue: {
-			// sinistres: [ {} as any ], coefficientBonusMalus: .5, dateAnterioriteBonus050: new Date(), dateSouscriptionAncienAssureur: new Date(), dateDEcheanceAncienAssureur: new Date()
-		},
+	const [ values, form ] = useForm( {
+		defaultValue: {},
 		schema,
 		onSubmit:     values => {
 			const sinistresCollision = pipe(
 				values.sinistres || [],
 				AR.filter( isSinistreCollision ),
 			)
-			const conduiteAccompagnee =
-				      values.ca.conduiteAccompagnee === true ?
-				      {
-					      ...values.ca,
-					      conduiteAccompagneeMaifAvant2007: values.ca.conduiteAccompagneeMaifAvant2007 || false,
-				      } :
-				      {
-					      conduiteAccompagnee:              false,
-					      conduiteAccompagneeMaif:          false,
-					      conduiteAccompagneeMaifAvant2007: false,
-				      }
+			const conduiteAccompagnee = flattenCa( values.ca )
 			
 			return DRIVERS.jouerAcceptationProspect( {
 					conducteur: {
@@ -114,7 +135,6 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 						prenom:                             props.prenom,
 						coefficientBonusMalus:              values.coefficientBonusMalus,
 						dateDEcheanceAncienAssureur:        values.dateDEcheanceAncienAssureur,
-						resiliationAssureurPrecedent:       values.resiliationAssureurPrecedent,
 						retraitPermis:                      values.retraitPermis,
 						sinistreAvecCirconstanceAggravante: values.sinistreAvecCirconstanceAggravante,
 						sinistres:                          sinistresCollision,
@@ -136,7 +156,6 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 						dateAnterioriteBonus050:            values.dateAnterioriteBonus050,
 						dateDEcheanceAncienAssureur:        values.dateDEcheanceAncienAssureur,
 						dateSouscriptionAncienAssureur:     values.dateSouscriptionAncienAssureur,
-						resiliationAssureurPrecedent:       values.resiliationAssureurPrecedent,
 						retraitPermis:                      values.retraitPermis,
 						sinistreAvecCirconstanceAggravante: values.sinistreAvecCirconstanceAggravante,
 						sinistres:                          sinistresCollision,
@@ -145,17 +164,17 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 				)
 		},
 	} )
-	const sinistresCollection = form2.collection( form2.fields.field( "sinistres" ) )
+	const sinistresCollection = form.collection( form.fields.field( "sinistres" ) )
 	
 	const [ responsabilitesSinistre ] = DRIVERS.useResponsabilitesSinistre()
 	const [ autoDateAnterioriteBonus050 ] = DRIVERS.useDatesAntecedentsSinistralites(
-		form2.fields.field( "dateDEcheanceAncienAssureur" ).validated( {
+		form.fields.field( "dateDEcheanceAncienAssureur" ).validated( {
 			onInvalid: constant( { active: false } ),
 			onValid:   value => ({ params: { dateEcheanceAncienAssureur: value }, active: true }),
 		} ),
 	)
 	
-	form2.invariants( [
+	form.invariants( [
 		[
 			flow( prop( "isAutoDateCoefficientValid" ), is( true ) ),
 			values => ({
@@ -187,7 +206,7 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 			}),
 		],
 		[
-			values => values.ca?.conduiteAccompagneeMaif === false,
+			values => values.ca?.conduiteAccompagnee === true && values.ca.conduiteAccompagneeMaif === false,
 			values => ({
 				...values,
 				ca: { ...values.ca!, conduiteAccompagneeMaifAvant2007: undefined },
@@ -202,50 +221,50 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 	const showSinistres = REMOTE.isSuccess( autoDateAnterioriteBonus050 ) && values.coefficientBonusMalus === .5
 	
 	return (
-		<form {...form2.props}>
+		<form {...form.props}>
 			<FormTitle>Le passé du conducteur</FormTitle>
 			<YesNo
 				className="mb-8"
 				label="Le conducteur a-t-il fait l’objet d’une résiliation par son dernier assureur ou a-t-il provoqué, au cours des 24 derniers mois, un ou plusieurs sinistres avec circonstances aggravantes ?"
-				{...form2.fields.field( "sinistreAvecCirconstanceAggravante" ).props}
+				{...form.connect( [ "sinistreAvecCirconstanceAggravante" ] )}
 			/>
 			
 			
 			<YesNo
 				className="mb-8"
 				label="Le conducteur a-t-il fait l’objet d’une suspension, d’une annulation ou d’un retrait de permis dans les 2 ans précédent la demande ?"
-				{...form2.fields.field( "retraitPermis" ).props}
+				{...form.connect( [ "retraitPermis" ] )}
 			/>
 			
 			<YesNo
 				className="mb-8"
 				label="A-t-il bénéficié de l’apprentissage anticipé de la conduite (conduite accompagnée) ?"
-				{...form2.fields.field( "ca" ).force( "conduiteAccompagnee" ).props}
+				{...form.connect( [ "ca", "conduiteAccompagnee" ] )}
 			/>
 			{showConduiteAccompaniedDrivingWithMaifQuestion && (
 				<YesNo
 					className="mb-8"
 					label="A-t-il bénéficié de l’apprentissage anticipé de la conduite (conduite accompagnée) auprès d’une personne assurée MAIF ?"
-					{...form2.fields.field( "ca" ).force( "conduiteAccompagneeMaif" ).props}
+					{...form.connect( [ "ca", "conduiteAccompagneeMaif" ] )}
 				/>)}
 			
 			{showConduiteAccompaniedDrivingBefore2007Question && (
 				<YesNo
 					className="mb-8"
 					label="Cet apprentissage a-t-il débuté avant le 01/01/2007 ?"
-					{...form2.fields.field( "ca" ).force( "conduiteAccompagneeMaifAvant2007" ).props}
+					{...form.connect( [ "ca", "conduiteAccompagneeMaifAvant2007" ] )}
 				/>)}
 			
 			<DateInput
 				className="mb-8"
 				label="Date de la dernière échéance du contrat actuel"
-				{...form2.fields.field( "dateDEcheanceAncienAssureur" ).props}
+				{...form.connect( [ "dateDEcheanceAncienAssureur" ] )}
 			/>
 			
 			<MonthInput
 				className="mb-8"
 				label="Depuis quand le conducteur est-il assuré sans interruption chez son assureur actuel (mm/aaaa)"
-				{...form2.fields.field( "dateSouscriptionAncienAssureur" ).props}
+				{...form.connect( [ "dateSouscriptionAncienAssureur" ] )}
 			/>
 			
 			<NumberInput
@@ -254,21 +273,21 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 				placeholder=".5"
 				step="0.1"
 				min="0.5"
-				{...form2.fields.field( "coefficientBonusMalus" ).props}
+				{...form.connect( [ "coefficientBonusMalus" ] )}
 			/>
 			
 			{showIsAutoDateCoefficinentValidQuestion && REMOTE.isSuccess( autoDateAnterioriteBonus050 ) && (
 				<YesNo
 					className="mb-8"
 					label={`Avez-vous un coefficient de 0,5 depuis le ${autoDateAnterioriteBonus050.value.dateAnterioriteBonus050.toLocaleDateString()}`}
-					{...form2.fields.field( "isAutoDateCoefficientValid" ).props}
+					{...form.connect( [ "isAutoDateCoefficientValid" ] )}
 				/>)}
 			
 			{showCustomDateCoefficinentQuestion && (
 				<DateInput
 					className="mb-8"
 					label="Depuis quelle date avez-vous le bonus 0,50 ?"
-					{...form2.fields.field( "dateAnterioriteBonus050" ).props}
+					{...form.connect( ["dateAnterioriteBonus050"] )}
 				/>)}
 			
 			{showSinistres && (
@@ -280,7 +299,7 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 							<YesNo
 								className="mb-8"
 								label={`Le conducteur a-t-il un ou plusieurs sinistres à déclarer depuis le ${autoDateAnterioriteBonus050.value.dateDebutCollecteSinistre.toLocaleDateString()} ?`}
-								{...form2.fields.field( "hasSinistres" ).props}
+								{...form.connect( [ "hasSinistres"] )}
 							/>)
 					}
 					{values.sinistres && (
@@ -295,21 +314,21 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 										<DateInput
 											label="Date du sinistre"
 											className="mb-8"
-											{...form2.connect( [ "sinistres", index, "dateSurvenance" ] )}
+											{...form.connect( [ "sinistres", index, "dateSurvenance" ] )}
 										/>
 										
 										<ButtonRadioSelect
 											label="Nature du sinsitre"
 											className="mb-8"
 											data={REMOTE.success( codesNaturesSinistre )}
-											{...form2.connect( [ "sinistres", index, "codeNature" ] )}
+											{...form.connect( [ "sinistres", index, "codeNature" ] )}
 										/>
 										{el.codeNature === CODES_NATURES_SINISTRE.COLLISION && (
 											<ButtonRadioSelect
 												label="Responsabilité"
 												className="mb-8"
 												data={responsabilitesSinistre}
-												{...form2.connect( [ "sinistres", index, "codeResponsabilite" ] )}
+												{...form.connect( [ "sinistres", index, "codeResponsabilite" ] )}
 											/>)}
 										
 										{index > 0 && (
@@ -322,7 +341,7 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 									</div>
 								</li>
 							) )}
-							{form2.fields.field( "sinistres" ).isValid && (
+							{form.fields.field( "sinistres" ).isValid && (
 								<li className="flex flex-row mb-12">
 									<div className="font-bold text-lg text-gray-400 pr-4">{values.sinistres.length + 1}.</div>
 									<div className="pt-0.5">
@@ -340,7 +359,7 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 					)}
 				</>)}
 			
-			{form2.isValid && <FormSubmitButton disabled={form2.isPending}>Valider</FormSubmitButton>}
+			{form.isValid && <FormSubmitButton disabled={form.isPending}>Valider</FormSubmitButton>}
 		</form>
 	)
 }

@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react"
-import { AnyRecord, DeepKinda, Kinda, MergeUnions, pick } from "../../helpers"
+import { AnyRecord, DeepKinda, MergeUnions, pick } from "../../helpers"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import * as AR from "fp-ts/Array"
@@ -129,19 +129,19 @@ class MutableCache<T>
 
 const useForm = <TFormValues extends AnyRecord>(
 	config: {
-		defaultValue: Partial<TFormValues>,
+		defaultValue?: Partial<TFormValues>,
 		schema: V.Validation<TFormValues>,
 		onSubmit: ( values: TFormValues ) => Promise<void> | void
 	},
 ) => {
 	type _TFlattenedValues = MergeUnions<TFormValues>
-	type _TFlattenedKindaValues = NonNullable<DeepKinda<MergeUnions<TFormValues>>>
-	const [ values, _setData ] = useState( config.defaultValue as Kinda<_TFlattenedValues> )
+	type _TKindaValues = NonNullable<DeepKinda<TFormValues>>
+	const [ values, _setData ] = useState<_TKindaValues>( (config.defaultValue || {}) as _TKindaValues )
 	const [ fieldsStatuses, _setFieldsStatuses ] = useState<Record<string, FieldStatus>>( {} )
 	const [ isPending, setIsPending ] = useState<boolean>( false )
 	const fieldsCache = new MutableCache<Field<any>>()
 	const _fields: Record<string, Field<any>> = {}
-	const _invariants: Array<[ Predicate<_TFlattenedKindaValues>, ( value: _TFlattenedKindaValues ) => _TFlattenedKindaValues ]> = []
+	const _invariants: Array<[ Predicate<_TKindaValues>, ( value: _TKindaValues ) => _TKindaValues ]> = []
 	const validation = config.schema( values as TFormValues )
 	const _errorsLog = getErrorsLog( validation )
 	const isValid = E.isRight( validation )
@@ -159,8 +159,8 @@ const useForm = <TFormValues extends AnyRecord>(
 			AR.reduce(
 				setPathValue( path, value, values ),
 				( acc, [ predicate, update ] ) =>
-					predicate( acc as _TFlattenedKindaValues ) ?
-					update( acc as _TFlattenedKindaValues ) as _TFlattenedValues :
+					predicate( acc ) ?
+					update( acc ) :
 					acc,
 			),
 			_setData,
@@ -224,16 +224,22 @@ const useForm = <TFormValues extends AnyRecord>(
 		<K extends keyof _TFlattenedValues>( path: [ K ] ): FieldProps<_TFlattenedValues[K]>
 	} = ( path: (string | number)[] ) => {
 		const name = path.join( "." )
+		const status = utils.getFieldStatus( name )
+		const setValue = ( value: any | undefined ) => {
+			if ( isPending )
+				return
+			status === "pristine" && utils.setFieldStatus( name )( "dirty" )
+			setData( path, value )
+		}
+		const value = pathOr( undefined, path, values )
+		const errors = utils.getFieldErrors( path )
+		
 		return ({
 			name,
-			value:    pathOr( undefined, path, values ),
-			status:   utils.getFieldStatus( name ),
-			errors:   _errorsLog[ name ] || [],
-			onChange: ( value: any ) => {
-				if ( isPending )
-					return
-				setData( path, value )
-			},
+			value,
+			status,
+			errors,
+			onChange: setValue,
 		})
 	}
 	
@@ -306,7 +312,7 @@ const useForm = <TFormValues extends AnyRecord>(
 		       O.some( pipe( values as TFormValues, pick( keys ) ) )
 	}
 	
-	return [  values, { props, isValid, isPending, pickValids, connect, fields, collection, invariants } ] as const
+	return [ values, { props, isValid, isPending, pickValids, connect, fields, collection, invariants, values: values as _TKindaValues } ] as const
 }
 
 type Field<T> = {

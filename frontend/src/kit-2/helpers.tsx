@@ -25,7 +25,7 @@ export type Kinda<T extends AnyRecord> = {
 
 export type DeepKinda<T> =
 	T extends Primitives ? T | undefined :
-	T extends Array<infer I> ? (DeepKinda<I>[]) | undefined :
+	T extends Array<infer I> ? (NonNullable<DeepKinda<I>>[]) | undefined :
 	T extends Record<string, any> ? {
 		[K in keyof T]: DeepKinda<T[K]>
 	} | undefined : never

@@ -105,7 +105,6 @@ type   _ConducteurAAssurer = Pick<ConducteurAAssurer,
 	| "codeTypeConducteur"
 	| "sinistreAvecCirconstanceAggravante"
 	| "retraitPermis"
-	| "resiliationAssureurPrecedent"
 	> &
 	{
 		dateNaissance: Date,
