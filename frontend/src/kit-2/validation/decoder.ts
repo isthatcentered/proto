@@ -19,7 +19,7 @@ const assertType = <TExpected>( value: TExpected ) => value
 // -------------------------------------------------------------------------------------
 // Model
 // -------------------------------------------------------------------------------------
-export type Failure = { path: string, message: string, value: any }
+export type Failure = { path: string, message: string, value?: any }
 
 export type Validated<A> = EI.Either<NEA.NonEmptyArray<Failure>, A>
 

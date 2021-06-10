@@ -18,7 +18,7 @@ const useCodesTypeVehicule = () => {
 	return [ state ] as const
 }
 
-const schema = V.record( {
+const schema = V.struct( {
 	codeTypeVehicule:  V.nonEmptyString,
 	alreadyHasAccount: V.boolean,
 } )

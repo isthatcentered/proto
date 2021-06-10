@@ -13,10 +13,11 @@ import * as REMOTE from "./kit-2/remote"
 import { constant } from "fp-ts/lib/function"
 import * as BOOL from "fp-ts/boolean"
 import * as STR from "fp-ts/string"
-import { flow, pipe } from "fp-ts/function"
-import { prop } from "./kit-2/helpers"
+import { flow, pipe, Refinement } from "fp-ts/function"
+import { MergeUnions, prop } from "./kit-2/helpers"
 import * as AR from "fp-ts/Array"
 import * as E from "fp-ts/Either"
+import * as D from "io-ts/Decoder"
 
 // @todo: Business rules validation
 // @todo: go back and make all fields required
@@ -36,21 +37,21 @@ export enum CODES_NATURES_SINISTRE
 	AUTRE     = "02",
 }
 
-const sinistreCollisionSchema = V.record( {
+const sinistreCollisionSchema = V.struct( {
 	dateSurvenance:     V.date,
 	codeNature:         V.eq( CODES_NATURES_SINISTRE.COLLISION, STR.Eq ),
 	codeResponsabilite: V.string,
 } )
 
-const sinistreAutreSchema = V.record( {
+const sinistreAutreSchema = V.struct( {
 	dateSurvenance: V.date,
 	codeNature:     V.eq( CODES_NATURES_SINISTRE.AUTRE, STR.Eq ),
 } )
 
-const sinistreSchema = V.either(
-	sinistreCollisionSchema,
-	sinistreAutreSchema,
-)
+const sinistreSchema = V.sum( "codeNature" )( {
+	[ CODES_NATURES_SINISTRE.COLLISION ]: sinistreCollisionSchema,
+	[ CODES_NATURES_SINISTRE.AUTRE ]:     sinistreAutreSchema,
+} )
 
 type SinisteCollision = V.ValidatedType<typeof sinistreCollisionSchema>
 
@@ -63,60 +64,52 @@ const codesNaturesSinistre = [ { value: CODES_NATURES_SINISTRE.AUTRE, label: "Au
 // -------------------------------------------------------------------------------------
 // Conduite accompagnee
 // -------------------------------------------------------------------------------------
-const noCA = V.record( {
+const noCA = V.struct( {
 	conduiteAccompagnee: V.eq( false, BOOL.Eq ),
 } )
 
-const caWithoutMaif = V.record( {
+const caWithoutMaif = V.struct( {
 	conduiteAccompagnee:     V.eq( true, BOOL.Eq ),
 	conduiteAccompagneeMaif: V.eq( false, BOOL.Eq ),
 } )
-
-const caWithMaif = V.record( {
+const caWithMaif = V.struct( {
 	conduiteAccompagnee:              V.eq( true, BOOL.Eq ),
 	conduiteAccompagneeMaif:          V.eq( true, BOOL.Eq ),
 	conduiteAccompagneeMaifAvant2007: V.boolean,
 } )
 
-const conduiteAccompagneeSchema = V.either( V.either( noCA, caWithoutMaif ), caWithMaif )
+type CA = V.ValidatedType<typeof noCA | typeof caWithoutMaif | typeof caWithMaif>
 
-const flattenCa = ( ca: V.ValidatedType<typeof conduiteAccompagneeSchema> ): { conduiteAccompagnee: boolean, conduiteAccompagneeMaif: boolean, conduiteAccompagneeMaifAvant2007: boolean } => {
-	if ( ca.conduiteAccompagnee && ca.conduiteAccompagneeMaif === false )
-		return {
-			...ca,
-			conduiteAccompagneeMaifAvant2007: false,
-		}
-	
-	if ( ca.conduiteAccompagnee && ca.conduiteAccompagneeMaif === true )
-		return ca
-	
-	return {
-		conduiteAccompagnee:              false,
-		conduiteAccompagneeMaif:          false,
-		conduiteAccompagneeMaifAvant2007: false,
-	}
-}
+const conduiteAccompagneeSchema: D.Decoder<unknown, CA> = ({
+	decode: ( value ) => {
+		const _value = value as Partial<MergeUnions<CA>> | undefined
+		
+		if ( !_value || !_value.conduiteAccompagnee === undefined )
+			return noCA.decode( value )
+		
+		if ( !_value.conduiteAccompagneeMaif )
+			return caWithoutMaif.decode( _value )
+		
+		return caWithMaif.decode( _value )
+	},
+})
 
 // -------------------------------------------------------------------------------------
 // Schema
 // -------------------------------------------------------------------------------------
-const schema = V.sequence(
-	V.record( {
-		dateAnterioriteBonus050:            V.date,
-		coefficientBonusMalus:              V.number,
-		dateSouscriptionAncienAssureur:     V.date,
-		dateDEcheanceAncienAssureur:        V.date,
-		sinistreAvecCirconstanceAggravante: V.boolean,
-		retraitPermis:                      V.boolean,
-		isAutoDateCoefficientValid:         V.boolean,
-		hasSinistres:                       V.boolean,
-		sinistres:                          V.either(
-			V.nil,
-			V.array( sinistreSchema ),
-		),
-		ca:                                 conduiteAccompagneeSchema,
-	} ),
-)
+const schema =
+	      V.struct( {
+		      dateAnterioriteBonus050:            V.date,
+		      coefficientBonusMalus:              V.number,
+		      dateSouscriptionAncienAssureur:     V.date,
+		      dateDEcheanceAncienAssureur:        V.date,
+		      sinistreAvecCirconstanceAggravante: V.boolean,
+		      retraitPermis:                      V.boolean,
+		      isAutoDateCoefficientValid:         V.boolean,
+		      hasSinistres:                       V.boolean,
+		      sinistres:                          pipe( V.array( sinistreSchema ), V.optional ),
+		      ca:                                 conduiteAccompagneeSchema,
+	      } )
 
 
 const is = <A extends any>( a: A ) => ( b: A | undefined ) => a === b
@@ -130,7 +123,6 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 				values.sinistres || [],
 				AR.filter( isSinistreCollision ),
 			)
-			const conduiteAccompagnee = flattenCa( values.ca )
 			
 			return DRIVERS.jouerAcceptationProspect( {
 					conducteur: {
@@ -158,7 +150,9 @@ const PasseAssure: PasseAssureStep = ( props ) => {
 						// @todo: display errors
 					},
 					() => props.onConfirm( {
-						...conduiteAccompagnee,
+						conduiteAccompagneeMaif:          false,
+						conduiteAccompagneeMaifAvant2007: false,
+						...values.ca,
 						coefficientBonusMalus:              values.coefficientBonusMalus,
 						dateAnterioriteBonus050:            values.dateAnterioriteBonus050,
 						dateDEcheanceAncienAssureur:        values.dateDEcheanceAncienAssureur,

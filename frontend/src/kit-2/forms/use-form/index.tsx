@@ -13,46 +13,6 @@ import { FieldProps, FieldStatus } from "../types"
 
 
 
-const navigator = <T extends any>( thing: T ): T => {
-	const PATH_KEY = "__path"
-	
-	const _monkeyPatchPath = ( path: (string | number)[] ) => <T extends any>( thing: T ): T => {
-		(thing as any).__proto__[ PATH_KEY ] = path
-		return thing
-	}
-	
-	const canBeProxied = ( value: any ): boolean => typeof value === "object"
-	
-	const _builder = ( value: any, path: (string | number)[] ): any =>
-		new Proxy( value, {
-			
-			get: ( target, prop ) => {
-				if ( prop === PATH_KEY )
-					return path
-				
-				const propAsNumber = parseInt( prop.toString() )
-				const segement = !isNaN( propAsNumber ) ?
-				                 propAsNumber :
-				                 prop.toString()
-				
-				const nextValue = target[ prop ] === undefined || target[ prop ] === null ?
-				                  "" : // undefined and null cannot be monkey patched. Since in react check are done via &&, it's kind of ok
-				                  target[ prop ]
-				
-				return pipe(
-					canBeProxied( nextValue ) ?
-					_builder( target[ prop ], [ ...path, segement ] ) :
-					nextValue,
-					_monkeyPatchPath( [ ...path, segement ] ),
-				)
-			},
-		} )
-	
-	return _builder( thing, [] )
-}
-
-
-
 type SetStateFn<T> = ( computeState: (( state: T ) => T) ) => void
 
 // -------------------------------------------------------------------------------------
@@ -65,7 +25,7 @@ const getErrorsLog = ( validated: V.Validated<any> ): Record<string, string[]> =
 		validated,
 		E.mapLeft(
 			AR.reduce( {} as Record<string, string[]>, ( acc, failure ) =>
-				bagMonoid.concat( acc, { [ failure.path ]: [ failure.message ] } ),
+				bagMonoid.concat( acc, { [ failure.path.join( "." ) ]: [ failure.message ] } ),
 			),
 		),
 		E.fold( identity, constant( {} ) ),
@@ -142,7 +102,7 @@ const useForm = <TFormValues extends AnyRecord>(
 	const fieldsCache = new MutableCache<Field<any>>()
 	const _fields: Record<string, Field<any>> = {}
 	const _invariants: Array<[ Predicate<_TKindaValues>, ( value: _TKindaValues ) => _TKindaValues ]> = []
-	const validation = config.schema( values as TFormValues )
+	const validation = V.run( config.schema, values as TFormValues )
 	const _errorsLog = getErrorsLog( validation )
 	const isValid = E.isRight( validation )
 	const utils = {

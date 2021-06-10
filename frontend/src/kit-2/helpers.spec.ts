@@ -41,14 +41,14 @@ test( `MergeUnions<T>`, () => {
 	] )
 } )
 
-test(`Lookup`, (  ) => {
-	Test.checks( [
-		Test.check<Lookup<false | { a: string }, false>, false, Test.Pass>(),
-		Test.check<Lookup<{ a: number, b: string } | { a: string, c: string }, { a: number }>, { a: number, b: string }, Test.Pass>(),
-		Test.check<Lookup<{ type: "left", error: string } | { type: "right", value: string }, { type: "left" }>, { type: "left", error: string }, Test.Pass>(),
+test( `Lookup`, () => {
+	checks( [
+		check<Lookup<false | { a: string }, false>, false, Test.Pass>(),
+		check<Lookup<{ a: number, b: string } | { a: string, c: string }, { a: number }>, { a: number, b: string }, Test.Pass>(),
+		check<Lookup<{ type: "left", error: string } | { type: "right", value: string }, { type: "left" }>, { type: "left", error: string }, Test.Pass>(),
 	] )
 	
-})
+} )
 // test( `MatchDiscriminatedUnion<T>`, () => {
 // 	type MatchDiscriminatedUnion<T extends Record<any, any>, K extends keyof T> = { [P in `on${Capitalize<string & T[K]>}`]: T extends { [P in Pick<T, K> as string]: T[K] } ? T : never }
 // 	// const tryIt: Paths<{ a: string, b: { c: string } }[]> = null as any

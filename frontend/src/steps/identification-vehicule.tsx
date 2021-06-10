@@ -103,9 +103,9 @@ const useFinitionsVehicule = ( params: UseQueryParams<Parameter<typeof AUTOS.get
 	return useFakeTask( AUTOS.getFinitions, params, mock )
 }
 
-const schema = V.record( {
+const schema = V.struct( {
 	codeMarque:              V.nonEmptyString,
-	anneeMiseEnCirculation:  V.sequence( V.number, V.between( 1980, new Date().getFullYear() ) ),
+	anneeMiseEnCirculation:  V.andThen( V.number, V.between( 1980, new Date().getFullYear() ) ),
 	codeFamille:             V.nonEmptyString,
 	codeEnergie:             V.nonEmptyString,
 	codeTransmission:        V.nonEmptyString,

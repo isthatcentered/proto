@@ -67,10 +67,10 @@ const VehiculeSpecs = ( props: { numeroRepertoire: string, anneeMiseEnCirculatio
 	       />
 }
 
-const schema = V.record( {
+const schema = V.struct( {
 	codeUsageVehicule:       V.nonEmptyString,
 	leasingOuCreditEnCours:  V.boolean,
-	dateEffetContratDesiree: V.sequence( V.date, V.min( DATES.today() ) ),
+	dateEffetContratDesiree: V.andThen( V.date, V.min( DATES.today() ) ),
 } )
 
 const UsageVehicule: UsageVehiculeStep = ( props ) => {

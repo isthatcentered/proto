@@ -18,11 +18,11 @@ const minimumDateForDrivingLicenseFromToday = () => {
 	return date
 }
 
-const schema = V.record( {
+const schema = V.struct( {
 	nom:                      V.nonEmptyString,
 	prenom:                   V.nonEmptyString,
 	dateNaissance:            V.date, // @todo: > 18
-	dateObtentionPermis:      V.sequence( V.date, V.lte( minimumDateForDrivingLicenseFromToday() ) ), // @todo: must be after birth && > 18 years ago
+	dateObtentionPermis:      V.andThen( V.date, V.lte( minimumDateForDrivingLicenseFromToday() ) ), // @todo: must be after birth && > 18 years ago
 	codeTypeConducteur:       V.nonEmptyString,
 	codeTypePermis:           V.nonEmptyString,
 	codeExperienceConducteur: V.nonEmptyString,

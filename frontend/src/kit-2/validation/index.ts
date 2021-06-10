@@ -1,64 +1,51 @@
-import * as E from "fp-ts/Either"
-import { constant, flow, pipe, Predicate } from "fp-ts/function"
-import * as AR from "fp-ts/Array"
-import * as DATES from "../dates"
+import * as EI from "fp-ts/Either"
 import * as EQ from "fp-ts/Eq"
-import * as D from "./decoder"
+import * as D2 from "io-ts/Decoder"
+import { Predicate, Refinement } from "fp-ts/function"
+import { pipe } from "fp-ts/lib/function"
+import * as DATES from "../dates"
+import report from "./report"
 
-
-
-
-const TODO = ( reason?: string ): any => {
-	throw new Error( `@TODO: ${reason || "implement"}` )
-}
-
-const assertType = <TExpected>( value: TExpected ) => value
 
 
 // -------------------------------------------------------------------------------------
 // Models
 // -------------------------------------------------------------------------------------
-export type Validated<A> = D.Validated<A>
+export type Failure = { path: (string | number)[], message: string, value?: any }
 
-export type Validation<A> = D.Decoder<A, A>
+export type Validated<A> = EI.Either<Failure[], A>
 
-export type ValidatedType<T extends Validation<any>> = T extends Validation<infer R > ? R : never
+export type Validation<B, A = B> = D2.Decoder<A, B>
+
+export type ValidatedType<T extends Validation<any, any>> = D2.TypeOf<T>
 
 
 // -------------------------------------------------------------------------------------
 // Constructors
-// -------------------------------------------------------------------------------------
-export const defaultTo = <A>( a: A ): Validation<A> => sequence( nil as Validation<any>, () => E.right( a ) )
+// -------------------------------- ----------------------------------------------------
+export {literal } from "io-ts/Decoder"
 
-export const identity =
-	             D.identity
+const satisfy: {
+	<A, B extends A>( refinement: Refinement<A, B>, message: string ): Validation<B, A>
+	<A>( predicate: Predicate<A>, message: string ): Validation<A, A>
+} = <A>( predicate: Predicate<A>, message: string ): Validation<A, A> => ({
+	decode: ( value: any ) =>
+		        predicate( value ) ?
+		        D2.success( value ) :
+		        D2.failure( value, message ),
+})
 
-export const fail: ( message: string ) => Validation<any> =
-	             D.fail
-
-const satisfy: <A>( predicate: Predicate<A>, message: ( a: A ) => string ) => Validation<A> =
-	      D.satisfy
-
-export const contramap: <A, B, C extends B>( map: ( a: A ) => B, validation: Validation<C> ) => Validation<A> =
-	             D.contramap
-
-export const eq = <A>( expected: A, Eq: EQ.Eq<A> ): Validation<A> =>
-	satisfy(
-		actual => Eq.equals( expected, actual ),
-		value => `Expected "${expected}" but got ${value}`,
-	)
-
-
+export const eq = <A>( expected: A, Eq: EQ.Eq<A> ): Validation<A, unknown> => D2.fromRefinement( ( actual ): actual is A => Eq.equals( expected, actual as A ), `Must be ${expected}` )
 
 const gteNumber = ( n: number ) => satisfy(
 	( value: number ) => value >= n,
-	value => `Must be more than or equal to "${n}", got "${value}"`,
+	`Must be more than or equal to "${n}"`,
 )
 
 export const gteDate = ( min: Date ): Validation<Date> =>
 	satisfy(
 		date => DATES.isSame( min )( date ) || DATES.isAfter( min )( date ),
-		() => `Cannot be before ${min}`,
+		`Cannot be before ${min}`,
 	)
 
 
@@ -76,13 +63,13 @@ export const min = gte
 
 export const lteNumber = ( n: number ) => satisfy(
 	( value: number ) => value <= n,
-	value => `Must be less than or equal to "${n}", got "${value}"`,
+	`Must be less than or equal to "${n}"`,
 )
 
 export const lteDate = ( max: Date ): Validation<Date> =>
 	satisfy(
 		date => DATES.isSame( max )( date ) || DATES.isBefore( max )( date ),
-		() => `Cannot be after ${max}`,
+		`Cannot be after ${max}`,
 	)
 
 
@@ -99,57 +86,124 @@ export function lte( max: any ): Validation<any>
 export const max = lte
 
 export const between = ( min: number, max: number ) =>
-	sequence( gte( min ), lte( max ) )
-
-
-
+	andThen( gte( min ), lte( max ) )
 // -------------------------------------------------------------------------------------
-// Combinators
+// Conbinators
 // -------------------------------------------------------------------------------------
-export const given = <A>( predicate: Predicate<A>, validation: Validation<A> ): Validation<A> =>
-	value =>
-		predicate( value ) ?
-		validation( value ) :
-		identity( value )
+export { struct, array, sum } from "io-ts/Decoder"
 
-export const par = <A>( ...validations: Validation<A>[] ): Validation<A> =>
-	a =>
-		pipe(
-			AR.sequence( D.Applicative )( validations )( a ),
-			E.map( constant( a ) ), // sequence returns an array of As, we just need one
-		)
+export const either = D2.union
 
-export const sequence: <A>( ...validations: Validation<A>[] ) => Validation<A> = D.andThen
+export const andThen = <A, B, C>( ab: Validation<B, A>, bc: Validation<C, B> ): Validation<C, A> =>
+	pipe(
+		ab,
+		D2.compose( bc ),
+	)
 
-export const either: <A, B>( left: Validation<A>, right: Validation<B> ) => Validation<A | B> = D.either
-
-export const record: <T extends Record<string, any>>( map: {
-	[K in keyof T]: Validation<T[K]>
-} ) => Validation<T> = flow( D.record, D.required )
-
-assertType<Validation<{ hello: string }>>( record( { hello: null as any as Validation<string> } ) )
-
-export const array: <A>( validation: Validation<A> ) => Validation<A[]> = flow( D.array, D.required )
-
+export const optional = <A, B>( decoder: Validation<B, A> ): Validation<B | undefined, A> => ({
+	decode: ( value: any ) =>
+		        (value === null) || (value === undefined) ?
+		        D2.success( value ) :
+		        decoder.decode( value ),
+})
 
 // -------------------------------------------------------------------------------------
 // Primitives
 // -------------------------------------------------------------------------------------
-export const required = D.required
+export const date = satisfy( ( thing ): thing is Date => thing instanceof Date, "Must be a date" )
 
-export const nil: Validation<undefined> = D.nil
+export const nil = satisfy( ( thing ): thing is undefined => thing === undefined || thing === null, "Must be empty" )
 
-export const string: Validation<string> = pipe( D.string, required )
+export const nonEmptyString = andThen( D2.string, satisfy( ( str ) => str.length > 0, "Cannot be blank" ) )
 
-export const number: Validation<number> = pipe( D.number, required )
+export { string, boolean, number } from "io-ts/Decoder"
 
-export const boolean: Validation<boolean> = pipe( D.boolean, required )
 
-export const date: Validation<Date> = pipe( D.date, required )
+// -------------------------------------------------------------------------------------
+// Interpreters
+// -------------------------------------------------------------------------------------
+export const run = <B, A>( validation: Validation<B, A>, value: A ): EI.Either<Failure[], B> =>
+	pipe(
+		validation.decode( value ),
+		EI.mapLeft( report ),
+	)
 
-export const nonEmpty: Validation<string> = D.nonEmpty
 
-export const nonEmptyString: Validation<string> = sequence( string, nonEmpty )
+//
+// // -------------------------------------------------------------------------------------
+// // Constructors
+// // -------------------------------------------------------------------------------------
+// export const identity =
+// 	             D.identity
+//
+// export const fail: ( message: string ) => Validation<any> =
+// 	             D.fail
+//
+// const satisfy: <A>( predicate: Predicate<A>, message: ( a: A ) => string ) => Validation<A> =
+// 	      D.satisfy
+//
+// export const contramap: <A, B, C extends B>( map: ( a: A ) => B, validation: Validation<C> ) => Validation<A> =
+// 	             D.contramap
+//
+// export const eq = <A>( expected: A, Eq: EQ.Eq<A> ): Validation<A> =>
+// 	satisfy(
+// 		actual => Eq.equals( expected, actual ),
+// 		value => `Expected "${expected}" but got ${value}`,
+// 	)
+//
+//
+
+
+
+//
+//
+// // -------------------------------------------------------------------------------------
+// // Combinators
+// // -------------------------------------------------------------------------------------
+// export const given = <A>( predicate: Predicate<A>, validation: Validation<A> ): Validation<A> =>
+// 	value =>
+// 		predicate( value ) ?
+// 		validation( value ) :
+// 		identity( value )
+//
+// export const par = <A>( ...validations: Validation<A>[] ): Validation<A> =>
+// 	a =>
+// 		pipe(
+// 			AR.sequence( D.Applicative )( validations )( a ),
+// 			E.map( constant( a ) ), // sequence returns an array of As, we just need one
+// 		)
+//
+// export const sequence: <A>( ...validations: Validation<A>[] ) => Validation<A> = D.andThen
+//
+// export const either: <A, B>( left: Validation<A>, right: Validation<B> ) => Validation<A | B> = D.either
+//
+// export const record: <T extends Record<string, any>>( map: {
+// 	[K in keyof T]: Validation<T[K]>
+// } ) => Validation<T> = flow( D.record, D.required )
+//
+// assertType<Validation<{ hello: string }>>( record( { hello: null as any as Validation<string> } ) )
+//
+// export const array: <A>( validation: Validation<A> ) => Validation<A[]> = flow( D.array, D.required )
+//
+//
+// // -------------------------------------------------------------------------------------
+// // Primitives
+// // -------------------------------------------------------------------------------------
+// export const required = D.required
+//
+// export const nil: Validation<undefined> = D.nil
+//
+// export const string: Validation<string> = pipe( D.string, required )
+//
+// export const number: Validation<number> = pipe( D.number, required )
+//
+// export const boolean: Validation<boolean> = pipe( D.boolean, required )
+//
+// export const date: Validation<Date> = pipe( D.date, required )
+//
+// export const nonEmpty: Validation<string> = D.nonEmpty
+//
+// export const nonEmptyString: Validation<string> = sequence( string, nonEmpty )
 
 
 // export const year
