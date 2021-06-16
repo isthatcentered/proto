@@ -1,6 +1,7 @@
 import * as EI from "fp-ts/Either"
 import * as EQ from "fp-ts/Eq"
 import * as D2 from "io-ts/Decoder"
+import * as D from "io-ts/Decoder"
 import { Predicate, Refinement } from "fp-ts/function"
 import { pipe } from "fp-ts/lib/function"
 import * as DATES from "../dates"
@@ -23,7 +24,7 @@ export type ValidatedType<T extends Validation<any, any>> = D2.TypeOf<T>
 // -------------------------------------------------------------------------------------
 // Constructors
 // -------------------------------- ----------------------------------------------------
-export {literal } from "io-ts/Decoder"
+export { literal } from "io-ts/Decoder"
 
 const satisfy: {
 	<A, B extends A>( refinement: Refinement<A, B>, message: string ): Validation<B, A>
@@ -35,7 +36,10 @@ const satisfy: {
 		        D2.failure( value, message ),
 })
 
-export const eq = <A>( expected: A, Eq: EQ.Eq<A> ): Validation<A, unknown> => D2.fromRefinement( ( actual ): actual is A => Eq.equals( expected, actual as A ), `Must be ${expected}` )
+export const eq = <A>( expected: A, Eq: EQ.Eq<A> ): Validation<A, unknown> => pipe(
+	D2.fromRefinement( ( actual ): actual is A => Eq.equals( expected, actual as A ), `Must be ${expected}` ),
+	required,
+)
 
 const gteNumber = ( n: number ) => satisfy(
 	( value: number ) => value >= n,
@@ -107,17 +111,39 @@ export const optional = <A, B>( decoder: Validation<B, A> ): Validation<B | unde
 		        decoder.decode( value ),
 })
 
+export const required = <A, B>( validation: Validation<B, A> ): Validation<NonNullable<B>, A> => ({
+	decode: ( value: A ) =>
+		        (value === null) || (value === undefined) ?
+		        D2.failure( value, "Required" ) :
+		        validation.decode( value ) as EI.Either<D2.DecodeError, NonNullable<B>>,
+})
+
+type Slot<A, B extends A = A> = [ Refinement<A, B> | Predicate<A>, Validation<B, unknown> ]
+
+export const cond = <A extends any>( slots: Slot<A>[  ] ): Validation<A, unknown> => ({
+	decode: value => {
+		const decoder = slots.find( s => s[ 0 ]( value as any ) )
+		return decoder ?
+		       decoder[ 1 ].decode( value ) :
+		       D.success( value as A )
+	},
+})
+
+
 // -------------------------------------------------------------------------------------
 // Primitives
 // -------------------------------------------------------------------------------------
-export const date = satisfy( ( thing ): thing is Date => thing instanceof Date, "Must be a date" )
+export const date = pipe( satisfy( ( thing ): thing is Date => thing instanceof Date, "Must be a date" ), required )
+
+export const boolean = pipe( D2.boolean, required )
+
+export const number = pipe( D2.number, required )
+
+export const string = pipe( D2.string, required )
 
 export const nil = satisfy( ( thing ): thing is undefined => thing === undefined || thing === null, "Must be empty" )
 
 export const nonEmptyString = andThen( D2.string, satisfy( ( str ) => str.length > 0, "Cannot be blank" ) )
-
-export { string, boolean, number } from "io-ts/Decoder"
-
 
 // -------------------------------------------------------------------------------------
 // Interpreters
@@ -127,6 +153,12 @@ export const run = <B, A>( validation: Validation<B, A>, value: A ): EI.Either<F
 		validation.decode( value ),
 		EI.mapLeft( report ),
 	)
+
+// -------------------------------------------------------------------------------------
+// Interop
+// -------------------------------------------------------------------------------------
+export const asRefinement = <B extends A, A>( validation: Validation<B, A> ): Refinement<A, B> =>
+	( value: A ): value is B => EI.isRight( validation.decode( value ) )
 
 
 //

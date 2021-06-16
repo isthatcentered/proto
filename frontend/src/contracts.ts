@@ -13,7 +13,7 @@ export type IdentificationVehiculeStep = Step<PickStep<InitParcoursStep, "codeTy
 }>
 
 
-export type UsageVehiculeStep = Step<PickStep<IdentificationVehiculeStep, "numeroRepertoire"| "anneeMiseEnCirculationVehicule">, {
+export type UsageVehiculeStep = Step<PickStep<IdentificationVehiculeStep, "numeroRepertoire" | "anneeMiseEnCirculationVehicule">, {
 	/*
 	 * - Date du jour par défaut
 	 * - Doit être supérieure ou égale à la date du jour ]
@@ -37,22 +37,28 @@ export type IdentificationConducteurStep = Step<PickStep<IdentificationVehiculeS
 	codeCivilite: string,
 }>
 
+type NouveauConducteur = {
+	conduiteAccompagnee: boolean,
+	conduiteAccompagneeMaif: boolean,
+	conduiteAccompagneeMaifAvant2007: boolean,
+}
 
-export type PasseAssureStep = Step<PickStep<IdentificationVehiculeStep, "numeroRepertoire"> &
+type ConducteurExperimente = {
+	dateAnterioriteBonus050: Date,
+	coefficientBonusMalus: number,
+	dateSouscriptionAncienAssureur: Date,
+	dateDEcheanceAncienAssureur: Date,
+	conduiteAccompagnee: boolean,
+	conduiteAccompagneeMaif: boolean,
+	conduiteAccompagneeMaifAvant2007: boolean,
+	sinistreAvecCirconstanceAggravante: boolean,
+	retraitPermis: boolean,
+	sinistres: { dateSurvenance: Date, codeResponsabilite: string }[]
+}
+export type PasseConducteurStep = Step<PickStep<IdentificationVehiculeStep, "numeroRepertoire"> &
 	PickStep<UsageVehiculeStep, "codeUsageVehicule" | "dateEffetContratDesiree"> &
 	PickStep<IdentificationConducteurStep, "nom" | "prenom" | "dateNaissance" | "dateObtentionPermis" | "codeTypeConducteur" | "codeExperienceConducteur">,
-	{
-		dateAnterioriteBonus050: Date,
-		coefficientBonusMalus: number,
-		dateSouscriptionAncienAssureur: Date,
-		dateDEcheanceAncienAssureur: Date,
-		conduiteAccompagnee: boolean,
-		conduiteAccompagneeMaif: boolean,
-		conduiteAccompagneeMaifAvant2007: boolean,
-		sinistreAvecCirconstanceAggravante: boolean,
-		retraitPermis: boolean,
-		sinistres: { dateSurvenance: Date, codeResponsabilite: string }[]
-	}>
+	ConducteurExperimente | NouveauConducteur>
 
 
 

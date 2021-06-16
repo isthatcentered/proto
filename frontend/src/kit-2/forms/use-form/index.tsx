@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react"
-import { AnyRecord, DeepKinda, MergeUnions, pick } from "../../helpers"
+import { AnyRecord, ArrayProps, DeepKinda, MergeUnions, pick } from "../../helpers"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import * as AR from "fp-ts/Array"
@@ -9,6 +9,7 @@ import { constant, identity, pipe, Predicate } from "fp-ts/function"
 import { pathOr } from "ramda"
 import setPathValue from "./set-path-value"
 import { FieldProps, FieldStatus } from "../types"
+import * as TPL from "fp-ts/Tuple"
 
 
 
@@ -111,7 +112,7 @@ const useForm = <TFormValues extends AnyRecord>(
 		getFieldErrors: getFieldErrors( _errorsLog ),
 	}
 	
-	console.log( "errors", _errorsLog )
+	console.log( "errors", _errorsLog, validation )
 	
 	const setData = ( path: (string | number)[], value: any ): void => {
 		pipe(
@@ -154,41 +155,32 @@ const useForm = <TFormValues extends AnyRecord>(
 		},
 	})
 	
-	// const connectz: {
-	// 	<A extends Record<any, any>, K extends keyof A, K2 extends keyof A[K], K3 extends keyof A[K][K2], K4 extends keyof A[K][K2][K3]>( path: [ K, K2, K3, K4 ], a: A ): FieldProps<A[K][K2][K3][K4]>
-	// 	<A extends Record<any, any>, K extends keyof A, K2 extends keyof A[K], K3 extends keyof A[K][K2]>( path: [ K, K2, K3 ], a: A ): FieldProps<A[K][K2][K3]>
-	// 	<A extends Record<any, any>, K extends keyof A, K2 extends keyof A[K]>( path: [ K, K2 ], a: A ): FieldProps<A[K][K2]>
-	// 	<A extends Record<any, any>, K extends keyof A>( path: [ K ], a: A ): FieldProps<A[K]>
-	// } = <A extends Record<any, any>>( path: (string | number)[], _a: A ) => {
-	// 	const name = path.join( "." )
-	// 	return ({
-	// 		name,
-	// 		value:    pathOr( undefined, path, values ),
-	// 		status:   utils.getFieldStatus( name ),
-	// 		errors:   _errorsLog[ name ] || [],
-	// 		onChange: ( value: any ) => {
-	// 			if ( isPending )
-	// 				return
-	// 			setData( path, value )
-	// 		},
-	// 	})
-	// }
-	//
-	//
 	
 	
 	const connect: {
-		<K extends keyof _TFlattenedValues, K2 extends keyof _TFlattenedValues[K], K3 extends keyof _TFlattenedValues[K][K2], K4 extends keyof _TFlattenedValues[K][K2][K3]>( path: [ K, K2, K3, K4 ] ): FieldProps<_TFlattenedValues[K][K2][K3][K4]>
-		<K extends keyof _TFlattenedValues, K2 extends keyof _TFlattenedValues[K], K3 extends keyof _TFlattenedValues[K][K2]>( path: [ K, K2, K3 ] ): FieldProps<_TFlattenedValues[K][K2][K3]>
-		<K extends keyof _TFlattenedValues, K2 extends keyof _TFlattenedValues[K]>( path: [ K, K2 ] ): FieldProps<_TFlattenedValues[K][K2]>
-		<K extends keyof _TFlattenedValues>( path: [ K ] ): FieldProps<_TFlattenedValues[K]>
-	} = ( path: (string | number)[] ) => {
+		<K extends keyof _TFlattenedValues, K2 extends keyof _TFlattenedValues[K], K3 extends keyof _TFlattenedValues[K][K2], K4 extends keyof _TFlattenedValues[K][K2][K3]>( path: [ K, K2, K3, K4 ], overrides?: {
+			onChange?: ( value: _TFlattenedValues[K][K2][K3][K4] ) => void
+		} ): FieldProps<_TFlattenedValues[K][K2][K3][K4]>
+		<K extends keyof _TFlattenedValues, K2 extends keyof _TFlattenedValues[K], K3 extends keyof _TFlattenedValues[K][K2]>( path: [ K, K2, K3 ], overrides?: {
+			onChange?: ( value: _TFlattenedValues[K][K2][K3] ) => void
+		} ): FieldProps<_TFlattenedValues[K][K2][K3]>
+		<K extends keyof _TFlattenedValues, K2 extends keyof _TFlattenedValues[K]>( path: [ K, K2 ], overrides?: {
+			onChange?: ( value: _TFlattenedValues[K][K2] ) => void
+		} ): FieldProps<_TFlattenedValues[K][K2]>
+		<K extends keyof _TFlattenedValues>( path: [ K ], overrides?: {
+			onChange?: ( value: _TFlattenedValues[K] ) => void
+		} ): FieldProps<_TFlattenedValues[K]>
+	} = ( path: (string | number)[], overrides?: {
+		onChange?: ( value: any ) => void
+	} ) => {
 		const name = path.join( "." )
 		const status = utils.getFieldStatus( name )
 		const setValue = ( value: any | undefined ) => {
 			if ( isPending )
 				return
 			status === "pristine" && utils.setFieldStatus( name )( "dirty" )
+			overrides?.onChange ?
+			overrides.onChange( value ) :
 			setData( path, value )
 		}
 		const value = pathOr( undefined, path, values )
@@ -203,16 +195,25 @@ const useForm = <TFormValues extends AnyRecord>(
 		})
 	}
 	
+	const collection = <K extends keyof ArrayProps<TFormValues>>( path: [ K ] ): CollectionUtils<TFormValues[K][number]> => {
+		type _ItemType = TFormValues[K][number]
+		const field = connect( path as any ) as any as FieldProps<_ItemType[]>
+		const as = field.value || []
+		const _setData = ( value: _ItemType[] ) => setData( path as string[], value )
+		return {
+			isEmpty: !field.value || !field.value.length,
+			isValid: true, // @todo: should be false if any sub field is invalid
+			clear:   () => _setData( [] ),
+			push:    ( item: any ) => _setData( [ ...as, item ] ),
+			set:     ( at: number, value: _ItemType ) => _setData( as.map( ( item, index ) => index === at ?
+			                                                                                  value :
+			                                                                                  item ) ),
+			remove:  ( at: number ) => _setData( as.filter( ( _, index ) => index !== at ) ),
+		}
+	}
 	
-	const collection = <T extends any>( field: Field<T[]> | Field<T[] | undefined> ) =>
-		({
-			isEmpty: !(field.props.value || []).length,
-			push:    ( item: Partial<T> ) => setData( field.path, [ ...field.props.value || [], item ] ),
-			remove:  ( at: number ) => setData( field.path, (field.props.value || []).filter( ( _, index ) => index !== at ) ),
-		})
 	
-	
-	
+	// @todo: remove and use connect(...path) like methods
 	const makeField = <T extends any>( path: (string | number)[] ): Field<T> =>
 		fieldsCache.getOrCreate(
 			path.join( "." ),
@@ -265,6 +266,17 @@ const useForm = <TFormValues extends AnyRecord>(
 		_invariants.push( ...rules )
 	}
 	
+	const rules = <K extends keyof _TFlattenedValues>( path: K, rules: Array<[ Predicate<Partial<_TFlattenedValues[K]>>, ( value: _TKindaValues[K] ) => _TKindaValues[K] ]> ) => {
+		const fieldInvariantsAsGlobalInvariants: typeof _invariants = pipe(
+			rules,
+			AR.map( TPL.bimap( setter => values => ({
+				...values,
+				[ path ]: setter( values[ path ] ),
+			}), predicate => values => predicate( values[ path ] ) ) ),
+		)
+		_invariants.push( ...fieldInvariantsAsGlobalInvariants )
+	}
+	
 	const pickValids = <K extends keyof TFormValues>( keys: K[] ): O.Option<Pick<TFormValues, K>> => {
 		const requiresInvalidProp = keys.some( key => utils.getFieldErrors( [ key as string ] ).length )
 		return requiresInvalidProp ?
@@ -272,7 +284,24 @@ const useForm = <TFormValues extends AnyRecord>(
 		       O.some( pipe( values as TFormValues, pick( keys ) ) )
 	}
 	
-	return [ values, { props, isValid, isPending, pickValids, connect, fields, collection, invariants, values: values as _TKindaValues } ] as const
+	const set: {
+		<K extends keyof TFormValues>( path: [ K ], value: TFormValues[K] ): void
+		( value: _TKindaValues ): void
+	} = ( ...args: any[] ): void =>
+		args.length === 2 ?
+		setData( args[ 0 ] as string[], args[ 1 ] ) :
+		setData( [], args[ 0 ] )
+	
+	return [ values, { props, isValid, isPending, pickValids, connect, fields, collection, invariants, values: values as _TKindaValues, rules, set } ] as const
+}
+
+type CollectionUtils<T> = {
+	isEmpty: boolean,
+	isValid: boolean
+	clear: () => void
+	push: ( item: T ) => void,
+	remove: ( at: number ) => void,
+	set: ( at: number, value: T ) => void
 }
 
 type Field<T> = {

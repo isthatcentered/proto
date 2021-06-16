@@ -1,7 +1,8 @@
-import { HTMLAttributes } from "react"
-import { pipe } from "fp-ts/function"
+import { ComponentType, HTMLAttributes } from "react"
+import { pipe, Predicate } from "fp-ts/function"
 import * as AR from "fp-ts/Array"
 import { Object, Union } from "ts-toolbelt"
+import { cond as RCond } from "ramda"
 
 
 
@@ -48,8 +49,6 @@ export  type Constructable = {
 
 
 
-
-
 export type Lookup<T, K extends Partial<T>> = T extends K ? T : never
 
 
@@ -62,7 +61,9 @@ export type MergeUnions<T> =
 		[K in keyof T]: MergeUnions<T[K]>
 	}>> : never
 
-
+export type ArrayProps<T extends Record<string, any>> = {
+	[K in keyof T as T[K ] extends any[] ? K : never]: T[K]
+}
 
 export type IfElse<TPredicate extends 1 | 0, TOnTrue, TOnfalse> = TPredicate extends 1 ? TOnTrue : TOnfalse
 
@@ -160,3 +161,7 @@ export type DeepPartial<T> =
 	T extends Record<string, any> ? Partial<{
 		[K in keyof T]: Partial<T[K]>
 	}> : never
+
+const cond = <A extends any, R>( rules: Array<[ Predicate<A>, ( value: A ) => R ]> ) => ( a: A ): R => RCond( rules )( a )
+
+export type Props<T extends ComponentType<any>> = T extends ComponentType<infer P> ? P : never

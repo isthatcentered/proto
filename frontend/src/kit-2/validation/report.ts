@@ -33,9 +33,7 @@ const report = ( error: D.DecodeError ): Failure[] => {
 			),
 		)
 	
-	const failures = loop( error, [], undefined )
-	console.log( "fails ", failures )
-	return failures
+	return loop( error, [], undefined )
 }
 
 export default report
