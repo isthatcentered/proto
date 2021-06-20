@@ -1630,15 +1630,18 @@ export class HttpClient<SecurityDataType = unknown> {
     this.securityData = data;
   };
 
-  private addQueryParam(query: QueryParamsType, key: string) {
-    const value = query[key];
+  private encodeQueryParam(key: string, value: any) {
     const encodedKey = encodeURIComponent(key);
     return `${encodedKey}=${encodeURIComponent(typeof value === "number" ? value : `${value}`)}`;
   }
 
+  private addQueryParam(query: QueryParamsType, key: string) {
+    return this.encodeQueryParam(key, query[key]);
+  }
+
   private addArrayQueryParam(query: QueryParamsType, key: string) {
     const value = query[key];
-    return `${value.map(this.addQueryParam).join("&")}`;
+    return value.map((v: any) => this.encodeQueryParam(key, v)).join("&");
   }
 
   protected toQueryString(rawQuery?: QueryParamsType): string {
@@ -1658,9 +1661,17 @@ export class HttpClient<SecurityDataType = unknown> {
     [ContentType.Json]: (input: any) =>
       input !== null && (typeof input === "object" || typeof input === "string") ? JSON.stringify(input) : input,
     [ContentType.FormData]: (input: any) =>
-      Object.keys(input || {}).reduce((data, key) => {
-        data.append(key, input[key]);
-        return data;
+      Object.keys(input || {}).reduce((formData, key) => {
+        const property = input[key];
+        formData.append(
+          key,
+          property instanceof Blob
+            ? property
+            : typeof property === "object" && property !== null
+            ? JSON.stringify(property)
+            : `${property}`,
+        );
+        return formData;
       }, new FormData()),
     [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
   };
@@ -1732,8 +1743,8 @@ export class HttpClient<SecurityDataType = unknown> {
       body: typeof body === "undefined" || body === null ? null : payloadFormatter(body),
     }).then(async (response) => {
       const r = response as HttpResponse<T, E>;
-      r.data = (null as unknown) as T;
-      r.error = (null as unknown) as E;
+      r.data = null as unknown as T;
+      r.error = null as unknown as E;
 
       const data = !responseFormat
         ? r
@@ -1768,7 +1779,11 @@ export class HttpClient<SecurityDataType = unknown> {
  * Cette API permet de gérer le référentiel des véhicules (modèle générique).<br> Un véhicule peut être de type auto, moto, quad, cyclo ou camping-car.<br> L'API permet d'exposer (recherche, consultation) des données spécifiques à chaque type de véhicules (par exemple le nombre de portes pour un véhicule de type auto) ou communes à tous les types de véhicules (par exemple recherche d'un véhicule par immatriculation).
  */
 export class Api<SecurityDataType extends unknown> {
-  constructor(private http: HttpClient<SecurityDataType>) {}
+  http: HttpClient<SecurityDataType>;
+
+  constructor(http: HttpClient<SecurityDataType>) {
+    this.http = http;
+  }
 
   sra = {
     /**
@@ -1898,6 +1913,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name GetFamillesUsingGet
      * @summary GET - Consultation des familles de véhicule par catégorie et id de marque
      * @request GET:/v1/modeles/familles
+     * @deprecated
      */
     getFamillesUsingGet: (query: GetFamillesUsingGetParams, params: RequestParams = {}) =>
       this.http.request<FamilleVehiculeDTO[], any>({
@@ -1914,6 +1930,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name GetFamilleByIdUsingGet
      * @summary GET - Consultation des familles de véhicule par son id
      * @request GET:/v1/modeles/familles/{famillesId}
+     * @deprecated
      */
     getFamilleByIdUsingGet: (famillesId: string, params: RequestParams = {}) =>
       this.http.request<FamilleVehiculeDTO, any>({
@@ -1929,6 +1946,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name GetMarquesUsingGet
      * @summary GET - Consultation des marques par catégorie de véhicule
      * @request GET:/v1/modeles/marques
+     * @deprecated
      */
     getMarquesUsingGet: (query: GetMarquesUsingGetParams, params: RequestParams = {}) =>
       this.http.request<MarqueVehiculeDTO[], any>({
@@ -1945,6 +1963,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name GetMarqueByIdUsingGet
      * @summary GET - Consultation d'une marque par son id
      * @request GET:/v1/modeles/marques/{marquesId}
+     * @deprecated
      */
     getMarqueByIdUsingGet: (marquesId: string, params: RequestParams = {}) =>
       this.http.request<MarqueVehiculeDTO, any>({
@@ -1960,6 +1979,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name GetNumeroRepertoiresVehiculesUsingGet
      * @summary GET - Consultation modèles véhicule par liste de numéro de répertoire
      * @request GET:/v1/modeles/modeles_vehicules
+     * @deprecated
      */
     getNumeroRepertoiresVehiculesUsingGet: (
       query: GetNumeroRepertoiresVehiculesUsingGetParams,
@@ -1979,6 +1999,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name GetNumeroRepertoireVehiculeUsingGet
      * @summary GET - Consultation modèle véhicule par numéro de répertoire
      * @request GET:/v1/modeles/{numeroRepertoireVehicule}
+     * @deprecated
      */
     getNumeroRepertoireVehiculeUsingGet: (numeroRepertoireVehicule: string, params: RequestParams = {}) =>
       this.http.request<ModelVehDTOLight, any>({
@@ -1995,6 +2016,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name GetNumRepForImmatriculationUsingGet
      * @summary GET - Consultation modèles véhicule à partir d'une immatriculation
      * @request GET:/v1/modeles/immatriculation
+     * @deprecated
      */
     getNumRepForImmatriculationUsingGet: (
       query: GetNumRepForImmatriculationUsingGetParams,
@@ -2014,6 +2036,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name GetModleVehiculesByNumeroChassisUsingGet
      * @summary GET - Consultation modèles véhicule à partir d'un numéro de chassis
      * @request GET:/v1/modeles/numeros_chassis
+     * @deprecated
      */
     getModleVehiculesByNumeroChassisUsingGet: (
       query: GetModleVehiculesByNumeroChassisUsingGetParams,

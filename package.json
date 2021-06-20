@@ -1,0 +1,25 @@
+{
+    "name": "proto",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "gen:swagger": "orval --config ./orval.config.js",
+        "start:frontend": "cd frontend && yarn start",
+        "start:backend": "cd backend && yarn start"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/isthatcentered/proto.git"
+    },
+    "keywords": [],
+    "author": "Edouard Penin",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/isthatcentered/proto/issues"
+    },
+    "homepage": "https://github.com/isthatcentered/proto#readme",
+    "devDependencies": {
+        "orval": "5.3.2"
+    }
+}

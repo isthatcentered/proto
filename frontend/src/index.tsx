@@ -6,6 +6,8 @@ import IdentificationVehicule from "./steps/identification-vehicule"
 import UsageVehicule from "./steps/usage-vehicule"
 import IdentificationConducteur from "./steps/identification-conducteur"
 import PasseConducteur from "./steps/passe-conducteur"
+import { QueryClient, QueryClientProvider } from "react-query";
+import { useRecupererListeAutos } from "./__gen/referentiel-modeles-vehicules/autos"
 
 
 // Each step data is the accumulated data of all the previous steps
@@ -31,10 +33,19 @@ const stepOverride: Step | undefined =
 
 const initialState: Step = stepOverride || { type: "init-parcours" }
 
+
+const queryClient = new QueryClient()
+
+
 // @todo: allow going back to previous step
 const App = () => {
+	
+	
+	
 	const [ step, setNextStep ] = useState<Step>( initialState )
 	// console.log( step )
+	
+	useRecupererListeAutos( { listeAnneesCirculation: [2020, 2021] } )
 	
 	return (
 		<div
@@ -79,7 +90,9 @@ const App = () => {
 
 ReactDOM.render(
 	<React.StrictMode>
-		<App/>
+		<QueryClientProvider client={queryClient}>
+			<App/>
+		</QueryClientProvider>
 	</React.StrictMode>
 	,
 	document.getElementById( "root" ),

@@ -28,7 +28,6 @@ const noCA = V.struct( {
 	conduiteAccompagnee: V.eq( false, BOOL.Eq ),
 } )
 
-
 const caWithoutMaif = V.struct( {
 	conduiteAccompagnee:     V.eq( true, BOOL.Eq ),
 	conduiteAccompagneeMaif: V.eq( false, BOOL.Eq ),

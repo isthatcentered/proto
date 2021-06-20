@@ -8,12 +8,12 @@ const schemas = [
     {
         // url: process.env["SWAGGER_URL_REF_MODELS_VEHICULES"],
         apiName: "referentiel-modeles-vehicules",
-        spec: require("./swagger-specs-local/referentiel-modeles-vehicules.json")
+        spec: require("../swagger-specs-local/referentiel-modeles-vehicules.json")
     },
     {
         // url: process.env["SWAGGER_URL_IARD_DEVIS_VEHiCULES"],
         apiName: "iard-devis-vehicules",
-        spec: require("./swagger-specs-local/iard-devis-vehicules-v1.json")
+        spec: require("../swagger-specs-local/iard-devis-vehicules-v1.json")
     },
 ]
 
