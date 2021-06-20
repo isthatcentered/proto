@@ -40,7 +40,7 @@ export const recupererListeSRA = <Data = unknown>(
       `/modeles/sra`,
       {
         params,
-  baseURL: '/api/referentiel/modeles_vehicules', 
+  baseURL: '/referentiel/modeles_vehicules/', 
     ...options },
     );
   }

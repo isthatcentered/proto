@@ -39,7 +39,7 @@ export const getSraWithCodeEtatUsingGET = <Data = unknown>(
       `/v1/modeles/SRA`,
       {
         params,
-  baseURL: '/api/referentiel/modeles_vehicules', 
+  baseURL: '/referentiel/modeles_vehicules/', 
     ...options },
     );
   }

@@ -39,13 +39,7 @@ const queryClient = new QueryClient()
 
 // @todo: allow going back to previous step
 const App = () => {
-	
-	
-	
 	const [ step, setNextStep ] = useState<Step>( initialState )
-	// console.log( step )
-	
-	useRecupererListeAutos( { listeAnneesCirculation: [2020, 2021] } )
 	
 	return (
 		<div
@@ -79,11 +73,6 @@ const App = () => {
 						return <PasseConducteur {...step.data} onConfirm={values => console.log( "confirmed", values )}/>
 				}
 			})()}
-			
-			{/*<UsageVehicule*/}
-			{/*	numeroRepertoire={"1234"}*/}
-			{/*	onConfirm={console.log}*/}
-			{/*/>*/}
 		</div>
 	)
 }

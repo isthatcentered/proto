@@ -48,7 +48,7 @@ export const recupererListeCampingCars = <Data = unknown>(
       `/vehicules/camping_cars`,
       {
         params,
-  baseURL: '/api/referentiel/modeles_vehicules', 
+  baseURL: '/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -82,7 +82,7 @@ export const recupererListeCarrosseriesCampingCars = <Data = unknown>(
       `/vehicules/camping_cars/carrosseries`,
       {
         params,
-  baseURL: '/api/referentiel/modeles_vehicules', 
+  baseURL: '/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -116,7 +116,7 @@ export const recupererListeChassisCampingCars = <Data = unknown>(
       `/vehicules/camping_cars/chassis`,
       {
         params,
-  baseURL: '/api/referentiel/modeles_vehicules', 
+  baseURL: '/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -150,7 +150,7 @@ export const recupererListeEnergiesCampingCars = <Data = unknown>(
       `/vehicules/camping_cars/energies`,
       {
         params,
-  baseURL: '/api/referentiel/modeles_vehicules', 
+  baseURL: '/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -184,7 +184,7 @@ export const recupererListeFamillesCampingCars = <Data = unknown>(
       `/vehicules/camping_cars/familles_cellules`,
       {
         params,
-  baseURL: '/api/referentiel/modeles_vehicules', 
+  baseURL: '/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -218,7 +218,7 @@ export const recupererListeMarquesCampingCars = <Data = unknown>(
       `/vehicules/camping_cars/marques_cellules`,
       {
         params,
-  baseURL: '/api/referentiel/modeles_vehicules', 
+  baseURL: '/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -252,7 +252,7 @@ export const recupererListeFinitionsCampingCars = <Data = unknown>(
       `/vehicules/camping_cars/niveaux_finitions`,
       {
         params,
-  baseURL: '/api/referentiel/modeles_vehicules', 
+  baseURL: '/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -286,7 +286,7 @@ export const recupererListePuissancesCampingCars = <Data = unknown>(
       `/vehicules/camping_cars/puissances_fiscales`,
       {
         params,
-  baseURL: '/api/referentiel/modeles_vehicules', 
+  baseURL: '/referentiel/modeles_vehicules/', 
     ...options },
     );
   }

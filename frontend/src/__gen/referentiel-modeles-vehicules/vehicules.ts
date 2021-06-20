@@ -37,7 +37,7 @@ export const getNumRepForImmatriculationUsingGET1 = <Data = unknown>(
       `/v1/vehicules/immatriculation`,
       {
         params,
-  baseURL: '/api/referentiel/modeles_vehicules', 
+  baseURL: '/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -71,7 +71,7 @@ export const getModleVehiculesByNumeroChassisUsingGET1 = <Data = unknown>(
       `/v1/vehicules/numeros_chassis`,
       {
         params,
-  baseURL: '/api/referentiel/modeles_vehicules', 
+  baseURL: '/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
