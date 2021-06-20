@@ -1,6 +1,6 @@
 import * as REMOTE from "../kit-2/remote"
 import { Code } from "../kit-2/helpers"
-import { InitParcoursStep } from "../contracts"
+import { CODE_TYPE_VEHICULE, InitParcoursStep } from "../contracts"
 import { ButtonRadioSelect, useForm } from "../kit-2/forms"
 import { ClickableStyles, FormSubmitButton, FormTitle, SectionHeaderStyles } from "../kit-2/shared"
 import React from "react"
@@ -11,15 +11,15 @@ import * as V from "../kit-2/validation"
 
 const useCodesTypeVehicule = () => {
 	const state = REMOTE.success( [
-		{ value: "01", label: "Auto" },
-		{ value: "02", label: "Moto (>50cm3)" },
-		{ value: "06", label: "Camping-car (<3,5t)" },
-	] as Code<string>[] )
+		{ value: CODE_TYPE_VEHICULE.AUTO, label: "Auto" },
+		{ value: CODE_TYPE_VEHICULE.MOTO, label: "Moto (>50cm3)" },
+		{ value: CODE_TYPE_VEHICULE.CAMPING_CAR, label: "Camping-car (<3,5t)" },
+	] as Code<CODE_TYPE_VEHICULE>[] )
 	return [ state ] as const
 }
 
 const schema = V.struct( {
-	codeTypeVehicule:  V.nonEmptyString,
+	codeTypeVehicule:  V.andThen( V.nonEmptyString, V.enumm( CODE_TYPE_VEHICULE ) ),
 	alreadyHasAccount: V.boolean,
 } )
 

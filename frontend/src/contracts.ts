@@ -2,10 +2,18 @@ import { ComponentType } from "react"
 
 
 
+
+export enum CODE_TYPE_VEHICULE
+{
+	AUTO        = "AUTO",
+	MOTO        = "MOTO",
+	CAMPING_CAR = "CAMPING_CAR",
+}
+
 // -------------------------------------------------------------------------------------
 // Etape 1 - Identification du véhicule
 // -------------------------------------------------------------------------------------
-export type InitParcoursStep = Step<{}, { codeTypeVehicule: string }>
+export type InitParcoursStep = Step<{}, { codeTypeVehicule: CODE_TYPE_VEHICULE }>
 
 export type IdentificationVehiculeStep = Step<PickStep<InitParcoursStep, "codeTypeVehicule">, {
 	numeroRepertoire: string

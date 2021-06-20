@@ -8,7 +8,7 @@
         "start:frontend": "cd frontend && yarn start",
         "start:backend": "cd backend && yarn start",
         "start:mock-backend": "cd mock-backend && yarn start",
-        "start": "yarn start:mock-backend & yarn start:frontend"
+        "start": "yarn start:frontend"
     },
     "repository": {
         "type": "git",

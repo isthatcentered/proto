@@ -91,6 +91,12 @@ export const max = lte
 
 export const between = ( min: number, max: number ) =>
 	andThen( gte( min ), lte( max ) )
+
+type ValuesOf<T extends { [ key: string ]: any }> = T extends { [ key: string ]: infer V } ? V : never
+
+export const enumm = <T extends { [ name: string ]: any }>( _enm: T ): Validation<ValuesOf<T>, string> => {
+	return D2.literal( ...Object.values( _enm ) as [ string ] ) as any
+}
 // -------------------------------------------------------------------------------------
 // Conbinators
 // -------------------------------------------------------------------------------------

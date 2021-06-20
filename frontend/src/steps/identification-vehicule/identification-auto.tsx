@@ -1,16 +1,16 @@
-import { Parameter, useFakeTask, UseQueryParams } from "../kit-2/use-task"
-import * as AUTOS from "../queries/autos"
-import * as VEHICULES from "../queries/vehicules"
-import { Code } from "../kit-2/helpers"
-import { IdentificationVehiculeStep } from "../contracts"
-import { ButtonRadioSelect, NumberInput, Select, useForm } from "../kit-2/forms"
-import { constant, pipe } from "fp-ts/function"
-import { FormSubmitButton, FormTitle } from "../kit-2/shared"
-import React, { useEffect } from "react"
-import * as REMOTE from "../kit-2/remote"
-import * as V from "../kit-2/validation"
+import { IdentificationVehiculeStep } from "../../contracts"
+import { ButtonRadioSelect, NumberInput, Select, useForm } from "../../kit-2/forms"
+import * as VEHICULES from "../../queries/vehicules"
 import * as E from "fp-ts/Either"
+import React, { useEffect } from "react"
+import * as AUTOS from "../../queries/autos"
+import { constant, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
+import { FormSubmitButton, FormTitle } from "../../kit-2/shared"
+import { Parameter, useFakeTask, UseQueryParams } from "../../kit-2/use-task"
+import { Code } from "../../kit-2/helpers"
+import * as REMOTE from "../../kit-2/remote"
+import * as V from "../../kit-2/validation"
 
 
 
@@ -117,7 +117,8 @@ const schema = V.struct( {
 
 // @todo: Identify via registration plate
 // @todo: Select item automatically if only one choice (keep visible, just check it and store value)
-const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
+
+const IdentificationAuto: IdentificationVehiculeStep = ( props ) => {
 	const [ _values, form ] = useForm( {
 		defaultValue: {},
 		schema,
@@ -188,11 +189,11 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 				className="mb-8"
 				label="Marque de votre véhicule :"
 				data={marquesVehicule}
-				{...form.connect( ["codeMarque"] )}
+				{...form.connect( [ "codeMarque" ] )}
 			/>
 			
 			<NumberInput
-				{...form.connect( ["anneeMiseEnCirculation"] )}
+				{...form.connect( [ "anneeMiseEnCirculation" ] )}
 				className="mb-8"
 				label="Date de 1ère mise en circulation"
 				max={new Date().getFullYear()}
@@ -203,12 +204,12 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 				className="mb-8"
 				label="Modèle de votre véhicule :"
 				data={famillesVehicule}
-				{...form.connect( ["codeFamille"] )}
+				{...form.connect( [ "codeFamille" ] )}
 			/>
 			
 			{/* @note: Maif does essence, diesel, autre */}
 			<ButtonRadioSelect
-				{...form.connect( ["codeEnergie"] )}
+				{...form.connect( [ "codeEnergie" ] )}
 				className="mb-8"
 				data={energiesVehicule}
 				label="Énergie :"
@@ -216,7 +217,7 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 			
 			{/* @note: Maif does Boite manuelle ? Oui/non */}
 			<ButtonRadioSelect
-				{...form.connect( ["codeTransmission"] )}
+				{...form.connect( [ "codeTransmission" ] )}
 				className="mb-8"
 				data={transmissionsVehicule}
 				label="Transmission :"
@@ -226,19 +227,19 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 				className="mb-8"
 				label="Motorisation :"
 				data={motorisationsVehicule}
-				{...form.connect( ["codeMotorisation"] )}
+				{...form.connect( [ "codeMotorisation" ] )}
 			/>
 			
 			{/* @note: Maif does Berline/autres */}
 			<ButtonRadioSelect
-				{...form.connect( ["codeCarosserie"] )}
+				{...form.connect( [ "codeCarosserie" ] )}
 				className="mb-8"
 				data={carosseriesVehicule}
 				label="Type de carosserie :"
 			/>
 			
 			<ButtonRadioSelect
-				{...form.connect( ["codeConfigurationPortes"] )}
+				{...form.connect( [ "codeConfigurationPortes" ] )}
 				className="mb-8"
 				data={configurationsPortesVehicule}
 				label="Nombre de portes :"
@@ -248,7 +249,7 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 				className="mb-8"
 				label="Finition :"
 				data={finitionsVehicule}
-				{...form.connect( ["codeFinition"] )}
+				{...form.connect( [ "codeFinition" ] )}
 			/>
 			
 			{form.isValid && (
@@ -258,4 +259,4 @@ const IdentificationVehicule: IdentificationVehiculeStep = ( props ) => {
 		</form>)
 }
 
-export default IdentificationVehicule
+export default IdentificationAuto
