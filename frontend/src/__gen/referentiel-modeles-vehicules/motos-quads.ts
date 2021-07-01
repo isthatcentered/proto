@@ -42,7 +42,7 @@ export const recupererListeMotosQuad = <Data = unknown>(
       `/vehicules/motos_quads`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -76,7 +76,7 @@ export const recupererListeCarrosseriesMotosQuad = <Data = unknown>(
       `/vehicules/motos_quads/carrosseries`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -110,7 +110,7 @@ export const recupererListeFamillesMotosQuad = <Data = unknown>(
       `/vehicules/motos_quads/familles`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -144,7 +144,7 @@ export const recupererListeGroupesTarifMotosQuad = <Data = unknown>(
       `/vehicules/motos_quads/groupes_tarification`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -178,7 +178,7 @@ export const recupererListeMarquesMotosQuad = <Data = unknown>(
       `/vehicules/motos_quads/marques`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }

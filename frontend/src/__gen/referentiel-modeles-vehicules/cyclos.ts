@@ -40,7 +40,7 @@ export const recupererListeCyclos = <Data = unknown>(
       `/vehicules/cyclos`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -74,7 +74,7 @@ export const recupererListeFamillesCyclos = <Data = unknown>(
       `/vehicules/cyclos/familles`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -108,7 +108,7 @@ export const recupererListeGroupesTarifCyclos = <Data = unknown>(
       `/vehicules/cyclos/groupes_tarification`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -142,7 +142,7 @@ export const recupererListeMarquesCyclos = <Data = unknown>(
       `/vehicules/cyclos/marques`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }

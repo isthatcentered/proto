@@ -50,7 +50,7 @@ export const recupererListeAutos = <Data = unknown>(
       `/vehicules/autos`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -84,7 +84,7 @@ export const recupererListeCarrosseriesAutos = <Data = unknown>(
       `/vehicules/autos/carrosseries`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -118,7 +118,7 @@ export const recupererListeEnergiesAutos = <Data = unknown>(
       `/vehicules/autos/energies`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -152,7 +152,7 @@ export const recupererListeFamillesAutos = <Data = unknown>(
       `/vehicules/autos/familles`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -186,7 +186,7 @@ export const recupererListeGroupesTarifAutos = <Data = unknown>(
       `/vehicules/autos/groupes_tarification`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -220,7 +220,7 @@ export const recupererListeMarquesAutos = <Data = unknown>(
       `/vehicules/autos/marques`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -254,7 +254,7 @@ export const recupererListeMotorisationsAutos = <Data = unknown>(
       `/vehicules/autos/motorisations`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -288,7 +288,7 @@ export const recupererListeNbPortesAutos = <Data = unknown>(
       `/vehicules/autos/nombres_portes`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -322,7 +322,7 @@ export const recupererListeTransmissionsAutos = <Data = unknown>(
       `/vehicules/autos/transmissions`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }

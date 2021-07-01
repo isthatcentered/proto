@@ -40,7 +40,7 @@ export const recupererDatesAntecedentsSinistralite = <Data = unknown>(
       `/antecedents_sinistralite/dates`,
       {
         params,
-  baseURL: '/iard/devis_vehicules/v1/', 
+  baseURL: '/api/iard/devis_vehicules/v1/', 
     ...options },
     );
   }

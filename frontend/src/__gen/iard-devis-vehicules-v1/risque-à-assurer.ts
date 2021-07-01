@@ -38,7 +38,7 @@ export const solutionsEligiblesGet = <Data = unknown>(
       `/solutions_eligibles`,
       {
         params,
-  baseURL: '/iard/devis_vehicules/v1/', 
+  baseURL: '/api/iard/devis_vehicules/v1/', 
     ...options },
     );
   }

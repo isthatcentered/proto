@@ -34,7 +34,7 @@ module.exports = SPECS.reduce( ( acc, { fileName, baseUrl } ) => ({
 			mode: "tags",
 			mock: true,
 			override: {
-				requestOptions: { baseURL: baseUrl },
+				requestOptions: { baseURL: "/api" + baseUrl },
 			},
 		},
 	},

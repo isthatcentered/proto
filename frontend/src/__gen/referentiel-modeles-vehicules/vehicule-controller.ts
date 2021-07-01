@@ -39,7 +39,7 @@ export const getFamillesUsingGET = <Data = unknown>(
       `/v1/modeles/familles`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -103,7 +103,7 @@ export const getMarquesUsingGET = <Data = unknown>(
       `/v1/modeles/marques`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
@@ -167,7 +167,7 @@ export const getNumeroRepertoiresVehiculesUsingGET = <Data = unknown>(
       `/v1/modeles/modeles_vehicules`,
       {
         params,
-  baseURL: '/referentiel/modeles_vehicules/', 
+  baseURL: '/api/referentiel/modeles_vehicules/', 
     ...options },
     );
   }
