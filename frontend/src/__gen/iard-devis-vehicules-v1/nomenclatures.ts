@@ -5,9 +5,6 @@
  * "Cette API permet de gÃ©rer le contexte iard-devis-vehicules."
  * OpenAPI spec version: 1.0.0-SNAPSHOT
  */
-import axios,{
-  AxiosRequestConfig
-} from 'axios'
 import {
   useQuery,
   UseQueryOptions
@@ -19,6 +16,7 @@ import {
   rest
 } from 'msw'
 import faker from 'faker'
+import { customInstance } from '../../axios/index'
 
 
 type AsyncReturnType<
@@ -26,14 +24,26 @@ T extends (...args: any) => Promise<any>
 > = T extends (...args: any) => Promise<infer R> ? R : any;
 
 
-export const recupererValeursExperienceConducteur = <Data = unknown>(
-     options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? Nomenclature : Data>(
-      `/experiences_conducteur`,options
-    );
-  }
+type SecondParameter<T extends (...args: any) => any> = T extends (
+  config: any,
+  args: infer P,
+) => any
+  ? P extends unknown
+  ? Record<string, any>
+  : P
+  : never;
 
+export const recupererValeursExperienceConducteur = <Data = unknown>(
+    
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? Nomenclature : Data>(
+      {url: `/experiences_conducteur`, method: 'get'
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
+    }
+  
 
 export const getRecupererValeursExperienceConducteurQueryKey = () => [`/experiences_conducteur`]
 
@@ -42,13 +52,13 @@ export const useRecupererValeursExperienceConducteur = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
-  options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursExperienceConducteur>, Error>, axios?: AxiosRequestConfig}
+  options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursExperienceConducteur>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getRecupererValeursExperienceConducteurQueryKey();
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof recupererValeursExperienceConducteur>, Error>(queryKey, () => recupererValeursExperienceConducteur<Data>(axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof recupererValeursExperienceConducteur>, Error>(queryKey, () => recupererValeursExperienceConducteur<Data>(requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -57,13 +67,16 @@ export const useRecupererValeursExperienceConducteur = <
 }
 
 export const recupererValeursOrigineSocietaire = <Data = unknown>(
-     options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? Nomenclature : Data>(
-      `/passe_autre_assurance`,options
-    );
-  }
-
+    
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? Nomenclature : Data>(
+      {url: `/passe_autre_assurance`, method: 'get'
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
+    }
+  
 
 export const getRecupererValeursOrigineSocietaireQueryKey = () => [`/passe_autre_assurance`]
 
@@ -72,13 +85,13 @@ export const useRecupererValeursOrigineSocietaire = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
-  options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursOrigineSocietaire>, Error>, axios?: AxiosRequestConfig}
+  options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursOrigineSocietaire>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getRecupererValeursOrigineSocietaireQueryKey();
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof recupererValeursOrigineSocietaire>, Error>(queryKey, () => recupererValeursOrigineSocietaire<Data>(axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof recupererValeursOrigineSocietaire>, Error>(queryKey, () => recupererValeursOrigineSocietaire<Data>(requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -87,13 +100,16 @@ export const useRecupererValeursOrigineSocietaire = <
 }
 
 export const recupererValeursResponsabiliteSinistre = <Data = unknown>(
-     options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? Nomenclature : Data>(
-      `/responsabilites_sinistre`,options
-    );
-  }
-
+    
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? Nomenclature : Data>(
+      {url: `/responsabilites_sinistre`, method: 'get'
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
+    }
+  
 
 export const getRecupererValeursResponsabiliteSinistreQueryKey = () => [`/responsabilites_sinistre`]
 
@@ -102,13 +118,13 @@ export const useRecupererValeursResponsabiliteSinistre = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
-  options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursResponsabiliteSinistre>, Error>, axios?: AxiosRequestConfig}
+  options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursResponsabiliteSinistre>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getRecupererValeursResponsabiliteSinistreQueryKey();
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof recupererValeursResponsabiliteSinistre>, Error>(queryKey, () => recupererValeursResponsabiliteSinistre<Data>(axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof recupererValeursResponsabiliteSinistre>, Error>(queryKey, () => recupererValeursResponsabiliteSinistre<Data>(requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -117,13 +133,16 @@ export const useRecupererValeursResponsabiliteSinistre = <
 }
 
 export const recupererValeursTypeConducteur = <Data = unknown>(
-     options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? Nomenclature : Data>(
-      `/types_conducteur`,options
-    );
-  }
-
+    
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? Nomenclature : Data>(
+      {url: `/types_conducteur`, method: 'get'
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
+    }
+  
 
 export const getRecupererValeursTypeConducteurQueryKey = () => [`/types_conducteur`]
 
@@ -132,13 +151,13 @@ export const useRecupererValeursTypeConducteur = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
-  options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursTypeConducteur>, Error>, axios?: AxiosRequestConfig}
+  options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursTypeConducteur>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getRecupererValeursTypeConducteurQueryKey();
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof recupererValeursTypeConducteur>, Error>(queryKey, () => recupererValeursTypeConducteur<Data>(axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof recupererValeursTypeConducteur>, Error>(queryKey, () => recupererValeursTypeConducteur<Data>(requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -147,13 +166,16 @@ export const useRecupererValeursTypeConducteur = <
 }
 
 export const recupererValeursTypePermis = <Data = unknown>(
-    numeroRepertoire: string, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? Nomenclature : Data>(
-      `/types_permis/vehicule/${numeroRepertoire}`,options
-    );
-  }
-
+    numeroRepertoire: string,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? Nomenclature : Data>(
+      {url: `/types_permis/vehicule/${numeroRepertoire}`, method: 'get'
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
+    }
+  
 
 export const getRecupererValeursTypePermisQueryKey = (numeroRepertoire: string,) => [`/types_permis/vehicule/${numeroRepertoire}`]
 
@@ -162,13 +184,13 @@ export const useRecupererValeursTypePermis = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- numeroRepertoire: string, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursTypePermis>, Error>, axios?: AxiosRequestConfig}
+ numeroRepertoire: string, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursTypePermis>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getRecupererValeursTypePermisQueryKey(numeroRepertoire);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof recupererValeursTypePermis>, Error>(queryKey, () => recupererValeursTypePermis<Data>(numeroRepertoire, axiosOptions), {enabled: !!(numeroRepertoire), ...queryOptions} )
+  const query = useQuery<AsyncReturnType<typeof recupererValeursTypePermis>, Error>(queryKey, () => recupererValeursTypePermis<Data>(numeroRepertoire, requestOptions), {enabled: !!(numeroRepertoire), ...queryOptions} )
 
   return {
     queryKey,
@@ -177,13 +199,16 @@ export const useRecupererValeursTypePermis = <
 }
 
 export const recupererValeursUsage = <Data = unknown>(
-    numeroRepertoire: string, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? Nomenclature : Data>(
-      `/usages/vehicule/${numeroRepertoire}`,options
-    );
-  }
-
+    numeroRepertoire: string,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? Nomenclature : Data>(
+      {url: `/usages/vehicule/${numeroRepertoire}`, method: 'get'
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
+    }
+  
 
 export const getRecupererValeursUsageQueryKey = (numeroRepertoire: string,) => [`/usages/vehicule/${numeroRepertoire}`]
 
@@ -192,13 +217,13 @@ export const useRecupererValeursUsage = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- numeroRepertoire: string, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursUsage>, Error>, axios?: AxiosRequestConfig}
+ numeroRepertoire: string, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursUsage>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getRecupererValeursUsageQueryKey(numeroRepertoire);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof recupererValeursUsage>, Error>(queryKey, () => recupererValeursUsage<Data>(numeroRepertoire, axiosOptions), {enabled: !!(numeroRepertoire), ...queryOptions} )
+  const query = useQuery<AsyncReturnType<typeof recupererValeursUsage>, Error>(queryKey, () => recupererValeursUsage<Data>(numeroRepertoire, requestOptions), {enabled: !!(numeroRepertoire), ...queryOptions} )
 
   return {
     queryKey,

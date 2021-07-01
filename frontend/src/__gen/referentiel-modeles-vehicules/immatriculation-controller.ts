@@ -6,9 +6,6 @@
 
  * OpenAPI spec version: 1.6.5
  */
-import axios,{
-  AxiosRequestConfig
-} from 'axios'
 import {
   useQuery,
   UseQueryOptions
@@ -22,6 +19,7 @@ import {
   rest
 } from 'msw'
 import faker from 'faker'
+import { customInstance } from '../../axios/index'
 
 
 type AsyncReturnType<
@@ -29,18 +27,27 @@ T extends (...args: any) => Promise<any>
 > = T extends (...args: any) => Promise<infer R> ? R : any;
 
 
-export const getNumRepForImmatriculationUsingGET = <Data = unknown>(
-    params?: GetNumRepForImmatriculationUsingGETParams, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? VehiculeAssureDTO : Data>(
-      `/v1/modeles/immatriculation`,
-      {
-        params,
-  baseURL: '/api/referentiel/modeles_vehicules/', 
-    ...options },
-    );
-  }
+type SecondParameter<T extends (...args: any) => any> = T extends (
+  config: any,
+  args: infer P,
+) => any
+  ? P extends unknown
+  ? Record<string, any>
+  : P
+  : never;
 
+export const getNumRepForImmatriculationUsingGET = <Data = unknown>(
+    params?: GetNumRepForImmatriculationUsingGETParams,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? VehiculeAssureDTO : Data>(
+      {url: `/v1/modeles/immatriculation`, method: 'get',
+        params,
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 export const getGetNumRepForImmatriculationUsingGETQueryKey = (params?: GetNumRepForImmatriculationUsingGETParams,) => [`/v1/modeles/immatriculation`, ...(params ? [params]: [])]
 
@@ -49,13 +56,13 @@ export const useGetNumRepForImmatriculationUsingGET = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- params?: GetNumRepForImmatriculationUsingGETParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getNumRepForImmatriculationUsingGET>, Error>, axios?: AxiosRequestConfig}
+ params?: GetNumRepForImmatriculationUsingGETParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getNumRepForImmatriculationUsingGET>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getGetNumRepForImmatriculationUsingGETQueryKey(params);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof getNumRepForImmatriculationUsingGET>, Error>(queryKey, () => getNumRepForImmatriculationUsingGET<Data>(params, axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof getNumRepForImmatriculationUsingGET>, Error>(queryKey, () => getNumRepForImmatriculationUsingGET<Data>(params, requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -64,17 +71,17 @@ export const useGetNumRepForImmatriculationUsingGET = <
 }
 
 export const getModleVehiculesByNumeroChassisUsingGET = <Data = unknown>(
-    params?: GetModleVehiculesByNumeroChassisUsingGETParams, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? VehiculeAssureDTO : Data>(
-      `/v1/modeles/numeros_chassis`,
-      {
+    params?: GetModleVehiculesByNumeroChassisUsingGETParams,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? VehiculeAssureDTO : Data>(
+      {url: `/v1/modeles/numeros_chassis`, method: 'get',
         params,
-  baseURL: '/api/referentiel/modeles_vehicules/', 
-    ...options },
-    );
-  }
-
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 export const getGetModleVehiculesByNumeroChassisUsingGETQueryKey = (params?: GetModleVehiculesByNumeroChassisUsingGETParams,) => [`/v1/modeles/numeros_chassis`, ...(params ? [params]: [])]
 
@@ -83,13 +90,13 @@ export const useGetModleVehiculesByNumeroChassisUsingGET = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- params?: GetModleVehiculesByNumeroChassisUsingGETParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getModleVehiculesByNumeroChassisUsingGET>, Error>, axios?: AxiosRequestConfig}
+ params?: GetModleVehiculesByNumeroChassisUsingGETParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getModleVehiculesByNumeroChassisUsingGET>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getGetModleVehiculesByNumeroChassisUsingGETQueryKey(params);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof getModleVehiculesByNumeroChassisUsingGET>, Error>(queryKey, () => getModleVehiculesByNumeroChassisUsingGET<Data>(params, axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof getModleVehiculesByNumeroChassisUsingGET>, Error>(queryKey, () => getModleVehiculesByNumeroChassisUsingGET<Data>(params, requestOptions), queryOptions )
 
   return {
     queryKey,

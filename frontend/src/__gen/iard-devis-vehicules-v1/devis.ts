@@ -5,9 +5,6 @@
  * "Cette API permet de gÃ©rer le contexte iard-devis-vehicules."
  * OpenAPI spec version: 1.0.0-SNAPSHOT
  */
-import axios,{
-  AxiosRequestConfig
-} from 'axios'
 import {
   useMutation,
   UseMutationOptions
@@ -20,6 +17,7 @@ import {
   rest
 } from 'msw'
 import faker from 'faker'
+import { customInstance } from '../../axios/index'
 
 
 type AsyncReturnType<
@@ -27,28 +25,40 @@ T extends (...args: any) => Promise<any>
 > = T extends (...args: any) => Promise<infer R> ? R : any;
 
 
-export const creerDevis = <Data = unknown>(
-    devisVehiculeConducteur: DevisVehiculeConducteur, options?: AxiosRequestConfig
- ) => {
-    return axios.post<Data extends unknown ? CreationDevisSynthese : Data>(
-      `/devis`,
-      devisVehiculeConducteur,options
-    );
-  }
+type SecondParameter<T extends (...args: any) => any> = T extends (
+  config: any,
+  args: infer P,
+) => any
+  ? P extends unknown
+  ? Record<string, any>
+  : P
+  : never;
 
+export const creerDevis = <Data = unknown>(
+    devisVehiculeConducteur: DevisVehiculeConducteur,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? CreationDevisSynthese : Data>(
+      {url: `/devis`, method: 'post',
+      data: devisVehiculeConducteur
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
+    }
+  
 
 
     export const useCreerDevis = <
       Data extends unknown = unknown,
       Error extends unknown = unknown
-    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof creerDevis>, Error, {data: DevisVehiculeConducteur}, unknown>, axios?: AxiosRequestConfig}
+    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof creerDevis>, Error, {data: DevisVehiculeConducteur}, unknown>, request?: SecondParameter<typeof customInstance>}
 ) => {
-      const {mutation: mutationOptions, axios: axiosOptions} = options || {}
+      const {mutation: mutationOptions, request: requestOptions} = options || {}
 
       return useMutation<AsyncReturnType<typeof creerDevis>, Error, {data: DevisVehiculeConducteur}>((props) => {
         const {data} = props || {};
 
-        return  creerDevis<Data>(data,axiosOptions)
+        return  creerDevis<Data>(data,requestOptions)
       }, mutationOptions)
     }
     

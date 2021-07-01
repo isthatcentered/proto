@@ -5,9 +5,6 @@
  * "Cette API permet de gÃ©rer le contexte iard-devis-vehicules."
  * OpenAPI spec version: 1.0.0-SNAPSHOT
  */
-import axios,{
-  AxiosRequestConfig
-} from 'axios'
 import {
   useQuery,
   useMutation,
@@ -24,6 +21,7 @@ import {
   rest
 } from 'msw'
 import faker from 'faker'
+import { customInstance } from '../../axios/index'
 
 
 type AsyncReturnType<
@@ -31,18 +29,27 @@ T extends (...args: any) => Promise<any>
 > = T extends (...args: any) => Promise<infer R> ? R : any;
 
 
-export const solutionsEligiblesGet = <Data = unknown>(
-    params?: SolutionsEligiblesGetParams, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? SolutionsEligiblesPresentation : Data>(
-      `/solutions_eligibles`,
-      {
-        params,
-  baseURL: '/api/iard/devis_vehicules/v1/', 
-    ...options },
-    );
-  }
+type SecondParameter<T extends (...args: any) => any> = T extends (
+  config: any,
+  args: infer P,
+) => any
+  ? P extends unknown
+  ? Record<string, any>
+  : P
+  : never;
 
+export const solutionsEligiblesGet = <Data = unknown>(
+    params?: SolutionsEligiblesGetParams,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? SolutionsEligiblesPresentation : Data>(
+      {url: `/solutions_eligibles`, method: 'get',
+        params,
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
+    }
+  
 
 export const getSolutionsEligiblesGetQueryKey = (params?: SolutionsEligiblesGetParams,) => [`/solutions_eligibles`, ...(params ? [params]: [])]
 
@@ -51,13 +58,13 @@ export const useSolutionsEligiblesGet = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- params?: SolutionsEligiblesGetParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof solutionsEligiblesGet>, Error>, axios?: AxiosRequestConfig}
+ params?: SolutionsEligiblesGetParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof solutionsEligiblesGet>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getSolutionsEligiblesGetQueryKey(params);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof solutionsEligiblesGet>, Error>(queryKey, () => solutionsEligiblesGet<Data>(params, axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof solutionsEligiblesGet>, Error>(queryKey, () => solutionsEligiblesGet<Data>(params, requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -66,27 +73,30 @@ export const useSolutionsEligiblesGet = <
 }
 
 export const creerRisqueAAssurerSocPotentiel = <Data = unknown>(
-    risqueVehiculeConducteurAAssurer: RisqueVehiculeConducteurAAssurer, options?: AxiosRequestConfig
- ) => {
-    return axios.post<Data extends unknown ? CreationRisqueVehiculeConducteurAAssurerSynthese : Data>(
-      `/vehicule_conducteur_a_assurer`,
-      risqueVehiculeConducteurAAssurer,options
-    );
-  }
-
+    risqueVehiculeConducteurAAssurer: RisqueVehiculeConducteurAAssurer,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? CreationRisqueVehiculeConducteurAAssurerSynthese : Data>(
+      {url: `/vehicule_conducteur_a_assurer`, method: 'post',
+      data: risqueVehiculeConducteurAAssurer
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
+    }
+  
 
 
     export const useCreerRisqueAAssurerSocPotentiel = <
       Data extends unknown = unknown,
       Error extends unknown = unknown
-    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof creerRisqueAAssurerSocPotentiel>, Error, {data: RisqueVehiculeConducteurAAssurer}, unknown>, axios?: AxiosRequestConfig}
+    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof creerRisqueAAssurerSocPotentiel>, Error, {data: RisqueVehiculeConducteurAAssurer}, unknown>, request?: SecondParameter<typeof customInstance>}
 ) => {
-      const {mutation: mutationOptions, axios: axiosOptions} = options || {}
+      const {mutation: mutationOptions, request: requestOptions} = options || {}
 
       return useMutation<AsyncReturnType<typeof creerRisqueAAssurerSocPotentiel>, Error, {data: RisqueVehiculeConducteurAAssurer}>((props) => {
         const {data} = props || {};
 
-        return  creerRisqueAAssurerSocPotentiel<Data>(data,axiosOptions)
+        return  creerRisqueAAssurerSocPotentiel<Data>(data,requestOptions)
       }, mutationOptions)
     }
     

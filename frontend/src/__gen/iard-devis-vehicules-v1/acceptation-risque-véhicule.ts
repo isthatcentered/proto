@@ -5,9 +5,6 @@
  * "Cette API permet de gÃ©rer le contexte iard-devis-vehicules."
  * OpenAPI spec version: 1.0.0-SNAPSHOT
  */
-import axios,{
-  AxiosRequestConfig
-} from 'axios'
 import {
   useQuery,
   useMutation,
@@ -26,6 +23,7 @@ import {
   rest
 } from 'msw'
 import faker from 'faker'
+import { customInstance } from '../../axios/index'
 
 
 type AsyncReturnType<
@@ -33,18 +31,27 @@ T extends (...args: any) => Promise<any>
 > = T extends (...args: any) => Promise<infer R> ? R : any;
 
 
-export const recupererDatesAntecedentsSinistralite = <Data = unknown>(
-    params?: RecupererDatesAntecedentsSinistraliteParams, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? DateAntecedentsSinistralite : Data>(
-      `/antecedents_sinistralite/dates`,
-      {
-        params,
-  baseURL: '/api/iard/devis_vehicules/v1/', 
-    ...options },
-    );
-  }
+type SecondParameter<T extends (...args: any) => any> = T extends (
+  config: any,
+  args: infer P,
+) => any
+  ? P extends unknown
+  ? Record<string, any>
+  : P
+  : never;
 
+export const recupererDatesAntecedentsSinistralite = <Data = unknown>(
+    params?: RecupererDatesAntecedentsSinistraliteParams,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? DateAntecedentsSinistralite : Data>(
+      {url: `/antecedents_sinistralite/dates`, method: 'get',
+        params,
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
+    }
+  
 
 export const getRecupererDatesAntecedentsSinistraliteQueryKey = (params?: RecupererDatesAntecedentsSinistraliteParams,) => [`/antecedents_sinistralite/dates`, ...(params ? [params]: [])]
 
@@ -53,13 +60,13 @@ export const useRecupererDatesAntecedentsSinistralite = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- params?: RecupererDatesAntecedentsSinistraliteParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererDatesAntecedentsSinistralite>, Error>, axios?: AxiosRequestConfig}
+ params?: RecupererDatesAntecedentsSinistraliteParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererDatesAntecedentsSinistralite>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getRecupererDatesAntecedentsSinistraliteQueryKey(params);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof recupererDatesAntecedentsSinistralite>, Error>(queryKey, () => recupererDatesAntecedentsSinistralite<Data>(params, axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof recupererDatesAntecedentsSinistralite>, Error>(queryKey, () => recupererDatesAntecedentsSinistralite<Data>(params, requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -68,76 +75,85 @@ export const useRecupererDatesAntecedentsSinistralite = <
 }
 
 export const jouerAcceptationProspect = <Data = unknown>(
-    infoAcceptationProspect: InfoAcceptationProspect, options?: AxiosRequestConfig
- ) => {
-    return axios.post<Data extends unknown ? AcceptationRisqueVehicule : Data>(
-      `/jouer_acceptation/prospect`,
-      infoAcceptationProspect,options
-    );
-  }
-
+    infoAcceptationProspect: InfoAcceptationProspect,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? AcceptationRisqueVehicule : Data>(
+      {url: `/jouer_acceptation/prospect`, method: 'post',
+      data: infoAcceptationProspect
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
+    }
+  
 
 
     export const useJouerAcceptationProspect = <
       Data extends unknown = unknown,
       Error extends unknown = unknown
-    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof jouerAcceptationProspect>, Error, {data: InfoAcceptationProspect}, unknown>, axios?: AxiosRequestConfig}
+    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof jouerAcceptationProspect>, Error, {data: InfoAcceptationProspect}, unknown>, request?: SecondParameter<typeof customInstance>}
 ) => {
-      const {mutation: mutationOptions, axios: axiosOptions} = options || {}
+      const {mutation: mutationOptions, request: requestOptions} = options || {}
 
       return useMutation<AsyncReturnType<typeof jouerAcceptationProspect>, Error, {data: InfoAcceptationProspect}>((props) => {
         const {data} = props || {};
 
-        return  jouerAcceptationProspect<Data>(data,axiosOptions)
+        return  jouerAcceptationProspect<Data>(data,requestOptions)
       }, mutationOptions)
     }
     export const jouerAcceptationSocietaire = <Data = unknown>(
     referenceSocietaire: string,
-    infoAcceptationSocietaire: InfoAcceptationSocietaire, options?: AxiosRequestConfig
- ) => {
-    return axios.post<Data extends unknown ? AcceptationRisqueVehicule : Data>(
-      `/jouer_acceptation/societaire/${referenceSocietaire}`,
-      infoAcceptationSocietaire,options
-    );
-  }
-
+    infoAcceptationSocietaire: InfoAcceptationSocietaire,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? AcceptationRisqueVehicule : Data>(
+      {url: `/jouer_acceptation/societaire/${referenceSocietaire}`, method: 'post',
+      data: infoAcceptationSocietaire
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
+    }
+  
 
 
     export const useJouerAcceptationSocietaire = <
       Data extends unknown = unknown,
       Error extends unknown = unknown
-    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof jouerAcceptationSocietaire>, Error, {referenceSocietaire: string;data: InfoAcceptationSocietaire}, unknown>, axios?: AxiosRequestConfig}
+    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof jouerAcceptationSocietaire>, Error, {referenceSocietaire: string;data: InfoAcceptationSocietaire}, unknown>, request?: SecondParameter<typeof customInstance>}
 ) => {
-      const {mutation: mutationOptions, axios: axiosOptions} = options || {}
+      const {mutation: mutationOptions, request: requestOptions} = options || {}
 
       return useMutation<AsyncReturnType<typeof jouerAcceptationSocietaire>, Error, {referenceSocietaire: string;data: InfoAcceptationSocietaire}>((props) => {
         const {referenceSocietaire,data} = props || {};
 
-        return  jouerAcceptationSocietaire<Data>(referenceSocietaire,data,axiosOptions)
+        return  jouerAcceptationSocietaire<Data>(referenceSocietaire,data,requestOptions)
       }, mutationOptions)
     }
     export const jouerAcceptationVehicule = <Data = unknown>(
-    infoAcceptationVehicule: InfoAcceptationVehicule, options?: AxiosRequestConfig
- ) => {
-    return axios.post<Data extends unknown ? AcceptationRisqueVehicule : Data>(
-      `/jouer_acceptation/vehicule`,
-      infoAcceptationVehicule,options
-    );
-  }
-
+    infoAcceptationVehicule: InfoAcceptationVehicule,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? AcceptationRisqueVehicule : Data>(
+      {url: `/jouer_acceptation/vehicule`, method: 'post',
+      data: infoAcceptationVehicule
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
+    }
+  
 
 
     export const useJouerAcceptationVehicule = <
       Data extends unknown = unknown,
       Error extends unknown = unknown
-    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof jouerAcceptationVehicule>, Error, {data: InfoAcceptationVehicule}, unknown>, axios?: AxiosRequestConfig}
+    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof jouerAcceptationVehicule>, Error, {data: InfoAcceptationVehicule}, unknown>, request?: SecondParameter<typeof customInstance>}
 ) => {
-      const {mutation: mutationOptions, axios: axiosOptions} = options || {}
+      const {mutation: mutationOptions, request: requestOptions} = options || {}
 
       return useMutation<AsyncReturnType<typeof jouerAcceptationVehicule>, Error, {data: InfoAcceptationVehicule}>((props) => {
         const {data} = props || {};
 
-        return  jouerAcceptationVehicule<Data>(data,axiosOptions)
+        return  jouerAcceptationVehicule<Data>(data,requestOptions)
       }, mutationOptions)
     }
     

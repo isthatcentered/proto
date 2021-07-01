@@ -5,9 +5,6 @@
  * "Cette API permet de gÃ©rer le contexte iard-devis-vehicules."
  * OpenAPI spec version: 1.0.0-SNAPSHOT
  */
-import axios,{
-  AxiosRequestConfig
-} from 'axios'
 import {
   useMutation,
   UseMutationOptions
@@ -20,6 +17,7 @@ import {
   rest
 } from 'msw'
 import faker from 'faker'
+import { customInstance } from '../../axios/index'
 
 
 type AsyncReturnType<
@@ -27,28 +25,40 @@ T extends (...args: any) => Promise<any>
 > = T extends (...args: any) => Promise<infer R> ? R : any;
 
 
-export const calculCrmProspect = <Data = unknown>(
-    infoCalculCrmProspect: InfoCalculCrmProspect, options?: AxiosRequestConfig
- ) => {
-    return axios.post<Data extends unknown ? CalculCrmRisqueVehicule : Data>(
-      `/calculer_coefficient_bonus_malus`,
-      infoCalculCrmProspect,options
-    );
-  }
+type SecondParameter<T extends (...args: any) => any> = T extends (
+  config: any,
+  args: infer P,
+) => any
+  ? P extends unknown
+  ? Record<string, any>
+  : P
+  : never;
 
+export const calculCrmProspect = <Data = unknown>(
+    infoCalculCrmProspect: InfoCalculCrmProspect,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? CalculCrmRisqueVehicule : Data>(
+      {url: `/calculer_coefficient_bonus_malus`, method: 'post',
+      data: infoCalculCrmProspect
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
+    }
+  
 
 
     export const useCalculCrmProspect = <
       Data extends unknown = unknown,
       Error extends unknown = unknown
-    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof calculCrmProspect>, Error, {data: InfoCalculCrmProspect}, unknown>, axios?: AxiosRequestConfig}
+    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof calculCrmProspect>, Error, {data: InfoCalculCrmProspect}, unknown>, request?: SecondParameter<typeof customInstance>}
 ) => {
-      const {mutation: mutationOptions, axios: axiosOptions} = options || {}
+      const {mutation: mutationOptions, request: requestOptions} = options || {}
 
       return useMutation<AsyncReturnType<typeof calculCrmProspect>, Error, {data: InfoCalculCrmProspect}>((props) => {
         const {data} = props || {};
 
-        return  calculCrmProspect<Data>(data,axiosOptions)
+        return  calculCrmProspect<Data>(data,requestOptions)
       }, mutationOptions)
     }
     

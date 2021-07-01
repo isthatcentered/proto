@@ -6,9 +6,6 @@
 
  * OpenAPI spec version: 1.6.5
  */
-import axios,{
-  AxiosRequestConfig
-} from 'axios'
 import {
   useQuery,
   useMutation,
@@ -25,6 +22,7 @@ import {
   rest
 } from 'msw'
 import faker from 'faker'
+import { customInstance } from '../../axios/index'
 
 
 type AsyncReturnType<
@@ -32,18 +30,27 @@ T extends (...args: any) => Promise<any>
 > = T extends (...args: any) => Promise<infer R> ? R : any;
 
 
-export const getSraWithCodeEtatUsingGET = <Data = unknown>(
-    params?: GetSraWithCodeEtatUsingGETParams, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? PageSraVehDto : Data>(
-      `/v1/modeles/SRA`,
-      {
-        params,
-  baseURL: '/api/referentiel/modeles_vehicules/', 
-    ...options },
-    );
-  }
+type SecondParameter<T extends (...args: any) => any> = T extends (
+  config: any,
+  args: infer P,
+) => any
+  ? P extends unknown
+  ? Record<string, any>
+  : P
+  : never;
 
+export const getSraWithCodeEtatUsingGET = <Data = unknown>(
+    params?: GetSraWithCodeEtatUsingGETParams,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? PageSraVehDto : Data>(
+      {url: `/v1/modeles/SRA`, method: 'get',
+        params,
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 export const getGetSraWithCodeEtatUsingGETQueryKey = (params?: GetSraWithCodeEtatUsingGETParams,) => [`/v1/modeles/SRA`, ...(params ? [params]: [])]
 
@@ -52,13 +59,13 @@ export const useGetSraWithCodeEtatUsingGET = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- params?: GetSraWithCodeEtatUsingGETParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getSraWithCodeEtatUsingGET>, Error>, axios?: AxiosRequestConfig}
+ params?: GetSraWithCodeEtatUsingGETParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getSraWithCodeEtatUsingGET>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getGetSraWithCodeEtatUsingGETQueryKey(params);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof getSraWithCodeEtatUsingGET>, Error>(queryKey, () => getSraWithCodeEtatUsingGET<Data>(params, axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof getSraWithCodeEtatUsingGET>, Error>(queryKey, () => getSraWithCodeEtatUsingGET<Data>(params, requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -67,75 +74,84 @@ export const useGetSraWithCodeEtatUsingGET = <
 }
 
 export const createSraVehUsingPOST = <Data = unknown>(
-    sraVehDtoBody: SraVehDtoBody, options?: AxiosRequestConfig
- ) => {
-    return axios.post<Data extends unknown ? SraVehDto : Data>(
-      `/v1/modeles/SRA`,
-      sraVehDtoBody,options
-    );
-  }
-
+    sraVehDtoBody: SraVehDtoBody,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? SraVehDto : Data>(
+      {url: `/v1/modeles/SRA`, method: 'post',
+      data: sraVehDtoBody
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 
     export const useCreateSraVehUsingPOST = <
       Data extends unknown = unknown,
       Error extends unknown = unknown
-    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof createSraVehUsingPOST>, Error, {data: SraVehDtoBody}, unknown>, axios?: AxiosRequestConfig}
+    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof createSraVehUsingPOST>, Error, {data: SraVehDtoBody}, unknown>, request?: SecondParameter<typeof customInstance>}
 ) => {
-      const {mutation: mutationOptions, axios: axiosOptions} = options || {}
+      const {mutation: mutationOptions, request: requestOptions} = options || {}
 
       return useMutation<AsyncReturnType<typeof createSraVehUsingPOST>, Error, {data: SraVehDtoBody}>((props) => {
         const {data} = props || {};
 
-        return  createSraVehUsingPOST<Data>(data,axiosOptions)
+        return  createSraVehUsingPOST<Data>(data,requestOptions)
       }, mutationOptions)
     }
     export const updateSraVehUsingPUT = <Data = unknown>(
     id: number,
-    sraVehDtoBody: SraVehDtoBody, options?: AxiosRequestConfig
- ) => {
-    return axios.put<Data extends unknown ? SraVehDto : Data>(
-      `/v1/modeles/SRA/${id}`,
-      sraVehDtoBody,options
-    );
-  }
-
+    sraVehDtoBody: SraVehDtoBody,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? SraVehDto : Data>(
+      {url: `/v1/modeles/SRA/${id}`, method: 'put',
+      data: sraVehDtoBody
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 
     export const useUpdateSraVehUsingPUT = <
       Data extends unknown = unknown,
       Error extends unknown = unknown
-    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof updateSraVehUsingPUT>, Error, {id: number;data: SraVehDtoBody}, unknown>, axios?: AxiosRequestConfig}
+    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof updateSraVehUsingPUT>, Error, {id: number;data: SraVehDtoBody}, unknown>, request?: SecondParameter<typeof customInstance>}
 ) => {
-      const {mutation: mutationOptions, axios: axiosOptions} = options || {}
+      const {mutation: mutationOptions, request: requestOptions} = options || {}
 
       return useMutation<AsyncReturnType<typeof updateSraVehUsingPUT>, Error, {id: number;data: SraVehDtoBody}>((props) => {
         const {id,data} = props || {};
 
-        return  updateSraVehUsingPUT<Data>(id,data,axiosOptions)
+        return  updateSraVehUsingPUT<Data>(id,data,requestOptions)
       }, mutationOptions)
     }
     export const deleteSraVehUsingDELETE = <Data = unknown>(
-    id: number, options?: AxiosRequestConfig
- ) => {
-    return axios.delete<Data extends unknown ? SraVehDto : Data>(
-      `/v1/modeles/SRA/${id}`,options
-    );
-  }
-
+    id: number,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? SraVehDto : Data>(
+      {url: `/v1/modeles/SRA/${id}`, method: 'delete'
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 
     export const useDeleteSraVehUsingDELETE = <
       Data extends unknown = unknown,
       Error extends unknown = unknown
-    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof deleteSraVehUsingDELETE>, Error, {id: number}, unknown>, axios?: AxiosRequestConfig}
+    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof deleteSraVehUsingDELETE>, Error, {id: number}, unknown>, request?: SecondParameter<typeof customInstance>}
 ) => {
-      const {mutation: mutationOptions, axios: axiosOptions} = options || {}
+      const {mutation: mutationOptions, request: requestOptions} = options || {}
 
       return useMutation<AsyncReturnType<typeof deleteSraVehUsingDELETE>, Error, {id: number}>((props) => {
         const {id} = props || {};
 
-        return  deleteSraVehUsingDELETE<Data>(id,axiosOptions)
+        return  deleteSraVehUsingDELETE<Data>(id,requestOptions)
       }, mutationOptions)
     }
     

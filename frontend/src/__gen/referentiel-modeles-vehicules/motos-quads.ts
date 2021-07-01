@@ -6,9 +6,6 @@
 
  * OpenAPI spec version: 1.6.5
  */
-import axios,{
-  AxiosRequestConfig
-} from 'axios'
 import {
   useQuery,
   UseQueryOptions
@@ -28,6 +25,7 @@ import type {
 import {
   rest
 } from 'msw'
+import { customInstance } from '../../axios/index'
 
 
 type AsyncReturnType<
@@ -35,18 +33,27 @@ T extends (...args: any) => Promise<any>
 > = T extends (...args: any) => Promise<infer R> ? R : any;
 
 
-export const recupererListeMotosQuad = <Data = unknown>(
-    params?: RecupererListeMotosQuadParams, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? VehiculeSynthese[] : Data>(
-      `/vehicules/motos_quads`,
-      {
-        params,
-  baseURL: '/api/referentiel/modeles_vehicules/', 
-    ...options },
-    );
-  }
+type SecondParameter<T extends (...args: any) => any> = T extends (
+  config: any,
+  args: infer P,
+) => any
+  ? P extends unknown
+  ? Record<string, any>
+  : P
+  : never;
 
+export const recupererListeMotosQuad = <Data = unknown>(
+    params?: RecupererListeMotosQuadParams,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? VehiculeSynthese[] : Data>(
+      {url: `/vehicules/motos_quads`, method: 'get',
+        params,
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 export const getRecupererListeMotosQuadQueryKey = (params?: RecupererListeMotosQuadParams,) => [`/vehicules/motos_quads`, ...(params ? [params]: [])]
 
@@ -55,13 +62,13 @@ export const useRecupererListeMotosQuad = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- params?: RecupererListeMotosQuadParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeMotosQuad>, Error>, axios?: AxiosRequestConfig}
+ params?: RecupererListeMotosQuadParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeMotosQuad>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getRecupererListeMotosQuadQueryKey(params);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeMotosQuad>, Error>(queryKey, () => recupererListeMotosQuad<Data>(params, axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof recupererListeMotosQuad>, Error>(queryKey, () => recupererListeMotosQuad<Data>(params, requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -70,17 +77,17 @@ export const useRecupererListeMotosQuad = <
 }
 
 export const recupererListeCarrosseriesMotosQuad = <Data = unknown>(
-    params?: RecupererListeCarrosseriesMotosQuadParams, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? CarrosserieVehicule[] : Data>(
-      `/vehicules/motos_quads/carrosseries`,
-      {
+    params?: RecupererListeCarrosseriesMotosQuadParams,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? CarrosserieVehicule[] : Data>(
+      {url: `/vehicules/motos_quads/carrosseries`, method: 'get',
         params,
-  baseURL: '/api/referentiel/modeles_vehicules/', 
-    ...options },
-    );
-  }
-
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 export const getRecupererListeCarrosseriesMotosQuadQueryKey = (params?: RecupererListeCarrosseriesMotosQuadParams,) => [`/vehicules/motos_quads/carrosseries`, ...(params ? [params]: [])]
 
@@ -89,13 +96,13 @@ export const useRecupererListeCarrosseriesMotosQuad = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- params?: RecupererListeCarrosseriesMotosQuadParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeCarrosseriesMotosQuad>, Error>, axios?: AxiosRequestConfig}
+ params?: RecupererListeCarrosseriesMotosQuadParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeCarrosseriesMotosQuad>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getRecupererListeCarrosseriesMotosQuadQueryKey(params);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeCarrosseriesMotosQuad>, Error>(queryKey, () => recupererListeCarrosseriesMotosQuad<Data>(params, axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof recupererListeCarrosseriesMotosQuad>, Error>(queryKey, () => recupererListeCarrosseriesMotosQuad<Data>(params, requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -104,17 +111,17 @@ export const useRecupererListeCarrosseriesMotosQuad = <
 }
 
 export const recupererListeFamillesMotosQuad = <Data = unknown>(
-    params?: RecupererListeFamillesMotosQuadParams, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? FamilleVehicule[] : Data>(
-      `/vehicules/motos_quads/familles`,
-      {
+    params?: RecupererListeFamillesMotosQuadParams,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? FamilleVehicule[] : Data>(
+      {url: `/vehicules/motos_quads/familles`, method: 'get',
         params,
-  baseURL: '/api/referentiel/modeles_vehicules/', 
-    ...options },
-    );
-  }
-
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 export const getRecupererListeFamillesMotosQuadQueryKey = (params?: RecupererListeFamillesMotosQuadParams,) => [`/vehicules/motos_quads/familles`, ...(params ? [params]: [])]
 
@@ -123,13 +130,13 @@ export const useRecupererListeFamillesMotosQuad = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- params?: RecupererListeFamillesMotosQuadParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeFamillesMotosQuad>, Error>, axios?: AxiosRequestConfig}
+ params?: RecupererListeFamillesMotosQuadParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeFamillesMotosQuad>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getRecupererListeFamillesMotosQuadQueryKey(params);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeFamillesMotosQuad>, Error>(queryKey, () => recupererListeFamillesMotosQuad<Data>(params, axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof recupererListeFamillesMotosQuad>, Error>(queryKey, () => recupererListeFamillesMotosQuad<Data>(params, requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -138,17 +145,17 @@ export const useRecupererListeFamillesMotosQuad = <
 }
 
 export const recupererListeGroupesTarifMotosQuad = <Data = unknown>(
-    params?: RecupererListeGroupesTarifMotosQuadParams, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? GroupeTarificationVehicule[] : Data>(
-      `/vehicules/motos_quads/groupes_tarification`,
-      {
+    params?: RecupererListeGroupesTarifMotosQuadParams,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? GroupeTarificationVehicule[] : Data>(
+      {url: `/vehicules/motos_quads/groupes_tarification`, method: 'get',
         params,
-  baseURL: '/api/referentiel/modeles_vehicules/', 
-    ...options },
-    );
-  }
-
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 export const getRecupererListeGroupesTarifMotosQuadQueryKey = (params?: RecupererListeGroupesTarifMotosQuadParams,) => [`/vehicules/motos_quads/groupes_tarification`, ...(params ? [params]: [])]
 
@@ -157,13 +164,13 @@ export const useRecupererListeGroupesTarifMotosQuad = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- params?: RecupererListeGroupesTarifMotosQuadParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeGroupesTarifMotosQuad>, Error>, axios?: AxiosRequestConfig}
+ params?: RecupererListeGroupesTarifMotosQuadParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeGroupesTarifMotosQuad>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getRecupererListeGroupesTarifMotosQuadQueryKey(params);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeGroupesTarifMotosQuad>, Error>(queryKey, () => recupererListeGroupesTarifMotosQuad<Data>(params, axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof recupererListeGroupesTarifMotosQuad>, Error>(queryKey, () => recupererListeGroupesTarifMotosQuad<Data>(params, requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -172,17 +179,17 @@ export const useRecupererListeGroupesTarifMotosQuad = <
 }
 
 export const recupererListeMarquesMotosQuad = <Data = unknown>(
-    params?: RecupererListeMarquesMotosQuadParams, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? MarqueVehicule[] : Data>(
-      `/vehicules/motos_quads/marques`,
-      {
+    params?: RecupererListeMarquesMotosQuadParams,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? MarqueVehicule[] : Data>(
+      {url: `/vehicules/motos_quads/marques`, method: 'get',
         params,
-  baseURL: '/api/referentiel/modeles_vehicules/', 
-    ...options },
-    );
-  }
-
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 export const getRecupererListeMarquesMotosQuadQueryKey = (params?: RecupererListeMarquesMotosQuadParams,) => [`/vehicules/motos_quads/marques`, ...(params ? [params]: [])]
 
@@ -191,13 +198,13 @@ export const useRecupererListeMarquesMotosQuad = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- params?: RecupererListeMarquesMotosQuadParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeMarquesMotosQuad>, Error>, axios?: AxiosRequestConfig}
+ params?: RecupererListeMarquesMotosQuadParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeMarquesMotosQuad>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getRecupererListeMarquesMotosQuadQueryKey(params);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeMarquesMotosQuad>, Error>(queryKey, () => recupererListeMarquesMotosQuad<Data>(params, axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof recupererListeMarquesMotosQuad>, Error>(queryKey, () => recupererListeMarquesMotosQuad<Data>(params, requestOptions), queryOptions )
 
   return {
     queryKey,

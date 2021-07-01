@@ -6,9 +6,6 @@
 
  * OpenAPI spec version: 1.6.5
  */
-import axios,{
-  AxiosRequestConfig
-} from 'axios'
 import {
   useQuery,
   UseQueryOptions
@@ -25,6 +22,7 @@ import {
   rest
 } from 'msw'
 import faker from 'faker'
+import { customInstance } from '../../axios/index'
 
 
 type AsyncReturnType<
@@ -32,18 +30,27 @@ T extends (...args: any) => Promise<any>
 > = T extends (...args: any) => Promise<infer R> ? R : any;
 
 
-export const getFamillesUsingGET = <Data = unknown>(
-    params?: GetFamillesUsingGETParams, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? FamilleVehiculeDTO[] : Data>(
-      `/v1/modeles/familles`,
-      {
-        params,
-  baseURL: '/api/referentiel/modeles_vehicules/', 
-    ...options },
-    );
-  }
+type SecondParameter<T extends (...args: any) => any> = T extends (
+  config: any,
+  args: infer P,
+) => any
+  ? P extends unknown
+  ? Record<string, any>
+  : P
+  : never;
 
+export const getFamillesUsingGET = <Data = unknown>(
+    params?: GetFamillesUsingGETParams,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? FamilleVehiculeDTO[] : Data>(
+      {url: `/v1/modeles/familles`, method: 'get',
+        params,
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 export const getGetFamillesUsingGETQueryKey = (params?: GetFamillesUsingGETParams,) => [`/v1/modeles/familles`, ...(params ? [params]: [])]
 
@@ -52,13 +59,13 @@ export const useGetFamillesUsingGET = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- params?: GetFamillesUsingGETParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getFamillesUsingGET>, Error>, axios?: AxiosRequestConfig}
+ params?: GetFamillesUsingGETParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getFamillesUsingGET>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getGetFamillesUsingGETQueryKey(params);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof getFamillesUsingGET>, Error>(queryKey, () => getFamillesUsingGET<Data>(params, axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof getFamillesUsingGET>, Error>(queryKey, () => getFamillesUsingGET<Data>(params, requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -67,13 +74,16 @@ export const useGetFamillesUsingGET = <
 }
 
 export const getFamilleByIdUsingGET = <Data = unknown>(
-    famillesId: string, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? FamilleVehiculeDTO : Data>(
-      `/v1/modeles/familles/${famillesId}`,options
-    );
-  }
-
+    famillesId: string,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? FamilleVehiculeDTO : Data>(
+      {url: `/v1/modeles/familles/${famillesId}`, method: 'get'
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 export const getGetFamilleByIdUsingGETQueryKey = (famillesId: string,) => [`/v1/modeles/familles/${famillesId}`]
 
@@ -82,13 +92,13 @@ export const useGetFamilleByIdUsingGET = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- famillesId: string, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getFamilleByIdUsingGET>, Error>, axios?: AxiosRequestConfig}
+ famillesId: string, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getFamilleByIdUsingGET>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getGetFamilleByIdUsingGETQueryKey(famillesId);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof getFamilleByIdUsingGET>, Error>(queryKey, () => getFamilleByIdUsingGET<Data>(famillesId, axiosOptions), {enabled: !!(famillesId), ...queryOptions} )
+  const query = useQuery<AsyncReturnType<typeof getFamilleByIdUsingGET>, Error>(queryKey, () => getFamilleByIdUsingGET<Data>(famillesId, requestOptions), {enabled: !!(famillesId), ...queryOptions} )
 
   return {
     queryKey,
@@ -97,17 +107,17 @@ export const useGetFamilleByIdUsingGET = <
 }
 
 export const getMarquesUsingGET = <Data = unknown>(
-    params?: GetMarquesUsingGETParams, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? MarqueVehiculeDTO[] : Data>(
-      `/v1/modeles/marques`,
-      {
+    params?: GetMarquesUsingGETParams,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? MarqueVehiculeDTO[] : Data>(
+      {url: `/v1/modeles/marques`, method: 'get',
         params,
-  baseURL: '/api/referentiel/modeles_vehicules/', 
-    ...options },
-    );
-  }
-
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 export const getGetMarquesUsingGETQueryKey = (params?: GetMarquesUsingGETParams,) => [`/v1/modeles/marques`, ...(params ? [params]: [])]
 
@@ -116,13 +126,13 @@ export const useGetMarquesUsingGET = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- params?: GetMarquesUsingGETParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getMarquesUsingGET>, Error>, axios?: AxiosRequestConfig}
+ params?: GetMarquesUsingGETParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getMarquesUsingGET>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getGetMarquesUsingGETQueryKey(params);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof getMarquesUsingGET>, Error>(queryKey, () => getMarquesUsingGET<Data>(params, axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof getMarquesUsingGET>, Error>(queryKey, () => getMarquesUsingGET<Data>(params, requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -131,13 +141,16 @@ export const useGetMarquesUsingGET = <
 }
 
 export const getMarqueByIdUsingGET = <Data = unknown>(
-    marquesId: string, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? MarqueVehiculeDTO : Data>(
-      `/v1/modeles/marques/${marquesId}`,options
-    );
-  }
-
+    marquesId: string,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? MarqueVehiculeDTO : Data>(
+      {url: `/v1/modeles/marques/${marquesId}`, method: 'get'
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 export const getGetMarqueByIdUsingGETQueryKey = (marquesId: string,) => [`/v1/modeles/marques/${marquesId}`]
 
@@ -146,13 +159,13 @@ export const useGetMarqueByIdUsingGET = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- marquesId: string, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getMarqueByIdUsingGET>, Error>, axios?: AxiosRequestConfig}
+ marquesId: string, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getMarqueByIdUsingGET>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getGetMarqueByIdUsingGETQueryKey(marquesId);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof getMarqueByIdUsingGET>, Error>(queryKey, () => getMarqueByIdUsingGET<Data>(marquesId, axiosOptions), {enabled: !!(marquesId), ...queryOptions} )
+  const query = useQuery<AsyncReturnType<typeof getMarqueByIdUsingGET>, Error>(queryKey, () => getMarqueByIdUsingGET<Data>(marquesId, requestOptions), {enabled: !!(marquesId), ...queryOptions} )
 
   return {
     queryKey,
@@ -161,17 +174,17 @@ export const useGetMarqueByIdUsingGET = <
 }
 
 export const getNumeroRepertoiresVehiculesUsingGET = <Data = unknown>(
-    params?: GetNumeroRepertoiresVehiculesUsingGETParams, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? ModelVehDTOLight[] : Data>(
-      `/v1/modeles/modeles_vehicules`,
-      {
+    params?: GetNumeroRepertoiresVehiculesUsingGETParams,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? ModelVehDTOLight[] : Data>(
+      {url: `/v1/modeles/modeles_vehicules`, method: 'get',
         params,
-  baseURL: '/api/referentiel/modeles_vehicules/', 
-    ...options },
-    );
-  }
-
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 export const getGetNumeroRepertoiresVehiculesUsingGETQueryKey = (params?: GetNumeroRepertoiresVehiculesUsingGETParams,) => [`/v1/modeles/modeles_vehicules`, ...(params ? [params]: [])]
 
@@ -180,13 +193,13 @@ export const useGetNumeroRepertoiresVehiculesUsingGET = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- params?: GetNumeroRepertoiresVehiculesUsingGETParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getNumeroRepertoiresVehiculesUsingGET>, Error>, axios?: AxiosRequestConfig}
+ params?: GetNumeroRepertoiresVehiculesUsingGETParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getNumeroRepertoiresVehiculesUsingGET>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getGetNumeroRepertoiresVehiculesUsingGETQueryKey(params);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof getNumeroRepertoiresVehiculesUsingGET>, Error>(queryKey, () => getNumeroRepertoiresVehiculesUsingGET<Data>(params, axiosOptions), queryOptions )
+  const query = useQuery<AsyncReturnType<typeof getNumeroRepertoiresVehiculesUsingGET>, Error>(queryKey, () => getNumeroRepertoiresVehiculesUsingGET<Data>(params, requestOptions), queryOptions )
 
   return {
     queryKey,
@@ -195,13 +208,16 @@ export const useGetNumeroRepertoiresVehiculesUsingGET = <
 }
 
 export const getNumeroRepertoireVehiculeUsingGET = <Data = unknown>(
-    numeroRepertoireVehicule: string, options?: AxiosRequestConfig
- ) => {
-    return axios.get<Data extends unknown ? ModelVehDTOLight : Data>(
-      `/v1/modeles/${numeroRepertoireVehicule}`,options
-    );
-  }
-
+    numeroRepertoireVehicule: string,
+ options?: SecondParameter<typeof customInstance>) => {
+      return customInstance<Data extends unknown ? ModelVehDTOLight : Data>(
+      {url: `/v1/modeles/${numeroRepertoireVehicule}`, method: 'get'
+    },
+       // eslint-disable-next-line
+// @ts-ignore
+ { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
+    }
+  
 
 export const getGetNumeroRepertoireVehiculeUsingGETQueryKey = (numeroRepertoireVehicule: string,) => [`/v1/modeles/${numeroRepertoireVehicule}`]
 
@@ -210,13 +226,13 @@ export const useGetNumeroRepertoireVehiculeUsingGET = <
   Data extends unknown = unknown,
   Error extends unknown = unknown
 >(
- numeroRepertoireVehicule: string, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getNumeroRepertoireVehiculeUsingGET>, Error>, axios?: AxiosRequestConfig}
+ numeroRepertoireVehicule: string, options?: { query?:UseQueryOptions<AsyncReturnType<typeof getNumeroRepertoireVehiculeUsingGET>, Error>, request?: SecondParameter<typeof customInstance>}
 
   ) => {
   const queryKey = getGetNumeroRepertoireVehiculeUsingGETQueryKey(numeroRepertoireVehicule);
-  const {query: queryOptions, axios: axiosOptions} = options || {}
+  const {query: queryOptions, request: requestOptions} = options || {}
 
-  const query = useQuery<AsyncReturnType<typeof getNumeroRepertoireVehiculeUsingGET>, Error>(queryKey, () => getNumeroRepertoireVehiculeUsingGET<Data>(numeroRepertoireVehicule, axiosOptions), {enabled: !!(numeroRepertoireVehicule), ...queryOptions} )
+  const query = useQuery<AsyncReturnType<typeof getNumeroRepertoireVehiculeUsingGET>, Error>(queryKey, () => getNumeroRepertoireVehiculeUsingGET<Data>(numeroRepertoireVehicule, requestOptions), {enabled: !!(numeroRepertoireVehicule), ...queryOptions} )
 
   return {
     queryKey,
