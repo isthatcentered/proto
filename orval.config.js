@@ -35,8 +35,13 @@ module.exports = SPECS.reduce( ( acc, { fileName, baseUrl } ) => ({
 			mock: true,
 			override: {
 				requestOptions: { baseURL: "/api" + baseUrl },
+				mutator: {
+					path: './frontend/src/axios/index.ts',
+					name: 'customInstance',
+				},
 			},
 		},
 	},
 }), {} )
+
 
