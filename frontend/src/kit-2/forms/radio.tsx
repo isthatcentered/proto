@@ -126,7 +126,7 @@ export const CheckableRadioPlaceholder = ( props: ComponentProps<typeof Placehol
 		</div>)
 
 type AsyncRadioProps<T extends any> = ElementProps<{
-	data: REMOTE.Remote<never, Code<T>[]>
+	data: REMOTE.Remote<any, Code<T>[]>
 	children: ( results: Code<T>[], radioProps: Parameters<RadioGroupProps<T>["children"]>[0] ) => any
 	placeholder?: ComponentType<{ state: REMOTE.Remote<any, any>["type"] }>
 }, RadioGroupProps<T>>

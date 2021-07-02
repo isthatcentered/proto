@@ -9,7 +9,7 @@ import { Label } from "./label"
 
 type SelectProps = ElementProps<{
 	label: string
-	data: REMOTE.Remote<never, Code<string>[]>,
+	data: REMOTE.Remote<any, Code<string>[]>,
 	onChange: ( value: string | undefined ) => void
 	value: string | undefined
 }, Omit<SelectHTMLAttributes<HTMLSelectElement>, "children">>

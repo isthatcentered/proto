@@ -6,7 +6,7 @@ import { pipe } from "fp-ts/function"
 type Initial = { type: "initial" };
 type Pending = { type: "pending" };
 type Success<T> = { type: "resolved"; value: T };
-type Failure<E> = { type: "rejected"; value: E };
+type Failure<E> = { type: "rejected"; details: E };
 export type Remote<E, T> =
 	| Initial
 	| Pending
@@ -25,8 +25,8 @@ export const success = <TSuccess extends any>(
 ): Remote<never, TSuccess> => ({ type: "resolved", value })
 
 export const failure = <TError extends any>(
-	value: TError,
-): Remote<TError, never> => ({ type: "rejected", value })
+	details: TError,
+): Remote<TError, never> => ({ type: "rejected", details })
 
 
 // ------------------------------------------------------------
@@ -45,6 +45,20 @@ export const isFailure = <E, T>( remote: Remote<E, T> ): remote is Failure<E> =>
 	remote.type === "rejected"
 
 
+// -------------------------------------------------------------------------------------
+// Typeclass members
+// -------------------------------------------------------------------------------------
+export const map = <A, B>( ab: ( a: A ) => B ) => <E extends any>( fa: Remote<E, A> ): Remote<E, B> =>
+	isSuccess( fa ) ?
+	success( ab( fa.value ) ) :
+	fa
+
+export const mapFailure = <E, EB>( eeb: ( e: E ) => EB ) => <A extends any>( fa: Remote<E, A> ): Remote<EB, A> =>
+	isFailure( fa ) ?
+	failure( eeb( fa.details ) ) :
+	fa
+
+
 // ------------------------------------------------------------
 // Destructors
 // ------------------------------------------------------------
@@ -60,7 +74,7 @@ export const fold = <E, T, R>( map: {
 		case "pending":
 			return map.onPending()
 		case "rejected":
-			return map.onError( remote.value )
+			return map.onError( remote.details )
 		case "resolved":
 			return map.onSuccess( remote.value )
 	}

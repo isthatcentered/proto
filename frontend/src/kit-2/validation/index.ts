@@ -2,8 +2,8 @@ import * as EI from "fp-ts/Either"
 import * as EQ from "fp-ts/Eq"
 import * as D2 from "io-ts/Decoder"
 import * as D from "io-ts/Decoder"
-import { Predicate, Refinement } from "fp-ts/function"
-import { pipe } from "fp-ts/lib/function"
+import { flow, Predicate, Refinement } from "fp-ts/function"
+import { constant, pipe } from "fp-ts/lib/function"
 import * as DATES from "../dates"
 import report from "./report"
 
@@ -100,7 +100,7 @@ export const enumm = <T extends { [ name: string ]: any }>( _enm: T ): Validatio
 // -------------------------------------------------------------------------------------
 // Conbinators
 // -------------------------------------------------------------------------------------
-export { struct, array, sum } from "io-ts/Decoder"
+export { struct, array, sum, partial } from "io-ts/Decoder"
 
 export const either = D2.union
 
@@ -109,6 +109,16 @@ export const andThen = <A, B, C>( ab: Validation<B, A>, bc: Validation<C, B> ): 
 		ab,
 		D2.compose( bc ),
 	)
+
+export const contramap = <A, B>( map: ( a: A ) => B, validation: Validation<B, any> ): Validation<A, A> =>
+	({
+		decode: a => pipe( map( a ), validation.decode, EI.map( constant( a ) ) ),
+	})
+
+export const map = <A, B, C>( map: ( b: B ) => C ) => ( validation: Validation<B, A> ): Validation<C, A> =>
+	({
+		decode: flow( validation.decode, EI.map( map ) ),
+	})
 
 export const optional = <A, B>( decoder: Validation<B, A> ): Validation<B | undefined, A> => ({
 	decode: ( value: any ) =>
