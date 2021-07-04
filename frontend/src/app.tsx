@@ -4,16 +4,16 @@ import IdentificationVehicule from "./steps/identification-vehicule"
 import UsageVehicule from "./steps/usage-vehicule"
 import IdentificationConducteur from "./steps/identification-conducteur"
 import PasseConducteur from "./steps/passe-conducteur"
-import { IdentificationConducteurStep, IdentificationVehiculeStep, InitParcoursStep, StepOut, UsageVehiculeStep } from "./contracts"
+import { CODE_TYPE_VEHICULE, IdentificationConducteurStep, IdentificationVehiculeStep, InitParcoursStep, StepValues, UsageVehiculeStep } from "./contracts"
 import { recupererListeAutos, recupererListeFamillesAutos } from "./__gen/referentiel-modeles-vehicules/autos"
 
 
 
 // Each step data is the accumulated data of all the previous steps
-type IdentificationVehiculeData = StepOut<InitParcoursStep>
-type UsageVehiculeData = IdentificationVehiculeData & StepOut<IdentificationVehiculeStep>
-type IdentificationConducteurData = UsageVehiculeData & StepOut<UsageVehiculeStep>
-type PasseAssureData = IdentificationConducteurData & StepOut<IdentificationConducteurStep>
+type IdentificationVehiculeData = StepValues<InitParcoursStep>
+type UsageVehiculeData = IdentificationVehiculeData & StepValues<IdentificationVehiculeStep>
+type IdentificationConducteurData = UsageVehiculeData & StepValues<UsageVehiculeStep>
+type PasseAssureData = IdentificationConducteurData & StepValues<IdentificationConducteurStep>
 type Step =
 	| { type: "init-parcours" }
 	| { type: "identification-vehicule", data: IdentificationVehiculeData }
@@ -23,7 +23,7 @@ type Step =
 const stepOverride: Step | undefined =
 undefined
 // { type: "init-parcours" }
-// { type: "identification-vehicule", data: { codeTypeVehicule: CODE_TYPE_VEHICULE.CAMPING_CAR } }
+// { type: "identification-vehicule", data: { codeTypeVehicule: CODE_TYPE_VEHICULE.AUTO } }
 // { type: "usage-vehicule", data: {  } as any }
 // { type: "identification-conducteur", data: {  }as any }
 // { type: "passe-assure", data: { codeExperienceConducteur: "04" } as any }
@@ -33,11 +33,6 @@ const initialState: Step = stepOverride || { type: "init-parcours" }
 // @todo: allow going back to previous step
 const App = () => {
 	const [ step, setNextStep ] = useState<Step>( initialState )
-	
-	
-	recupererListeAutos().then( console.log )
-	
-	recupererListeFamillesAutos( { listeCodesMarque: [ "683" ] } ).then( console.log )
 	
 	return (
 		<div

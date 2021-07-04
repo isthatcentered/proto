@@ -73,11 +73,13 @@ export type PasseConducteurStep = Step<PickStep<IdentificationVehiculeStep, "num
 // -------------------------------------------------------------------------------------
 // Model
 // -------------------------------------------------------------------------------------
-type AnyRecord = Record<any, any>
+export type Step<TIn extends Record<any, any>, TOut extends Record<any, any>> = ComponentType<{ onConfirm: ( choices: TOut ) => void } & TIn>
 
-type Step<TIn extends AnyRecord, TOut extends AnyRecord> = ComponentType<{ onConfirm: ( choices: TOut ) => void } & TIn>
+export type StepValues<T extends Step<any, any>> = T extends Step<infer O, any> ? Parameters<O["onConfirm"]>[0] : never
+// export type StepValues<T extends Step<any, any>> = T extends Step<any,infer V> ? V : never
 
-export type StepOut<T extends Step<any, any>> = T extends Step<infer O, any> ? Parameters<O["onConfirm"]>[0] : never
+export type StepProps<T extends Step<any, any>> = T extends Step<infer P, any> ? P : never
 
-type PickStep<T extends Step<any, any>, K extends keyof StepOut<T>> = Pick<StepOut<T>, K>
+type PickStep<T extends Step<any, any>, K extends keyof StepValues<T>> = Pick<StepValues<T>, K>
+
 

@@ -21,3 +21,8 @@ export const FormSubmitButton = ( props: PropsWithChildren<{ disabled: boolean }
 )
 
 export const FormTitle = ( props: PropsWithChildren<{}> ) => <h2 className="mb-8"><SectionHeaderStyles>{props.children}</SectionHeaderStyles></h2>
+export const Grid      = ( props: PropsWithChildren<{ cols?: number, rows?: number, gap?: number, }> ) => (
+	 <div className={`gap-${props.gap || 4} grid grid-cols-${props.cols} grid-rows-${props.rows}`}
+				children={props.children}
+	 />
+)
