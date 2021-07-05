@@ -1,6 +1,6 @@
 import { CODE_TYPE_VEHICULE, InitParcoursStep, Step, StepProps, StepValues } from "../contracts"
-import { ClickableStyles, FormSubmitButton, FormTitle, Grid, SectionHeaderStyles } from "../kit-2/shared"
-import React, { ComponentType, useMemo } from "react"
+import { ClickableStyles, FormSubmitButton, FormTitle, Grid, SectionHeaderStyles, useStaticValue } from "../kit-2/shared"
+import React, { ComponentType } from "react"
 import { FormikProps, withFormik } from "formik"
 import { pipe } from "fp-ts/lib/function"
 import * as yup from "yup"
@@ -9,10 +9,6 @@ import { FieldSubText, getConnect, RadioButton, RadioGroup } from "../kit-2/form
 import * as AR from "fp-ts/Array"
 
 
-
-
-const useStaticValue = <T extends any>( value: T ): T =>
-	 useMemo( () => value, [] )
 
 
 const useCodesTypeVehicule = () =>
@@ -36,7 +32,7 @@ const schema = Y.struct( {
 } );
 
 
-type StepForm<T extends Step<any, any>, S extends StepValues<T>> = ComponentType<StepProps<T> & FormikProps<S>>
+export type StepForm<T extends Step<any, any>, S extends StepValues<T>> = ComponentType<StepProps<T> & FormikProps<S>>
 
 
 const _InitParcours: StepForm<InitParcoursStep, yup.Asserts<typeof schema>> = ( props ) => {
@@ -136,7 +132,7 @@ const InitParcours = pipe(
 				 alreadyHasAccount: undefined!,
 			}),
 			validationSchema: schema,
-			handleSubmit:     ( values, { props } ) => props.onConfirm( values ),
+			handleSubmit:     ( { codeTypeVehicule }, { props } ) => props.onConfirm( { codeTypeVehicule } ),
 	 } ),
 )
 

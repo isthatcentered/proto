@@ -112,7 +112,6 @@ const useForm = <TFormValues extends AnyRecord>(
 		getFieldErrors: getFieldErrors( _errorsLog ),
 	}
 	
-	console.log( "errors", _errorsLog, validation )
 	
 	const setData = ( path: (string | number)[], value: any ): void => {
 		pipe(

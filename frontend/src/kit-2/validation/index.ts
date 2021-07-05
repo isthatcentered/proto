@@ -27,75 +27,75 @@ export type ValidatedType<T extends Validation<any, any>> = D2.TypeOf<T>
 export { literal } from "io-ts/Decoder"
 
 const satisfy: {
-	<A, B extends A>( refinement: Refinement<A, B>, message: string ): Validation<B, A>
-	<A>( predicate: Predicate<A>, message: string ): Validation<A, A>
+	 <A, B extends A>( refinement: Refinement<A, B>, message: string ): Validation<B, A>
+	 <A>( predicate: Predicate<A>, message: string ): Validation<A, A>
 } = <A>( predicate: Predicate<A>, message: string ): Validation<A, A> => ({
-	decode: ( value: any ) =>
-		        predicate( value ) ?
-		        D2.success( value ) :
-		        D2.failure( value, message ),
+	 decode: ( value: any ) =>
+							predicate( value ) ?
+							D2.success( value ) :
+							D2.failure( value, message ),
 })
 
 export const eq = <A>( expected: A, Eq: EQ.Eq<A> ): Validation<A, unknown> => pipe(
-	D2.fromRefinement( ( actual ): actual is A => Eq.equals( expected, actual as A ), `Must be ${expected}` ),
-	required,
+	 D2.fromRefinement( ( actual ): actual is A => Eq.equals( expected, actual as A ), `Must be ${expected}` ),
+	 required,
 )
 
 const gteNumber = ( n: number ) => satisfy(
-	( value: number ) => value >= n,
-	`Must be more than or equal to "${n}"`,
+	 ( value: number ) => value >= n,
+	 `Must be more than or equal to "${n}"`,
 )
 
 export const gteDate = ( min: Date ): Validation<Date> =>
-	satisfy(
-		date => DATES.isSame( min )( date ) || DATES.isAfter( min )( date ),
-		`Cannot be before ${min}`,
-	)
+	 satisfy(
+			date => DATES.isSame( min )( date ) || DATES.isAfter( min )( date ),
+			`Cannot be before ${min}`,
+	 )
 
 
 export function gte( min: Date ): Validation<Date>
 export function gte( min: number ): Validation<number>
 export function gte( min: any ): Validation<any>
 {
-	return typeof min === "number" ?
-	       gteNumber( min ) :
-	       gteDate( min )
+	 return typeof min === "number" ?
+					gteNumber( min ) :
+					gteDate( min )
 }
 
 
 export const min = gte
 
 export const lteNumber = ( n: number ) => satisfy(
-	( value: number ) => value <= n,
-	`Must be less than or equal to "${n}"`,
+	 ( value: number ) => value <= n,
+	 `Must be less than or equal to "${n}"`,
 )
 
 export const lteDate = ( max: Date ): Validation<Date> =>
-	satisfy(
-		date => DATES.isSame( max )( date ) || DATES.isBefore( max )( date ),
-		`Cannot be after ${max}`,
-	)
+	 satisfy(
+			date => DATES.isSame( max )( date ) || DATES.isBefore( max )( date ),
+			`Cannot be after ${max}`,
+	 )
 
 
 export function lte( max: Date ): Validation<Date>
 export function lte( max: number ): Validation<number>
 export function lte( max: any ): Validation<any>
 {
-	return typeof max === "number" ?
-	       lteNumber( max ) :
-	       lteDate( max )
+	 return typeof max === "number" ?
+					lteNumber( max ) :
+					lteDate( max )
 }
 
 
 export const max = lte
 
 export const between = ( min: number, max: number ) =>
-	andThen( gte( min ), lte( max ) )
+	 andThen( gte( min ), lte( max ) )
 
 type ValuesOf<T extends { [ key: string ]: any }> = T extends { [ key: string ]: infer V } ? V : never
 
 export const enumm = <T extends { [ name: string ]: any }>( _enm: T ): Validation<ValuesOf<T>, string> => {
-	return D2.literal( ...Object.values( _enm ) as [ string ] ) as any
+	 return D2.literal( ...Object.values( _enm ) as [ string ] ) as any
 }
 // -------------------------------------------------------------------------------------
 // Conbinators
@@ -105,44 +105,44 @@ export { struct, array, sum, partial } from "io-ts/Decoder"
 export const either = D2.union
 
 export const andThen = <A, B, C>( ab: Validation<B, A>, bc: Validation<C, B> ): Validation<C, A> =>
-	pipe(
-		ab,
-		D2.compose( bc ),
-	)
+	 pipe(
+			ab,
+			D2.compose( bc ),
+	 )
 
 export const contramap = <A, B>( map: ( a: A ) => B, validation: Validation<B, any> ): Validation<A, A> =>
-	({
-		decode: a => pipe( map( a ), validation.decode, EI.map( constant( a ) ) ),
-	})
+	 ({
+			decode: a => pipe( map( a ), validation.decode, EI.map( constant( a ) ) ),
+	 })
 
 export const map = <A, B, C>( map: ( b: B ) => C ) => ( validation: Validation<B, A> ): Validation<C, A> =>
-	({
-		decode: flow( validation.decode, EI.map( map ) ),
-	})
+	 ({
+			decode: flow( validation.decode, EI.map( map ) ),
+	 })
 
 export const optional = <A, B>( decoder: Validation<B, A> ): Validation<B | undefined, A> => ({
-	decode: ( value: any ) =>
-		        (value === null) || (value === undefined) ?
-		        D2.success( value ) :
-		        decoder.decode( value ),
+	 decode: ( value: any ) =>
+							(value === null) || (value === undefined) ?
+							D2.success( value ) :
+							decoder.decode( value ),
 })
 
 export const required = <A, B>( validation: Validation<B, A> ): Validation<NonNullable<B>, A> => ({
-	decode: ( value: A ) =>
-		        (value === null) || (value === undefined) ?
-		        D2.failure( value, "Required" ) :
-		        validation.decode( value ) as EI.Either<D2.DecodeError, NonNullable<B>>,
+	 decode: ( value: A ) =>
+							(value === null) || (value === undefined) ?
+							D2.failure( value, "Required" ) :
+							validation.decode( value ) as EI.Either<D2.DecodeError, NonNullable<B>>,
 })
 
 type Slot<A, B extends A = A> = [ Refinement<A, B> | Predicate<A>, Validation<B, unknown> ]
 
 export const cond = <A extends any>( slots: Slot<A>[  ] ): Validation<A, unknown> => ({
-	decode: value => {
-		const decoder = slots.find( s => s[ 0 ]( value as any ) )
-		return decoder ?
-		       decoder[ 1 ].decode( value ) :
-		       D.success( value as A )
-	},
+	 decode: value => {
+			const decoder = slots.find( s => s[ 0 ]( value as any ) )
+			return decoder ?
+						 decoder[ 1 ].decode( value ) :
+						 D.success( value as A )
+	 },
 })
 
 
@@ -161,20 +161,30 @@ export const nil = satisfy( ( thing ): thing is undefined => thing === undefined
 
 export const nonEmptyString = andThen( D2.string, satisfy( ( str ) => str.length > 0, "Cannot be blank" ) )
 
+export const stringNumber = pipe(
+	 nonEmptyString,
+	 D2.parse( ( a: string ) => {
+			const parsed = parseInt( a )
+			return isNaN( parsed ) ?
+						 D2.failure( a, "Nan" ) :
+						 D2.success( parsed )
+	 } ), required,
+)
+
 // -------------------------------------------------------------------------------------
 // Interpreters
 // -------------------------------------------------------------------------------------
 export const run = <B, A>( validation: Validation<B, A>, value: A ): EI.Either<Failure[], B> =>
-	pipe(
-		validation.decode( value ),
-		EI.mapLeft( report ),
-	)
+	 pipe(
+			validation.decode( value ),
+			EI.mapLeft( report ),
+	 )
 
 // -------------------------------------------------------------------------------------
 // Interop
 // -------------------------------------------------------------------------------------
 export const asRefinement = <B extends A, A>( validation: Validation<B, A> ): Refinement<A, B> =>
-	( value: A ): value is B => EI.isRight( validation.decode( value ) )
+	 ( value: A ): value is B => EI.isRight( validation.decode( value ) )
 
 
 //
