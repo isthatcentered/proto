@@ -164,9 +164,19 @@ const IdentificationAuto = makeStep<IdentificationVehiculeStep, yup.Asserts<type
 							 {...connect( "codeConfigurationPortes" )}
 							 data={data.configurationsPortes}
 							 label="Nombre de portes :"
-							 component={RadioButton}
-							 wrapper={props => <Grid cols={3} {...props}/>}
-						/>
+						>
+							 {( data, props ) =>
+									<Grid cols={3}>
+										 {data.map( code =>
+												<RadioButton
+													 {...props}
+													 key={code.value}
+													 value={code.value}
+													 children={code.label}
+												/>,
+										 )}
+									</Grid>}
+						</RadioSelect>
 						
 						<div className="pt-8"/>
 						
@@ -178,7 +188,7 @@ const IdentificationAuto = makeStep<IdentificationVehiculeStep, yup.Asserts<type
 						
 						<div className="pt-8"/>
 						
-						{props.isValid && (
+						{props.dirty && props.isValid && (
 							 <FormSubmitButton disabled={props.isSubmitting}>
 									Valider
 							 </FormSubmitButton>)}
@@ -198,7 +208,6 @@ const IdentificationAuto = makeStep<IdentificationVehiculeStep, yup.Asserts<type
 			}),
 			validationSchema: schema,
 			handleSubmit:     ( values, { props } ) =>
-													 // @todo: get acceptation
 													 verifyVehiculeAccepted( values.numeroRepertoire )
 															.then( E.foldW(
 																 () => {

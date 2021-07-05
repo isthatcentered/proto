@@ -22,19 +22,6 @@ import { notNil } from "../../../kit-2/validation/refinements"
 
 
 
-const remoteFromQueryState = <E, A>( state: UseQueryResult<AxiosResponse<A>, E> ): REMOTE.Remote<E, A> => {
-	 switch ( state.status ) {
-			case "idle":
-				 return REMOTE.initial
-			case "loading":
-				 return REMOTE.pending
-			case "error":
-				 return REMOTE.failure( state.error )
-			case "success":
-				 return REMOTE.success( state.data.data )
-	 }
-}
-
 type GeneratedReactQuery<TParams, TError, TResult> = ( params?: TParams, config?: { query?: UseQueryOptions<any, any, any> } ) => UseQueryResult<AxiosResponse<TResult>, TError>
 
 const useSelectData = <P, E, A extends any[]>(
@@ -54,7 +41,7 @@ const useSelectData = <P, E, A extends any[]>(
 	 const queryResult = query( ...queryConfig )
 	 
 	 return pipe(
-			remoteFromQueryState( queryResult ),
+			REMOTE.fromQueryState( queryResult ),
 			REMOTE.map( AR.map( asCodes ) ),
 	 )
 }
@@ -63,7 +50,7 @@ const useSelectData = <P, E, A extends any[]>(
 const autoListsParamsDecoder = V.partial( {
 	 listeCodesCategorie:       V.array( V.nonEmptyString ),
 	 listeCodesMarque:          V.array( V.nonEmptyString ),
-	 listeAnneesCirculation:    V.array( V.andThen( V.stringNumber, V.gte( 1900 ) ) ),
+	 listeAnneesCirculation:    V.array( V.andThen( V.number, V.gte( 1900 ) ) ),
 	 listeCodesFamille:         V.array( V.nonEmptyString ),
 	 listeCodesEnergie:         V.array( V.nonEmptyString ),
 	 listeNombresPortes:        V.array( V.nonEmptyString ),
@@ -75,7 +62,7 @@ const autoListsParamsDecoder = V.partial( {
 export const useMarques = () => {
 	 const queryState = A2.useRecupererListeMarquesAutos()
 	 return pipe(
-			remoteFromQueryState( queryState ),
+			REMOTE.fromQueryState( queryState ),
 			REMOTE.map( AR.map( a => ({ label: a.libelleMarque, value: a.codeMarque }) ) ),
 	 )
 }

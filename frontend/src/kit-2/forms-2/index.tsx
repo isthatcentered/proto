@@ -4,6 +4,7 @@ import classNames from "classnames"
 import cn from "classnames"
 import * as REMOTE from "../remote"
 import { Code } from "../helpers"
+import { Grid } from "../shared"
 
 
 
@@ -36,15 +37,12 @@ export const Label = ( { label, children, as, ...props }: PropsWithChildren<{ la
 
 type RadioSelectProps<T extends string | number> = {
 	 data: REMOTE.Remote<any, Code<T>[]>,
-	 wrapper: ( props: PropsWithChildren<{}> ) => any
-	 component: ( props: PropsWithChildren<FieldConnection<T>> ) => any
+	 children: ( data: Code<T>[], props: { name: string, disabled?: boolean } ) => any
 	 disabled?: boolean
 	 label: string
 }
 export const RadioSelect = <T extends string | number>( props: RadioSelectProps<T> & FieldConnection<T> ) => {
 	 const disabled = props.disabled || !REMOTE.isSuccess( props.data )
-	 const Radio    = props.component
-	 const Wrapper  = props.wrapper
 	 return (
 			<RadioGroup
 				 label={props.label}
@@ -52,19 +50,10 @@ export const RadioSelect = <T extends string | number>( props: RadioSelectProps<
 				 disabled={disabled}
 			>
 				 {REMOTE.isSuccess( props.data ) ?
-					<Wrapper>
-						 {props.data.value.map( code =>
-								<Radio
-									 key={code.value}
-									 value={code.value}
-									 name={props.name}
-									 children={code.label}
-								/> )}
-					</Wrapper> :
+					props.children( props.data.value, { name: props.name, disabled: props.disabled } ) :
 					<FieldPlaceholder state={props.data.type}/>}
 			</RadioGroup>)
 }
-
 
 
 export const RadioGroup = <T extends string | number>( props: PropsWithChildren<{ name: string, label: string, disabled?: boolean }> ) => (
@@ -80,7 +69,7 @@ export const RadioGroup = <T extends string | number>( props: PropsWithChildren<
 	 </fieldset>)
 
 
-export const RadioButton = <T extends string | number>( props: PropsWithChildren<FieldConnection<T>> ) => {
+export const RadioButton = <T extends string | number>( props: PropsWithChildren<FieldConnection<T>> & { disabled?: boolean } ) => {
 	 const [ field, meta, helpers ] = useField( { ...props, type: "radio" } )
 	 return (
 			<label
@@ -89,6 +78,7 @@ export const RadioButton = <T extends string | number>( props: PropsWithChildren
 						{
 							 "border-indigo-600 text-indigo-900 bg-indigo-50": field.checked,
 							 "border-gray-300 shadow":                         !field.checked,
+							 "bg-gray-50 border-none text-gray-300":           props.disabled,
 						},
 				 )}
 			>
@@ -100,6 +90,42 @@ export const RadioButton = <T extends string | number>( props: PropsWithChildren
 				 {props.children}
 			</label>)
 }
+
+export const CheckableRadio2 = <T extends string | number>( props: PropsWithChildren<{ disabled?: boolean } & FieldConnection<T>> ) => {
+	 const [ field, meta, helpers ] = useField( { ...props, type: "radio" } )
+	 return (<label className="ListRadio flex items-center">
+			<input
+				 {...field}
+				 className="sr-only"
+				 type="radio"
+			/>
+			<div className="mr-3">
+				 <div className="ListRadio-radio w-4 h-4 rounded-full border-2 border-gray-300 flex items-center justify-center">
+						{field.checked && <div className="w-2 h-2 rounded-full bg-indigo-600"/>}
+				 </div>
+			</div>
+			{props.children}
+	 </label>)
+}
+
+
+export const YesNo2 = ( props: { label: string, disabled?: boolean } & FieldConnection<"true" | "false"> ) => (
+	 <RadioGroup {...props}>
+			<Grid cols={2}>
+				 <RadioButton
+						value="true"
+						name={props.name}
+						disabled={props.disabled}
+						children="Oui"
+				 />
+				 <RadioButton
+						value="false"
+						name={props.name}
+						disabled={props.disabled}
+						children="Non"
+				 />
+			</Grid>
+	 </RadioGroup>)
 
 export const FieldPlaceholder = ( props: { state: REMOTE.Remote<any, any>["type"] } ) => {
 	 return <div
@@ -165,6 +191,7 @@ export const Input2 = <T extends number | string>( props: FieldConnection<T> & I
 						{...field}
 						value={field.value || ""}
 						disabled={props.disabled}
+						type={props.type || "text"}
 						className={classNames(
 							 "py-2 h-10 px-3 w-full sm:text-sm rounded-md border-2 focus:border-indigo-500 block shadow-sm border-gray-300 outline-none focus:text-indigo-800 cursor-text",
 							 {

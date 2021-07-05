@@ -85,7 +85,7 @@ export type StepProps<T extends Step<any, any>> = T extends Step<infer P, any> ?
 type PickStep<T extends Step<any, any>, K extends keyof StepValues<T>> = Pick<StepValues<T>, K>
 
 
-export const makeStep = <TStep extends Step<any, any>, TSchema extends StepValues<TStep> & FormikValues>(
+export const makeStep = <TStep extends Step<any, any>, TSchema extends Record<keyof StepValues<TStep>, any> & FormikValues>(
 	 component: ComponentType<StepProps<TStep> & FormikProps<TSchema>>,
 	 formikConfig: WithFormikConfig<StepProps<TStep>, TSchema>,
 ) =>
