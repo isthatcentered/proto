@@ -23,3 +23,4 @@ ReactDOM.render(
 	document.getElementById( "root" ),
 );
 
+export { makeStep } from "./contracts"

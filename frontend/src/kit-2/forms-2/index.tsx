@@ -104,7 +104,7 @@ export const RadioButton = <T extends string | number>( props: PropsWithChildren
 export const FieldPlaceholder = ( props: { state: REMOTE.Remote<any, any>["type"] } ) => {
 	 return <div
 			className={cn(
-				 `bg-gray-50 text-transparent py-2 rounded-md h-10`,
+				 `bg-gray-50 text-transparent py-2 rounded-md h-10 shadow-sm`,
 				 { "animate-pulse": props.state === "pending" },
 			)}
 	 />
@@ -164,7 +164,13 @@ export const Input2 = <T extends number | string>( props: FieldConnection<T> & I
 				 <input
 						{...field}
 						value={field.value || ""}
-						className={"py-2 px-3 w-full sm:text-sm rounded-md border-2 focus:border-indigo-500 block shadow-sm border-gray-300 outline-none focus:text-indigo-800 cursor-text"}
+						disabled={props.disabled}
+						className={classNames(
+							 "py-2 h-10 px-3 w-full sm:text-sm rounded-md border-2 focus:border-indigo-500 block shadow-sm border-gray-300 outline-none focus:text-indigo-800 cursor-text",
+							 {
+									"border-none bg-gray-50": props.disabled,
+							 },
+						)}
 				 />
 				 <FieldError name={props.name}/>
 			</Label>)
