@@ -2,7 +2,6 @@ import { CODE_TYPE_VEHICULE, InitParcoursStep, makeStep } from "../contracts"
 import { ClickableStyles, FormSubmitButton, FormTitle, Grid, SectionHeaderStyles, useStaticValue } from "../kit-2/shared"
 import React from "react"
 import { pipe } from "fp-ts/lib/function"
-import * as yup from "yup"
 import * as Y from "../kit-2/yup"
 import { FieldSubText, getConnect, RadioButton, RadioGroup } from "../kit-2/forms-2"
 import * as AR from "fp-ts/Array"
@@ -31,7 +30,7 @@ const schema = Y.struct( {
 } );
 
 
-const InitParcours = makeStep<InitParcoursStep, yup.Asserts<typeof schema>>(
+const InitParcours = makeStep<InitParcoursStep, typeof schema>(
 	 ( props ) => {
 			const connect                              = getConnect( props )
 			const codesTypeVehicules                   = useCodesTypeVehicule()

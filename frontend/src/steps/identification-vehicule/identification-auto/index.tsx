@@ -89,7 +89,7 @@ const schema = Y.struct( {
 
 // @todo: Identify via registration plate
 // @todo: Select item automatically if only one choice (keep visible, just check it and store value)
-const IdentificationAuto = makeStep<IdentificationVehiculeStep, yup.Asserts<typeof schema>>(
+const IdentificationAuto = makeStep<IdentificationVehiculeStep, typeof schema>(
 	 ( props ) => {
 			const connect = getConnect( props )
 			const data    = usePageData( props.values )

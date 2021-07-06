@@ -17,7 +17,7 @@ import { Code, prop } from "../../../kit-2/helpers"
 import * as AR from "fp-ts/Array"
 import * as EI from "fp-ts/Either"
 import { jouerAcceptationVehicule } from "../../../__gen/iard-devis-vehicules-v1/acceptation-risque-véhicule"
-import { notNil } from "../../../kit-2/validation/refinements"
+import { notNil } from "../../../kit-2/predicates/predicates"
 
 
 

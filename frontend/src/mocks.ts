@@ -3,7 +3,7 @@ import { recupererListeAutos, recupererListeCarrosseriesAutos, recupererListeEne
 import { getModleVehiculesByNumeroChassisUsingGET1, getNumRepForImmatriculationUsingGET1, recupererVehiculeParNumeroRepertoire } from "./__gen/referentiel-modeles-vehicules/vehicules"
 import { AxiosResponse } from "axios"
 import { Mask } from "msw/lib/types/setupWorker/glossary"
-import { getRecupererValeursOrigineSocietaireMock, getRecupererValeursResponsabiliteSinistreMock, getRecupererValeursTypeConducteurMock, recupererValeursExperienceConducteur, recupererValeursTypePermis, recupererValeursUsage } from "./__gen/iard-devis-vehicules-v1/nomenclatures"
+import { getRecupererValeursOrigineSocietaireMock, getRecupererValeursResponsabiliteSinistreMock, recupererValeursExperienceConducteur, recupererValeursTypeConducteur, recupererValeursTypePermis, recupererValeursUsage } from "./__gen/iard-devis-vehicules-v1/nomenclatures"
 import { jouerAcceptationProspect, jouerAcceptationVehicule, recupererDatesAntecedentsSinistralite } from "./__gen/iard-devis-vehicules-v1/acceptation-risque-véhicule";
 
 
@@ -318,18 +318,15 @@ const getIardDevisVehiculesNomenclaturesMocks = () => [
 	 mockedGet(
 			"*/experiences_conducteur",
 			{
-				 "nomNomenclature":    "codeExperienceConducteur",
-				 "detailNomenclature": [
-						{ "code": " ", "libelle": "Sans information" }, {
-							 "code":    "01",
-							 "libelle": "Conducteur Principal MAIF (PP)",
-						}, { "code": "02", "libelle": "Conducteur Occasionnel MAIF (PP)" }, {
-							 "code":    "03",
-							 "libelle": "Passé autre société (PP et A&C)",
-						}, { "code": "04", "libelle": "Sans Expérience (PP et A&C)" }, { "code": "05", "libelle": "MAIF A&C" }, {
-							 "code":    "06",
-							 "libelle": "Enfant Conducteur Déclaré",
-						},
+				 nomNomenclature:    "codeExperienceConducteur",
+				 detailNomenclature: [
+						{ code: " ", libelle: "Sans information" },
+						{ code: "01", libelle: "Conducteur Principal MAIF (PP)" },
+						{ code: "02", libelle: "Conducteur Occasionnel MAIF (PP)" },
+						{ code: "03", libelle: "Passé autre société (PP et A&C)" },
+						{ code: "04", libelle: "Sans Expérience (PP et A&C)" },
+						{ code: "05", libelle: "MAIF A&C" },
+						{ code: "06", libelle: "Enfant Conducteur Déclaré" },
 				 ],
 			},
 			recupererValeursExperienceConducteur,
@@ -348,19 +345,25 @@ const getIardDevisVehiculesNomenclaturesMocks = () => [
 				 ctx.json( getRecupererValeursResponsabiliteSinistreMock() ),
 			)
 	 } ),
-	 rest.get( "*/types_conducteur", ( req, res, ctx ) => {
-			return res(
-				 ctx.delay( 1000 ),
-				 ctx.status( 200, "Mocked status" ),
-				 ctx.json( getRecupererValeursTypeConducteurMock() ),
-			)
-	 } ),
+	 
+	 mockedGet(
+			"*/types_conducteur",
+			{
+				 nomNomenclature:    "typeConducteur",
+				 detailNomenclature: [
+						{ code: "01", libelle: "Vous" },
+						{ code: "02", libelle: "Votre conjoint(e)" },
+						{ code: "03", libelle: "Votre concubin(e)" },
+				 ],
+			},
+			recupererValeursTypeConducteur,
+	 ),
 	 mockedGet(
 			"*/types_permis/vehicule/:numeroRepertoire",
 			{
-				 "nomNomenclature":    "codeTypePermis",
-				 "detailNomenclature": [
-						{ "code": "B", "libelle": "4 roues assujettis (B,BE)" },
+				 nomNomenclature:    "codeTypePermis",
+				 detailNomenclature: [
+						{ code: "B", libelle: "4 roues assujettis (B,BE)" },
 				 ],
 			},
 			recupererValeursTypePermis,
@@ -368,10 +371,10 @@ const getIardDevisVehiculesNomenclaturesMocks = () => [
 	 mockedGet(
 			"*/usages/vehicule/:numeroRepertoire",
 			{
-				 "nomNomenclature":    "codeUsage",
-				 "detailNomenclature": [
-						{ "code": "01", "libelle": "Usage privé et professionnel" },
-						{ "code": "02", "libelle": "Usage privé et professionnel occasionnel" },
+				 nomNomenclature:    "codeUsage",
+				 detailNomenclature: [
+						{ code: "01", libelle: "Usage privé et professionnel" },
+						{ code: "02", libelle: "Usage privé et professionnel occasionnel" },
 				 ],
 			},
 			recupererValeursUsage,

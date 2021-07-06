@@ -41,8 +41,12 @@ type RadioSelectProps<T extends string | number> = {
 	 disabled?: boolean
 	 label: string
 }
+
+
+
 export const RadioSelect = <T extends string | number>( props: RadioSelectProps<T> & FieldConnection<T> ) => {
 	 const disabled = props.disabled || !REMOTE.isSuccess( props.data )
+	 
 	 return (
 			<RadioGroup
 				 label={props.label}
@@ -77,8 +81,8 @@ export const RadioButton = <T extends string | number>( props: PropsWithChildren
 						"cursor-pointer leading-tight font-bold flex items-center justify-center py-3 px-4 w-full border-2 rounded-md focus:border-indigo-600 text-center focus-within:border-indigo-600",
 						{
 							 "border-indigo-600 text-indigo-900 bg-indigo-50": field.checked,
-							 "border-gray-300 shadow":                         !field.checked,
-							 "bg-gray-50 border-none text-gray-300":           props.disabled,
+							 "border-gray-300 shadow-sm":                         !field.checked,
+							 "bg-gray-50 border-none text-gray-200":           props.disabled,
 						},
 				 )}
 			>
@@ -188,10 +192,9 @@ export const Input2 = <T extends number | string>( props: FieldConnection<T> & I
 				 disabled={props.disabled || false}
 			>
 				 <input
+						{...props}
 						{...field}
 						value={field.value || ""}
-						disabled={props.disabled}
-						type={props.type || "text"}
 						className={classNames(
 							 "py-2 h-10 px-3 w-full sm:text-sm rounded-md border-2 focus:border-indigo-500 block shadow-sm border-gray-300 outline-none focus:text-indigo-800 cursor-text",
 							 {

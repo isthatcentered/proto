@@ -3,7 +3,6 @@ import React from "react"
 import * as REMOTE from "../../kit-2/remote"
 import { FormSubmitButton, FormTitle, Grid } from "../../kit-2/shared"
 import * as Y from "../../kit-2/yup"
-import { Asserts } from "yup"
 import { CheckableRadio2, getConnect, Input2, RadioSelect, YesNo2 } from "../../kit-2/forms-2"
 import * as DS from "../../kit-2/date-string"
 import { pipe } from "fp-ts/lib/function"
@@ -13,19 +12,18 @@ import { VehiculeSpecs } from "./vehicule-specs"
 
 
 
-const schema2 = Y.struct( {
+const schema = Y.struct( {
 	 codeUsageVehicule:       Y.nonEmptyString(),
 	 leasingOuCreditEnCours:  Y.bool(),
 	 dateEffetContratDesiree: pipe( Y.dateString(), Y.minDateString( DS.today(), "Ne peut démarrer avant aujourd'hui" ) ),
 } )
 
-const UsageVehicule = makeStep<UsageVehiculeStep, Asserts<typeof schema2>>(
+const UsageVehicule = makeStep<UsageVehiculeStep, typeof schema>(
 	 ( props ) => {
 			const connect                       = getConnect( props )
 			const codesTypesUtilisationVehicule = Q.useCodesUtilisationVehicule( props.numeroRepertoire )
 			const pending                       = !REMOTE.isSuccess( codesTypesUtilisationVehicule )
 			
-			console.log( props.values, props.errors )
 			return (
 				 <form onSubmit={props.handleSubmit}>
 						<FormTitle>Usage</FormTitle>
@@ -87,7 +85,7 @@ const UsageVehicule = makeStep<UsageVehiculeStep, Asserts<typeof schema2>>(
 				 leasingOuCreditEnCours:  undefined!,
 				 dateEffetContratDesiree: DS.today(),
 			}),
-			validationSchema: schema2,
+			validationSchema: schema,
 			handleSubmit:     ( values, { props } ) =>
 													 props.onConfirm( {
 															codeUsageVehicule:       values.codeUsageVehicule,

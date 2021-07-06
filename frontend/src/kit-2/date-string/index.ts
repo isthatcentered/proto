@@ -1,4 +1,5 @@
 import * as O from "fp-ts/Option"
+import { flow } from "fp-ts/function"
 
 // A date string with no notion of hours & seconds
 // Format: 2021-05-13
@@ -44,6 +45,18 @@ export const max = ( a: DateString ) => ( b: DateString ) =>
 
 export const isValid = ( date: string ): date is DateString =>
 	 O.isSome( fromString( date ) )
+
+
+// -------------------------------------------------------------------------------------
+// Combinators
+// -------------------------------------------------------------------------------------
+export const subYears = ( years: number ) => ( date: DateString ) => {
+	 const d = toDate( date )
+	 d.setFullYear( d.getFullYear() - years )
+	 return fromDate( d )
+}
+
+export const addYears = ( years: number ) => flow( subYears( -years ) )
 
 
 // -------------------------------------------------------------------------------------

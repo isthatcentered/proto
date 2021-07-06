@@ -23,9 +23,9 @@ const stepOverride: Step | undefined =
 				 // undefined
 // { type: "init-parcours" }
 // { type: "identification-vehicule", data: { codeTypeVehicule: CODE_TYPE_VEHICULE.AUTO } }
-				 { type: "usage-vehicule", data: { numeroRepertoire: "1234" } as any }
-// { type: "identification-conducteur", data: {  }as any }
-// { type: "passe-assure", data: { codeExperienceConducteur: "04" } as any }
+// 				 { type: "usage-vehicule", data: { numeroRepertoire: "1234" } as any }
+// { type: "identification-conducteur", data: { numeroRepertoire: "1234" }as any }
+{ type: "passe-assure", data: { codeExperienceConducteur: "03" } as any }
 
 const initialState: Step = stepOverride || { type: "init-parcours" }
 

@@ -13,13 +13,23 @@ export const struct = <T extends ObjectShape>( spec: T ) =>
 	 yup.object( spec ).required()
 
 
-export const minDateString = ( min: DS.DateString, message?:string  ) => ( schema: DateStringSchema ): DateStringSchema =>
+export const minDateString = ( min: DS.DateString, message?: string ) => ( schema: DateStringSchema ): DateStringSchema =>
 	 schema.test( {
 			name:    "min-date-string",
 			message: message || `La date ne peut être inférieure au ${DS.pretty( min )}`,
 			test:    value =>
 									value ?
 									pipe( value, DS.min( min ) ) :
+									false,
+	 } )
+
+export const maxDateString = ( max: DS.DateString, message?: string ) => ( schema: DateStringSchema ): DateStringSchema =>
+	 schema.test( {
+			name:    "max-date-string",
+			message: message || `La date ne peut dépasser le ${DS.pretty( max )}`,
+			test:    value =>
+									value ?
+									pipe( value, DS.max( max ) ) :
 									false,
 	 } )
 
@@ -40,10 +50,7 @@ export const dateString = () => nonEmptyString()
 	 .test( {
 			name:    "is-date-string",
 			message: "Date invalide",
-			test:    value => {
-				 console.log( "valid", value, DS.isValid( value || "" ) )
-				 return DS.isValid( value || "" )
-			},
+			test:    value => DS.isValid( value || "" ),
 	 } ) as DateStringSchema
 
 
