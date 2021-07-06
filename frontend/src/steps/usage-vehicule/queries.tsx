@@ -7,16 +7,21 @@ import { useRecupererVehiculeParNumeroRepertoire } from "../../__gen/referentiel
 import { Nomenclature } from "../../__gen/iard-devis-vehicules-v1/iard-devis-vehicules-v1.schemas"
 import { UseQueryResult } from "react-query"
 import { AxiosResponse } from "axios"
+import { useMemo } from "react"
 
 
 
 
 export const useNomenclature = ( nomenclature: UseQueryResult<AxiosResponse<Nomenclature>, any> ): REMOTE.Remote<any, Code<string>[]> =>
-	 pipe(
-			nomenclature,
-			REMOTE.fromQueryState,
-			REMOTE.map( prop( "detailNomenclature" ) ),
-			REMOTE.map( AR.map( code => ({ value: code.code, label: code.libelle }) ) ),
+	 useMemo(
+			() =>
+				 pipe(
+						nomenclature,
+						REMOTE.fromQueryState,
+						REMOTE.map( prop( "detailNomenclature" ) ),
+						REMOTE.map( AR.map( code => ({ value: code.code, label: code.libelle }) ) ),
+				 ),
+			[ nomenclature.dataUpdatedAt ],
 	 )
 
 export const useVehiculeSpecs = ( numeroRepertoire: string ) =>

@@ -2,7 +2,7 @@ import * as O from "fp-ts/Option"
 import { flow } from "fp-ts/function"
 
 // A date string with no notion of hours & seconds
-// Format: 2021-05-13
+// Format: 2021-05-13 | 2021-05
 export type DateString = string & { readonly  DateString: unique symbol }
 
 
@@ -10,10 +10,12 @@ export type DateString = string & { readonly  DateString: unique symbol }
 // Constructors
 // -------------------------------------------------------------------------------------
 export const fromDate = ( date: Date ): DateString =>
-	 date.toISOString().slice( 0, 10 ) as DateString
+	 date.toISOString().slice( 0, 10 ) as DateString // "2021-07-06T15:41:18.935Z" -> "2021-07-06"
+
+
 
 export const fromString = ( date: string ): O.Option<DateString> => {
-	 const isValid = /^\d{4}-\d{2}-\d{2}$/.test( date ) && isValidDate( date )
+	 const isValid = (isFullDate( date ) || isMonthDate( date )) && isValidDate( date )
 	 return isValid ?
 					O.some( date as DateString ) :
 					O.none
@@ -24,8 +26,10 @@ export const fromString = ( date: string ): O.Option<DateString> => {
 // Destructors
 // -------------------------------------------------------------------------------------
 export const toDate = ( date: DateString ): Date => new Date( date )
+
 export const pretty = ( date: DateString ): string => toDate( date ).toLocaleDateString()
 
+export const toISO8601 = ( date: DateString ) => toDate( date ).toISOString().slice( 0, 10 ) // for now we follow the same format but this might change. This acts as a safety net
 
 // -------------------------------------------------------------------------------------
 // Guards
@@ -69,8 +73,10 @@ export const today = (): DateString =>
 // -------------------------------------------------------------------------------------
 // Utils
 // -------------------------------------------------------------------------------------
-function isValidDate( string: string ): boolean
-{
+const isMonthDate = ( date: string ): boolean => /^\d{4}-\d{2}$/.test( date )
+const isFullDate  = ( date: string ): boolean => /^\d{4}-\d{2}-\d{2}$/.test( date )
+
+const isValidDate = ( string: string ): boolean => {
 	 try {
 			return !!new Date( string ).toISOString()
 	 } catch ( e ) {

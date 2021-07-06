@@ -3,7 +3,7 @@ import { recupererListeAutos, recupererListeCarrosseriesAutos, recupererListeEne
 import { getModleVehiculesByNumeroChassisUsingGET1, getNumRepForImmatriculationUsingGET1, recupererVehiculeParNumeroRepertoire } from "./__gen/referentiel-modeles-vehicules/vehicules"
 import { AxiosResponse } from "axios"
 import { Mask } from "msw/lib/types/setupWorker/glossary"
-import { getRecupererValeursOrigineSocietaireMock, getRecupererValeursResponsabiliteSinistreMock, recupererValeursExperienceConducteur, recupererValeursTypeConducteur, recupererValeursTypePermis, recupererValeursUsage } from "./__gen/iard-devis-vehicules-v1/nomenclatures"
+import { getRecupererValeursOrigineSocietaireMock, recupererValeursExperienceConducteur, recupererValeursResponsabiliteSinistre, recupererValeursTypeConducteur, recupererValeursTypePermis, recupererValeursUsage } from "./__gen/iard-devis-vehicules-v1/nomenclatures"
 import { jouerAcceptationProspect, jouerAcceptationVehicule, recupererDatesAntecedentsSinistralite } from "./__gen/iard-devis-vehicules-v1/acceptation-risque-véhicule";
 
 
@@ -338,14 +338,18 @@ const getIardDevisVehiculesNomenclaturesMocks = () => [
 				 ctx.json( getRecupererValeursOrigineSocietaireMock() ),
 			)
 	 } ),
-	 rest.get( "*/responsabilites_sinistre", ( req, res, ctx ) => {
-			return res(
-				 ctx.delay( 1000 ),
-				 ctx.status( 200, "Mocked status" ),
-				 ctx.json( getRecupererValeursResponsabiliteSinistreMock() ),
-			)
-	 } ),
-	 
+	 mockedGet(
+			"*/responsabilites_sinistre",
+			{
+				 nomNomenclature:    "responsabilites_sinistre",
+				 detailNomenclature: [
+						{ code: "01", libelle: "Exclue" },
+						{ code: "02", libelle: "Totale" },
+						{ code: "03", libelle: "Demie" },
+				 ],
+			},
+			recupererValeursResponsabiliteSinistre,
+	 ),
 	 mockedGet(
 			"*/types_conducteur",
 			{
@@ -382,8 +386,22 @@ const getIardDevisVehiculesNomenclaturesMocks = () => [
 ]
 
 export const getIardDevisVehiculesAcceptationMocks = () => [
-	 mockedGet( "*/antecedents_sinistralite/dates", <any>{}, recupererDatesAntecedentsSinistralite ),
-	 mockedPost( "*/jouer_acceptation/prospect", <any>{}, jouerAcceptationProspect ),
+	 mockedGet(
+			"*/antecedents_sinistralite/dates",
+			{
+				 dateAnterioriteBonus050:   "2015-11-01",
+				 dateDebutCollecteSinistre: "2016-12-14",
+			},
+			recupererDatesAntecedentsSinistralite,
+	 ),
+	 mockedPost(
+			"*/jouer_acceptation/prospect",
+			{
+				 codeAcceptation:    "01",
+				 libelleAcceptation: "Yay",
+			},
+			jouerAcceptationProspect,
+	 ),
 	 // mockedPost('*/jouer_acceptation/societaire/:referenceSocietaire', <any>{}, jouerAcceptationSocietaire),
 	 mockedPost(
 			"*/jouer_acceptation/vehicule",

@@ -13,11 +13,10 @@ import { AxiosResponse } from "axios"
 import * as REMOTE from "../../../kit-2/remote"
 import * as V from "../../../kit-2/validation"
 import { constant, pipe } from "fp-ts/function"
-import { Code, prop } from "../../../kit-2/helpers"
+import { Code, notNil, prop } from "../../../kit-2/helpers"
 import * as AR from "fp-ts/Array"
 import * as EI from "fp-ts/Either"
 import { jouerAcceptationVehicule } from "../../../__gen/iard-devis-vehicules-v1/acceptation-risque-véhicule"
-import { notNil } from "../../../kit-2/predicates/predicates"
 
 
 

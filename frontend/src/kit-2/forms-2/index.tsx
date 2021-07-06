@@ -1,4 +1,4 @@
-import React, { ComponentType, InputHTMLAttributes, PropsWithChildren } from "react"
+import React, { ChangeEvent, ComponentType, InputHTMLAttributes, PropsWithChildren } from "react"
 import { ErrorMessage, FormikProps, useField } from "formik"
 import classNames from "classnames"
 import cn from "classnames"
@@ -8,49 +8,77 @@ import { Grid } from "../shared"
 
 
 
+// Formik only works with string | numbers, nothing fancier. Hence this constraint
+type Connectable = string | number
 
-export type FieldConnection<T extends string | number> =
+export type FieldConnection<T extends Connectable> =
 	 {
 			value: T | undefined,
 			name: string,
 	 }
 
+type ConnectOverrides<T> = {
+	 value?: T
+}
 
-export const getConnect = <T extends Record<string, any>>( form: FormikProps<T> ) =>
-	 <K extends keyof T>( path: K, props?: { value?: T[K] } ): FieldConnection<T[K]> => {
+type ConnectReturn<T> = T extends Connectable ? FieldConnection<T> : never
+
+interface ConnectFn<T>
+{
+	 <K extends keyof T, K2 extends keyof T[K], K3 extends keyof T[K][K2]>( path: [ K, K2, K3 ], overrides?: ConnectOverrides<T[K][K2][K3]> ): ConnectReturn<T[K][K2][K3]>
+	 
+	 <K extends keyof T, K2 extends keyof T[K]>( path: [ K, K2 ], overrides?: ConnectOverrides<T[K][K2]> ): ConnectReturn<T[K][K2]>
+	 
+	 <K extends keyof T>( path: K, overrides?: ConnectOverrides<T[K]> ): ConnectReturn<T[K]>
+}
+
+
+const makeFieldName = ( path: (string | number)[] ): string => {
+	 const dottedPath = path.map( segement =>
+				 typeof segement === "number" ?
+				 `[${segement}]` :
+				 segement,
+			)
+			.join( "." ) // a.[0].b
+	 
+	 return dottedPath.replace( ".[", "[" ).replace( "].", "]" ) // // a[0]b
+}
+
+export const getConnect = <T extends Record<string, any>>( form: FormikProps<T> ): ConnectFn<T> =>
+	 ( path: string | number | (string | number)[], props: ConnectOverrides<any> = {} ): any => {
 			return {
-				 name:  path as string,
-				 value: props?.value || form.values[ path ],
+				 name:  makeFieldName( [ path ].flat() ),
+				 value: props.value || form.values[ path as any ],
 			}
 	 }
 
 
-
-export const Label = ( { label, children, as, ...props }: PropsWithChildren<{ label: string, as?: ComponentType | string, disabled: boolean }> ) => {
+export const Label = ( { label, children, as, ...props }: PropsWithChildren<{ label: string, as?: ComponentType | string, disabled: boolean, className?: string }> ) => {
 	 const Tag = as || "label" as any
 	 
-	 return <Tag {...props} className={classNames( "block", { "text-gray-300": props.disabled } )}>
+	 return <Tag {...props} className={classNames( "block", props.className, { "text-gray-300": props.disabled } )}>
 			<span className="block font-medium mb-4">{label}</span>
 			{children}
 	 </Tag>
 }
 
-type RadioSelectProps<T extends string | number> = {
-	 data: REMOTE.Remote<any, Code<T>[]>,
-	 children: ( data: Code<T>[], props: { name: string, disabled?: boolean } ) => any
-	 disabled?: boolean
-	 label: string
-}
-
-
-
-export const RadioSelect = <T extends string | number>( props: RadioSelectProps<T> & FieldConnection<T> ) => {
-	 const disabled = props.disabled || !REMOTE.isSuccess( props.data )
+type RadioSelectProps<T extends Connectable> =
 	 
+	 {
+			data: REMOTE.Remote<any, Code<T>[]>,
+			children: ( data: Code<T>[], props: { name: string, disabled?: boolean } ) => any
+			disabled?: boolean
+			label: string
+			className?: string
+	 }
+
+export const RadioSelect = <T extends Connectable>( props: RadioSelectProps<T> & FieldConnection<T> ) => {
+	 const disabled = props.disabled || !REMOTE.isSuccess( props.data )
 	 return (
 			<RadioGroup
 				 label={props.label}
 				 name={props.name}
+				 className={props.className}
 				 disabled={disabled}
 			>
 				 {REMOTE.isSuccess( props.data ) ?
@@ -60,8 +88,8 @@ export const RadioSelect = <T extends string | number>( props: RadioSelectProps<
 }
 
 
-export const RadioGroup = <T extends string | number>( props: PropsWithChildren<{ name: string, label: string, disabled?: boolean }> ) => (
-	 <fieldset>
+export const RadioGroup = <T extends Connectable>( props: PropsWithChildren<{ name: string, label: string, disabled?: boolean, className?: string }> ) => (
+	 <fieldset className={props.className}>
 			<Label label={props.label}
 						 disabled={props.disabled || false}
 						 as="legend"
@@ -73,21 +101,30 @@ export const RadioGroup = <T extends string | number>( props: PropsWithChildren<
 	 </fieldset>)
 
 
-export const RadioButton = <T extends string | number>( props: PropsWithChildren<FieldConnection<T>> & { disabled?: boolean } ) => {
+type RadioProps<T extends Connectable> = PropsWithChildren<FieldConnection<T>> & { disabled?: boolean, onChange?: ( value: T ) => void }
+
+export const RadioButton = <T extends Connectable>( { onChange, ...props }: RadioProps<T> ) => {
 	 const [ field, meta, helpers ] = useField( { ...props, type: "radio" } )
+	 const handleChange             = ( e: ChangeEvent<HTMLInputElement> ) =>
+			onChange ?
+			onChange( e.target.value as T ) :
+			field.onChange( e )
+	 
 	 return (
 			<label
 				 className={classNames(
 						"cursor-pointer leading-tight font-bold flex items-center justify-center py-3 px-4 w-full border-2 rounded-md focus:border-indigo-600 text-center focus-within:border-indigo-600",
 						{
 							 "border-indigo-600 text-indigo-900 bg-indigo-50": field.checked,
-							 "border-gray-300 shadow-sm":                         !field.checked,
+							 "border-gray-300 shadow-sm":                      !field.checked,
 							 "bg-gray-50 border-none text-gray-200":           props.disabled,
 						},
 				 )}
 			>
 				 <input
 						{...field}
+						onChange={handleChange}
+						disabled={props.disabled}
 						className="sr-only"
 						type="radio"
 				 />
@@ -95,11 +132,18 @@ export const RadioButton = <T extends string | number>( props: PropsWithChildren
 			</label>)
 }
 
-export const CheckableRadio2 = <T extends string | number>( props: PropsWithChildren<{ disabled?: boolean } & FieldConnection<T>> ) => {
+export const CheckableRadio2 = <T extends Connectable>( { onChange, ...props }: RadioProps<T> ) => {
 	 const [ field, meta, helpers ] = useField( { ...props, type: "radio" } )
+	 const handleChange             = ( e: ChangeEvent<HTMLInputElement> ) =>
+			onChange ?
+			onChange( e.target.value as T ) :
+			field.onChange( e )
+	 
 	 return (<label className="ListRadio flex items-center">
 			<input
 				 {...field}
+				 onChange={handleChange}
+				 disabled={props.disabled}
 				 className="sr-only"
 				 type="radio"
 			/>
@@ -113,19 +157,21 @@ export const CheckableRadio2 = <T extends string | number>( props: PropsWithChil
 }
 
 
-export const YesNo2 = ( props: { label: string, disabled?: boolean } & FieldConnection<"true" | "false"> ) => (
+export const YesNo2 = ( { onChange, ...props }: { label: string, className?: string } & RadioProps<"true" | "false"> ) => (
 	 <RadioGroup {...props}>
 			<Grid cols={2}>
 				 <RadioButton
 						value="true"
 						name={props.name}
 						disabled={props.disabled}
+						onChange={onChange}
 						children="Oui"
 				 />
 				 <RadioButton
 						value="false"
 						name={props.name}
 						disabled={props.disabled}
+						onChange={onChange}
 						children="Non"
 				 />
 			</Grid>
@@ -140,7 +186,7 @@ export const FieldPlaceholder = ( props: { state: REMOTE.Remote<any, any>["type"
 	 />
 }
 
-export const Select2 = <T extends string | number>( props: PropsWithChildren<FieldConnection<T> & { data: REMOTE.Remote<any, Code<T>[]>, label: string, disabled?: boolean }> ) => {
+export const Select2 = <T extends Connectable>( props: PropsWithChildren<FieldConnection<T> & { data: REMOTE.Remote<any, Code<T>[]>, label: string, disabled?: boolean, className?: string }> ) => {
 	 const [ field, meta, helpers ] = useField( { ...props } )
 	 const disabled                 = props.disabled || !REMOTE.isSuccess( props.data )
 	 const pending                  = REMOTE.isPending( props.data )
@@ -148,6 +194,7 @@ export const Select2 = <T extends string | number>( props: PropsWithChildren<Fie
 			<Label
 				 label={props.label}
 				 disabled={disabled}
+				 className={props.className}
 			>
 				 {REMOTE.isSuccess( props.data ) ?
 					<select
@@ -184,12 +231,13 @@ export const Select2 = <T extends string | number>( props: PropsWithChildren<Fie
 	 )
 }
 
-export const Input2 = <T extends number | string>( props: FieldConnection<T> & InputHTMLAttributes<HTMLInputElement> & { label: string } ) => {
+export const Input2 = <T extends number | string>( { className, ...props }: FieldConnection<T> & InputHTMLAttributes<HTMLInputElement> & { label: string, className?: string } ) => {
 	 const [ field, meta, helpers ] = useField( { ...props } )
 	 return (
 			<Label
 				 label={props.label}
 				 disabled={props.disabled || false}
+				 className={className}
 			>
 				 <input
 						{...props}

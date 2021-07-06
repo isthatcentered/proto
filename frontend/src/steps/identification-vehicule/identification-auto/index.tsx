@@ -6,6 +6,7 @@ import { useCarosseries, useEnergies, useFamilles, useFinitions, useMarques, use
 import * as Y from "../../../kit-2/yup"
 import * as yup from "yup"
 import { getConnect, Input2, RadioButton, RadioSelect, Select2 } from "../../../kit-2/forms-2"
+import { pipe } from "fp-ts/lib/function"
 
 
 
@@ -76,7 +77,7 @@ const usePageData = ( values: yup.Asserts<typeof schema> ) => {
 
 const schema = Y.struct( {
 	 codeMarque:                     Y.nonEmptyString(),
-	 anneeMiseEnCirculationVehicule: Y.numberBetween( 1900, new Date().getFullYear() ),
+	 anneeMiseEnCirculationVehicule: pipe( Y.number(), Y.numberBetween( 1950, new Date().getFullYear(), "L'année de mise en circulation ne peut être antérieure à 1950" ) ),
 	 codeFamille:                    Y.nonEmptyString(),
 	 codeEnergie:                    Y.nonEmptyString(),
 	 codeTransmission:               Y.nonEmptyString(),

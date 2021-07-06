@@ -27,9 +27,6 @@ export const anyPass = <A>( ...predicates: Predicate<A>[] ): Predicate<A> =>
 export const and = <A, B extends A, C extends B>( left: Refinement<A, B>, right: Refinement<B, C> ): Refinement<A, C> =>
 	 compose( left, right )
 
-export const notNil = <T>( value: T ): value is NonNullable<T> =>
-	 value !== undefined && value !== null
-
 export const number = ( value: unknown ): value is number => (typeof value === "number") && !isNaN( value ) && (value !== Infinity)
 
 export const string = ( value: unknown ): value is string =>

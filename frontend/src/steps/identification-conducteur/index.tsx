@@ -51,6 +51,7 @@ const IdentificationConducteur = makeStep<IdentificationConducteurStep, typeof s
 						
 						<RadioSelect
 							 {...connect( "codeTypeConducteur" )}
+							 className="mb-8"
 							 data={typesConducteur}
 							 label="Conducteur principal"
 							 disabled={pageLoading}
@@ -67,10 +68,11 @@ const IdentificationConducteur = makeStep<IdentificationConducteurStep, typeof s
 							 }
 						</RadioSelect>
 						
-						<div className="pt-8"/>
+						
 						
 						<RadioSelect
 							 {...connect( "codeCivilite" )}
+							 className="mb-8"
 							 data={codesCivilite}
 							 label="Civilité"
 							 disabled={pageLoading}
@@ -87,38 +89,42 @@ const IdentificationConducteur = makeStep<IdentificationConducteurStep, typeof s
 									</Grid>}
 						</RadioSelect>
 						
-						<div className="pt-8"/>
+						
 						
 						<Input2
 							 {...connect( "nom" )}
+							 className="mb-8"
 							 type="text"
 							 label="Nom"
 							 disabled={pageLoading}
 						/>
 						
-						<div className="pt-8"/>
+						
 						
 						<Input2
 							 {...connect( "prenom" )}
+							 className="mb-8"
 							 type="text"
 							 label="Prénom"
 							 disabled={pageLoading}
 						/>
 						
-						<div className="pt-8"/>
+						
 						
 						<Input2
 							 {...connect( "dateNaissance" )}
+							 className="mb-8"
 							 label="Date de naissance"
 							 type="date"
 							 max={MaximumDateOfBirthToHaveADrivingLicense}
 							 disabled={pageLoading}
 						/>
 						
-						<div className="pt-8"/>
+						
 						
 						<Input2
 							 {...connect( "dateObtentionPermis" )}
+							 className="mb-8"
 							 label="Date d'obtention du permis"
 							 type="date"
 							 max={DS.today()}
@@ -126,10 +132,11 @@ const IdentificationConducteur = makeStep<IdentificationConducteurStep, typeof s
 							 disabled={pageLoading}
 						/>
 						
-						<div className="pt-8"/>
+						
 						
 						<RadioSelect
 							 {...connect( "codeTypePermis" )}
+							 className="mb-8"
 							 data={typesPermis}
 							 label="Permis obtenu"
 							 disabled={pageLoading}
@@ -146,10 +153,11 @@ const IdentificationConducteur = makeStep<IdentificationConducteurStep, typeof s
 									</Grid>}
 						</RadioSelect>
 						
-						<div className="pt-8"/>
+						
 						
 						<RadioSelect
 							 {...connect( "codeExperienceConducteur" )}
+							 className="mb-8"
 							 data={codesExperienceConducteur}
 							 label="Quel est son passé d'assuré ?"
 							 disabled={pageLoading}

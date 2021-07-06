@@ -4,7 +4,7 @@ import IdentificationVehicule from "./steps/identification-vehicule"
 import UsageVehicule from "./steps/usage-vehicule"
 import IdentificationConducteur from "./steps/identification-conducteur"
 import PasseConducteur from "./steps/passe-conducteur"
-import { IdentificationConducteurStep, IdentificationVehiculeStep, InitParcoursStep, StepValues, UsageVehiculeStep } from "./contracts"
+import { CODE_TYPE_VEHICULE, IdentificationConducteurStep, IdentificationVehiculeStep, InitParcoursStep, StepValues, UsageVehiculeStep } from "./contracts"
 
 
 
@@ -25,7 +25,24 @@ const stepOverride: Step | undefined =
 // { type: "identification-vehicule", data: { codeTypeVehicule: CODE_TYPE_VEHICULE.AUTO } }
 // 				 { type: "usage-vehicule", data: { numeroRepertoire: "1234" } as any }
 // { type: "identification-conducteur", data: { numeroRepertoire: "1234" }as any }
-{ type: "passe-assure", data: { codeExperienceConducteur: "03" } as any }
+				 {
+						type: "passe-assure", data: {
+							 anneeMiseEnCirculationVehicule: 0,
+							 codeCivilite:                   "",
+							 codeTypeConducteur:             "",
+							 codeTypePermis:                 "",
+							 codeTypeVehicule:               CODE_TYPE_VEHICULE.AUTO,
+							 codeUsageVehicule:              "",
+							 dateNaissance:                  new Date(),
+							 dateObtentionPermis:            new Date(),
+							 leasingOuCreditEnCours:         false,
+							 nom:                            "",
+							 numeroRepertoire:               "",
+							 prenom:                         "",
+							 codeExperienceConducteur:       "03",
+							 dateEffetContratDesiree:        new Date(),
+						},
+				 }
 
 const initialState: Step = stepOverride || { type: "init-parcours" }
 
