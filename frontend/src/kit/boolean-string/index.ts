@@ -8,4 +8,3 @@ export const fold = <A, B>( spec: { onTrue: ( value: "true" ) => A, onFalse: ( v
 				 return spec.onFalse( value )
 	 }
 }
-

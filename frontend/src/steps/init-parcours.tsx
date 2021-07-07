@@ -3,7 +3,7 @@ import { ClickableStyles, FormSubmitButton, FormTitle, Grid, SectionHeaderStyles
 import React from "react"
 import { pipe } from "fp-ts/lib/function"
 import * as Y from "../kit/yup"
-import { FieldSubText, getConnect, RadioButton, RadioGroup } from "../kit/forms-2"
+import { FieldSubText, getConnect, RadioButton, RadioGroup } from "../kit/forms"
 import * as AR from "fp-ts/Array"
 
 

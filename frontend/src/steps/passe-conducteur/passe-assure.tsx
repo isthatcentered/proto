@@ -7,7 +7,7 @@ import {
   RadioButton,
   RadioSelect,
   YesNo2,
-} from "../../kit/forms-2";
+} from "../../kit/forms";
 import * as AR from "fp-ts/Array";
 import * as E from "fp-ts/Either";
 import * as REMOTE from "../../kit/remote";

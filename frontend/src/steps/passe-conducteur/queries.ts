@@ -1,4 +1,3 @@
-import { useNomenclature } from "../usage-vehicule/queries"
 import { useRecupererValeursResponsabiliteSinistre } from "../../swagger-gen/__gen/iard-devis-vehicules-v1/nomenclatures"
 import * as DS from "../../kit/date-string"
 import { useMemo } from "react"
@@ -10,6 +9,7 @@ import { InfoAcceptationProspect } from "../../swagger-gen/__gen/iard-devis-vehi
 import { notNil, prop } from "../../kit/helpers"
 import * as EI from "fp-ts/Either"
 import * as AR from "fp-ts/Array"
+import { useNomenclature } from "../../swagger-gen"
 
 
 

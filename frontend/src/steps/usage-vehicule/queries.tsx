@@ -1,31 +1,15 @@
 import * as REMOTE from "../../kit/remote"
-import { Code, prop } from "../../kit/helpers"
-import { pipe } from "fp-ts/function"
+import { Code } from "../../kit/helpers"
 import { useRecupererValeursUsage } from "../../swagger-gen/__gen/iard-devis-vehicules-v1/nomenclatures"
-import * as AR from "fp-ts/Array"
 import { useRecupererVehiculeParNumeroRepertoire } from "../../swagger-gen/__gen/referentiel-modeles-vehicules/vehicules"
-import { Nomenclature } from "../../swagger-gen/__gen/iard-devis-vehicules-v1/iard-devis-vehicules-v1.schemas"
-import { UseQueryResult } from "react-query"
-import { AxiosResponse } from "axios"
-import { useMemo } from "react"
+import { useNomenclature } from "../../swagger-gen"
 
+export const useVehiculeSpecs = (numeroRepertoire: string) =>
+	REMOTE.fromQueryState(
+		useRecupererVehiculeParNumeroRepertoire(numeroRepertoire),
+	)
 
-
-
-export const useNomenclature = ( nomenclature: UseQueryResult<AxiosResponse<Nomenclature>, any> ): REMOTE.Remote<any, Code<string>[]> =>
-	 useMemo(
-			() =>
-				 pipe(
-						nomenclature,
-						REMOTE.fromQueryState,
-						REMOTE.map( prop( "detailNomenclature" ) ),
-						REMOTE.map( AR.map( code => ({ value: code.code, label: code.libelle }) ) ),
-				 ),
-			[ nomenclature.dataUpdatedAt ],
-	 )
-
-export const useVehiculeSpecs = ( numeroRepertoire: string ) =>
-	 REMOTE.fromQueryState( useRecupererVehiculeParNumeroRepertoire( numeroRepertoire ) )
-
-export const useCodesUtilisationVehicule = ( numeroRepertoire: string ): REMOTE.Remote<any, Code<string>[]> =>
-	 useNomenclature( useRecupererValeursUsage( numeroRepertoire ) )
+export const useCodesUtilisationVehicule = (
+	numeroRepertoire: string,
+): REMOTE.Remote<any, Code<string>[]> =>
+	useNomenclature(useRecupererValeursUsage(numeroRepertoire))

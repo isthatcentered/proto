@@ -5,7 +5,7 @@ import * as Y from "../../kit/yup"
 import * as REMOTE from "../../kit/remote"
 import * as DS from "../../kit/date-string"
 import { not, pipe } from "fp-ts/lib/function"
-import { CheckableRadio2, getConnect, Input2, RadioButton, RadioSelect } from "../../kit/forms-2"
+import { CheckableRadio2, getConnect, Input2, RadioButton, RadioSelect } from "../../kit/forms"
 import * as Q from "./queries"
 
 

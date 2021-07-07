@@ -1,6 +1,6 @@
-import { useNomenclature } from "../usage-vehicule/queries"
 import { useRecupererValeursExperienceConducteur, useRecupererValeursTypeConducteur, useRecupererValeursTypePermis } from "../../swagger-gen/__gen/iard-devis-vehicules-v1/nomenclatures"
 import * as REMOTE from "../../kit/remote"
+import { useNomenclature } from "../../swagger-gen"
 
 
 
