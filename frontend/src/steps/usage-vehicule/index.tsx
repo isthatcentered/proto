@@ -7,10 +7,13 @@ import * as DS from "../../kit/date-string"
 import { pipe } from "fp-ts/lib/function"
 import * as Q from "./queries"
 import { VehiculeSpecs } from "./vehicule-specs"
-import { getConnect } from "../../kit/forms/connect"
-import { CheckableRadio, RadioSelect } from "../../kit/forms/radios"
-import { YesNo } from "../../kit/forms/yesNo"
-import { Input } from "../../kit/forms/input"
+import {
+	CheckableRadio,
+	getConnect,
+	Input,
+	RadioSelect,
+	YesNo,
+} from "../../kit/forms"
 
 const schema = Y.struct({
 	codeUsageVehicule: Y.nonEmptyString(),
@@ -94,7 +97,7 @@ const UsageVehicule = makeStep<UsageVehiculeStep, typeof schema>(
 			props.onConfirm({
 				codeUsageVehicule: values.codeUsageVehicule,
 				leasingOuCreditEnCours: values.leasingOuCreditEnCours === "true",
-				dateEffetContratDesiree: DS.toDate(values.dateEffetContratDesiree),
+				dateEffetContratDesiree: values.dateEffetContratDesiree,
 			}),
 	},
 )

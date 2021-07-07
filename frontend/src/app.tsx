@@ -60,7 +60,7 @@ const initialState: Step = stepOverride || { type: "init-parcours" }
 // @todo: allow going back to previous step
 const App = () => {
 	const [step, setNextStep] = useState<Step>(initialState)
-
+	console.log((step as any).data)
 	return (
 		<div
 			className="container mx-auto px-4 py-16 mb-12"

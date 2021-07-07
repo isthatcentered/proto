@@ -460,12 +460,8 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema>(
 				conducteur: {
 					codeExperienceConducteur: props.codeExperienceConducteur,
 					codeTypeConducteur: props.codeTypeConducteur,
-					dateNaissance: pipe(props.dateNaissance, DS.fromDate, DS.toISO8601),
-					dateObtentionPermis: pipe(
-						props.dateObtentionPermis,
-						DS.fromDate,
-						DS.toISO8601,
-					),
+					dateNaissance: DS.toISO8601(props.dateNaissance),
+					dateObtentionPermis: DS.toISO8601(props.dateObtentionPermis),
 					nom: props.nom,
 					prenom: props.prenom,
 					coefficientBonusMalus: values.coefficientBonusMalus,
@@ -487,11 +483,7 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema>(
 					numeroRepertoire: props.numeroRepertoire,
 					codeUsageVehicule: props.codeUsageVehicule,
 				},
-				dateEffet: pipe(
-					props.dateEffetContratDesiree,
-					DS.fromDate,
-					DS.toISO8601,
-				),
+				dateEffet: DS.toISO8601(props.dateEffetContratDesiree),
 			}).then(
 				E.foldW(
 					() => {
@@ -507,25 +499,15 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema>(
 							conduiteAccompagneeMaifAvant2007:
 								values.ca.conduiteAccompagneeMaifAvant2007 === "true",
 							coefficientBonusMalus: values.coefficientBonusMalus,
-							dateAnterioriteBonus050: DS.toDate(
-								values.dateAnterioriteBonus050,
-							),
-							dateDEcheanceAncienAssureur: DS.toDate(
-								values.dateDEcheanceAncienAssureur,
-							),
-							dateSouscriptionAncienAssureur: new Date(
-								values.dateSouscriptionAncienAssureur,
+							dateAnterioriteBonus050: values.dateAnterioriteBonus050,
+							dateDEcheanceAncienAssureur: values.dateDEcheanceAncienAssureur,
+							dateSouscriptionAncienAssureur: DS.fromDate(
+								new Date(values.dateSouscriptionAncienAssureur),
 							),
 							retraitPermis: values.retraitPermis === "true",
 							sinistreAvecCirconstanceAggravante:
 								values.sinistreAvecCirconstanceAggravante === "true",
-							sinistres: pipe(
-								sinistresCollision,
-								AR.map(s => ({
-									...s,
-									dateSurvenance: DS.toDate(s.dateSurvenance),
-								})),
-							),
+							sinistres: sinistresCollision,
 						}),
 				),
 			)

@@ -3,6 +3,7 @@ import { FormikProps, withFormik, WithFormikConfig } from "formik"
 import { pipe } from "fp-ts/function"
 import { RequiredObjectSchema } from "yup/lib/object"
 import * as Y from "./kit/yup"
+import * as DS from "./kit/date-string"
 
 export enum CODE_TYPE_VEHICULE {
 	AUTO = "AUTO",
@@ -36,7 +37,7 @@ export type UsageVehiculeStep = Step<
 		 * - Date du jour par défaut
 		 * - Doit être supérieure ou égale à la date du jour ]
 		 */
-		dateEffetContratDesiree: Date
+		dateEffetContratDesiree: DS.DateString
 		codeUsageVehicule: string
 		leasingOuCreditEnCours: boolean
 	}
@@ -50,8 +51,8 @@ export type IdentificationConducteurStep = Step<
 	{
 		nom: string
 		prenom: string
-		dateNaissance: Date
-		dateObtentionPermis: Date
+		dateNaissance: DS.DateString
+		dateObtentionPermis: DS.DateString
 		codeTypeConducteur: string
 		codeTypePermis: string
 		codeExperienceConducteur: string
@@ -66,16 +67,16 @@ type NouveauConducteur = {
 }
 
 type ConducteurExperimente = {
-	dateAnterioriteBonus050: Date
+	dateAnterioriteBonus050: DS.DateString
 	coefficientBonusMalus: number
-	dateSouscriptionAncienAssureur: Date
-	dateDEcheanceAncienAssureur: Date
+	dateSouscriptionAncienAssureur: DS.DateString
+	dateDEcheanceAncienAssureur: DS.DateString
 	conduiteAccompagnee: boolean
 	conduiteAccompagneeMaif: boolean
 	conduiteAccompagneeMaifAvant2007: boolean
 	sinistreAvecCirconstanceAggravante: boolean
 	retraitPermis: boolean
-	sinistres: { dateSurvenance: Date; codeResponsabilite: string }[]
+	sinistres: { dateSurvenance: DS.DateString; codeResponsabilite: string }[]
 }
 export type PasseConducteurStep = Step<
 	PickStep<IdentificationVehiculeStep, "numeroRepertoire"> &

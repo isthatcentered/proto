@@ -7,7 +7,11 @@ import * as DS from "../../kit/date-string"
 import { not, pipe } from "fp-ts/lib/function"
 import * as Q from "./queries"
 import { getConnect } from "../../kit/forms/connect"
-import { CheckableRadio, RadioButton, RadioSelect } from "../../kit/forms/radios"
+import {
+	CheckableRadio,
+	RadioButton,
+	RadioSelect,
+} from "../../kit/forms/radios"
 import { Input } from "../../kit/forms/input"
 
 const MaximumDateOfBirthToHaveADrivingLicense = pipe(
@@ -222,8 +226,8 @@ const IdentificationConducteur = makeStep<
 		handleSubmit: (values, { props }) =>
 			props.onConfirm({
 				...values,
-				dateNaissance: DS.toDate(values.dateNaissance),
-				dateObtentionPermis: DS.toDate(values.dateObtentionPermis),
+				dateNaissance: values.dateNaissance,
+				dateObtentionPermis: values.dateObtentionPermis,
 			}),
 	},
 )
