@@ -6,38 +6,18 @@ import * as E from "fp-ts/Either"
 import * as REMOTE from "../../kit-2/remote"
 import { FormSubmitButton, FormTitle, Grid } from "../../kit-2/shared"
 import * as Y from "../../kit-2/yup"
-import React, { useEffect } from "react"
+import React from "react"
 import { notNil } from "../../kit-2/helpers"
 import { getConnect, Input2, RadioButton, RadioSelect, YesNo2 } from "../../kit-2/forms-2"
 import * as DS from "../../kit-2/date-string"
 import { FieldArray } from "formik"
 import * as Q from "./queries"
 import { CODES_NATURES_SINISTRE } from "./queries"
+import * as BS from "../../kit-2/boolean-string"
+import { caSchema } from "./shared"
 
 
 
-
-const caSchema = Y.struct( {
-	 conduiteAccompagnee:              Y.bool(),
-	 conduiteAccompagneeMaif:          pipe(
-			Y.bool().optional(),
-			Y.when<Y.BooleanString>(
-				 "conduiteAccompagnee",
-				 ( ca, schema ) => ca === "true" ?
-													 schema.required() :
-													 schema,
-			),
-	 ),
-	 conduiteAccompagneeMaifAvant2007: pipe(
-			Y.bool().optional(),
-			Y.when<Y.BooleanString>(
-				 "conduiteAccompagneeMaif",
-				 ( caMaif, schema ) => caMaif === "true" ?
-															 schema.required() :
-															 schema,
-			),
-	 ),
-} )
 
 const sinistreSchema = Y.struct( {
 	 dateSurvenance:     Y.dateString(),
@@ -57,7 +37,7 @@ const sinistreSchema = Y.struct( {
 const isSinistreCollision = ( sinistre: Y.Asserts<typeof sinistreSchema> ): sinistre is { dateSurvenance: DS.DateString, codeResponsabilite: string, codeNature: CODES_NATURES_SINISTRE } =>
 	 sinistre.codeNature === CODES_NATURES_SINISTRE.COLLISION && sinistre.codeResponsabilite !== undefined
 
-const schema2 = Y.struct( {
+const schema = Y.struct( {
 	 dateAnterioriteBonus050:            Y.dateString(),
 	 coefficientBonusMalus:              Y.number(),
 	 dateSouscriptionAncienAssureur:     Y.dateString(),
@@ -72,7 +52,7 @@ const schema2 = Y.struct( {
 
 
 
-const computeShouldShows = ( values: Y.Asserts<typeof schema2> ) => {
+const computeShouldShows = ( values: Y.Asserts<typeof schema> ) => {
 	 const showIsAutoDateCoefficinentValidQuestion = values.coefficientBonusMalus === .5
 	 return ({
 			showConduiteAccompaniedDrivingWithMaifQuestion:   values.ca.conduiteAccompagnee === "true",
@@ -88,7 +68,7 @@ const collectionHasErrors = ( field: Array<any> | string | undefined ): boolean 
 	 field.filter( notNil ).length > 0 :
 	 false
 
-const PasseAssure = makeStep<PasseConducteurStep, typeof schema2>(
+const PasseAssure = makeStep<PasseConducteurStep, typeof schema>(
 	 ( props ) => {
 			const connect                     = getConnect( props )
 			const codesNaturesSinistre        = Q.useCodesNaturesSinistres()
@@ -96,53 +76,105 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema2>(
 			const autoDateAnterioriteBonus050 = Q.useDatesAntecedentsSinistralite( props.values.dateDEcheanceAncienAssureur )
 			const shouldShow                  = computeShouldShows( props.values )
 			
-			useEffect(
-				 () => {
-						if ( props.values.ca.conduiteAccompagneeMaif !== "false" )
-							 return
-						
-						props.setValues( values => ({
-							 ...values,
+			console.log( props.errors.sinistres )
+			
+			const handleCAChanged = BS.fold( {
+				 onTrue:  () => {
+						props.setValues( {
+							 ...props.values,
 							 ca: {
-									...values.ca,
-									conduiteAccompagneeMaifAvant2007: undefined!,
-							 },
-						}) )
-						
-						props.setTouched( {
-							 ...props.touched,
-							 ca: {
-									conduiteAccompagneeMaifAvant2007: false,
+									...props.values.ca,
+									conduiteAccompagnee: "true",
 							 },
 						} )
-				 },
-				 [ props.values.ca.conduiteAccompagneeMaif ],
-			)
-			
-			useEffect(
-				 () => {
-						if ( props.values.isAutoDateCoefficientValid !== "true" || !REMOTE.isSuccess( autoDateAnterioriteBonus050 ) )
-							 return
 						
-						props.setValues( values => ({
-							 ...values,
-							 dateAnterioriteBonus050: DS.fromDate( autoDateAnterioriteBonus050.value.dateAnterioriteBonus050 ),
-						}) )
+						props.setTouched( { ...props.touched, ca: { ...props.touched.ca, conduiteAccompagnee: true } }, false )
 				 },
-				 [ props.values.isAutoDateCoefficientValid ],
-			)
+				 onFalse: () => {
+						props.setValues( {
+							 ...props.values,
+							 ca: {
+									conduiteAccompagnee:              "false",
+									conduiteAccompagneeMaif:          undefined!,
+									conduiteAccompagneeMaifAvant2007: undefined!,
+							 },
+						} )
+						
+						props.setTouched( { ...props.touched, ca: { conduiteAccompagnee: true } }, false )
+				 },
+			} )
 			
-			const handleChangedHasSinistres = ( value: Y.BooleanString ) => {
+			const handleCAMAIFChanged = BS.fold( {
+				 onTrue:  () => {
+						props.setValues( {
+							 ...props.values,
+							 ca: {
+									...props.values.ca,
+									conduiteAccompagneeMaif: "true",
+							 },
+						} )
+						
+						props.setTouched( { ...props.touched, ca: { ...props.touched.ca, conduiteAccompagneeMaif: true } }, false )
+				 },
+				 onFalse: () => {
+						props.setValues( {
+							 ...props.values,
+							 ca: {
+									...props.values.ca,
+									conduiteAccompagneeMaif:          "false",
+									conduiteAccompagneeMaifAvant2007: undefined!,
+							 },
+						} )
+						
+						props.setTouched( { ...props.touched, ca: { ...props.touched.ca, conduiteAccompagneeMaif: true, conduiteAccompagneeMaifAvant2007: false } }, false )
+				 },
+			} )
+			
+			const handleChangedIsAutoDateCoefficientValid = ( value: BS.BooleanString ) => {
+				 if ( !REMOTE.isSuccess( autoDateAnterioriteBonus050 ) )
+						return
+				 
 				 props.setValues( values => ({
 						...values,
-						hasSinistres: value,
-						sinistres:    value === "true" && !props.values.sinistres.length ?
-													[ {} as any ] :
-													[],
-				 }), true )
+						isAutoDateCoefficientValid: value,
+						dateAnterioriteBonus050:    value === "true" ?
+																				DS.fromDate( autoDateAnterioriteBonus050.value.dateAnterioriteBonus050 ) :
+																				undefined!,
+				 }) )
 				 
-				 props.setTouched( { ...props.touched, hasSinistres: true } )
+				 props.setTouched( { ...props.touched, isAutoDateCoefficientValid: true }, false )
 			}
+			
+			const handleChangedHasSinistres = BS.fold( {
+				 onTrue:  () => {
+						props.setValues( values => ({
+							 ...values,
+							 hasSinistres: "true",
+							 sinistres:    props.values.sinistres.length ?
+														 props.values.sinistres :
+														 [ {} as any ],
+						}) )
+						
+						props.setTouched( { ...props.touched, hasSinistres: true }, false )
+				 },
+				 onFalse: () => {
+						props.setValues( {
+							 ...props.values,
+							 hasSinistres: "false",
+							 sinistres:    [],
+						} )
+						props.setTouched( {
+							 ...props.touched,
+							 hasSinistres: true,
+							 // We need to mark all existing items fields as untouched, otherwise the errors will appear if we set back to true
+							 sinistres: props.values.sinistres.map( _ => ({
+									dateSurvenance:     undefined,
+									codeNature:         undefined,
+									codeResponsabilite: undefined,
+							 }) ),
+						}, false )
+				 },
+			} )
 			
 			return (
 				 <form onSubmit={props.handleSubmit}>
@@ -165,6 +197,7 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema2>(
 							 {...connect( [ "ca", "conduiteAccompagnee" ] )}
 							 className="mb-8"
 							 label="A-t-il bénéficié de l’apprentissage anticipé de la conduite (conduite accompagnée) ?"
+							 onChange={handleCAChanged}
 						/>
 						
 						{shouldShow.showConduiteAccompaniedDrivingWithMaifQuestion && (
@@ -172,6 +205,7 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema2>(
 									{...connect( [ "ca", "conduiteAccompagneeMaif" ] )}
 									className="mb-8"
 									label="A-t-il bénéficié de l’apprentissage anticipé de la conduite (conduite accompagnée) auprès d’une personne assurée MAIF ?"
+									onChange={handleCAMAIFChanged}
 							 />)}
 						
 						{shouldShow.showConduiteAccompaniedDrivingBefore2007Question && (
@@ -207,9 +241,10 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema2>(
 						
 						{shouldShow.showIsAutoDateCoefficinentValidQuestion && REMOTE.isSuccess( autoDateAnterioriteBonus050 ) && (
 							 <YesNo2
+									{...connect( "isAutoDateCoefficientValid" )}
 									className="mb-8"
 									label={`Avez-vous un coefficient de 0,5 depuis le ${autoDateAnterioriteBonus050.value.dateAnterioriteBonus050.toLocaleDateString()}`}
-									{...connect( "isAutoDateCoefficientValid" )}
+									onChange={handleChangedIsAutoDateCoefficientValid}
 							 />)}
 						
 						{shouldShow.showCustomDateCoefficinentQuestion && (
@@ -318,7 +353,7 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema2>(
 									</FieldArray>
 							 </>)}
 						
-						{props.dirty && props.isValid && <FormSubmitButton disabled={props.isSubmitting}>Valider</FormSubmitButton>}
+						 <FormSubmitButton disabled={props.isSubmitting}>Valider</FormSubmitButton>
 				 </form>
 			)
 	 },
@@ -339,13 +374,15 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema2>(
 						conduiteAccompagneeMaifAvant2007: undefined!,
 				 },
 			}),
-			validationSchema: schema2,
+			validationSchema: schema,
 			handleSubmit:     ( values, { props } ) => {
 				 const sinistresCollision = pipe(
 						values.sinistres,
 						AR.filter( isSinistreCollision ),
 				 )
-				 
+				 // @todo: change all saved dates to Datestring
+				 // @todo: Datestring month adds default day ?
+				 // @todo: cleanup
 				 Q.checkAcceptationProspect( {
 							 conducteur: {
 									codeExperienceConducteur:           props.codeExperienceConducteur,
@@ -392,7 +429,6 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema2>(
 							 } ),
 							 ),
 						)
-						.catch( err => console.log( "err", err ) )
 			},
 	 },
 )

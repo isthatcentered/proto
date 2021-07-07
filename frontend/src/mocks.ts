@@ -414,8 +414,8 @@ export const getIardDevisVehiculesAcceptationMocks = () => [
 	 ),
 ]
 const handlers                                     = [
-	 ...getIardReferentielVehiculesMocks(),
 	 ...getIardReferentielVehiculesAutosMocks(),
+	 ...getIardReferentielVehiculesMocks(),
 	 ...getIardDevisVehiculesAcceptationMocks(),
 	 ...getIardDevisVehiculesNomenclaturesMocks(),
 	 // ...getVehiculesMSW(),

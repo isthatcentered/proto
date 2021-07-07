@@ -36,7 +36,7 @@ const InitParcours = makeStep<InitParcoursStep, typeof schema>(
 			const codesTypeVehicules                   = useCodesTypeVehicule()
 			const hasAccountChoices                    = useHasAccountChoices()
 			const showUseYourExistingMaifAccountPrompt = props.values.alreadyHasAccount === "true"
-			const showSubmitButton                     = props.dirty && props.isValid && !showUseYourExistingMaifAccountPrompt
+			const showSubmitButton                     = !showUseYourExistingMaifAccountPrompt
 			
 			return (
 				 <form onSubmit={props.handleSubmit}>

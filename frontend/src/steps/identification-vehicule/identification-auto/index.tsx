@@ -99,15 +99,16 @@ const IdentificationAuto = makeStep<IdentificationVehiculeStep, typeof schema>(
 				 <form onSubmit={props.handleSubmit}>
 						<FormTitle>Votre véhicule</FormTitle>
 						<Select2
+							 {...connect( "codeMarque" )}
+							 className="mb-8"
 							 label="Marque de votre véhicule :"
 							 data={data.marques}
-							 {...connect( "codeMarque" )}
 						/>
 						
-						<div className="pt-8"/>
 						
 						<Input2
 							 {...connect( "anneeMiseEnCirculationVehicule" )}
+							 className="mb-8"
 							 type="number"
 							 label="Date de 1ère mise en circulation"
 							 max={new Date().getFullYear()}
@@ -115,54 +116,53 @@ const IdentificationAuto = makeStep<IdentificationVehiculeStep, typeof schema>(
 							 placeholder="2020"
 						/>
 						
-						<div className="pt-8"/>
 						
 						<Select2
+							 {...connect( "codeFamille" )}
+							 className="mb-8"
 							 label="Modèle de votre véhicule :"
 							 data={data.familles}
-							 {...connect( "codeFamille" )}
 						/>
 						
-						<div className="pt-8"/>
 						
 						{/* @note: Maif does essence, diesel, autre */}
 						<Select2
+							 {...connect( "codeEnergie" )}
+							 className="mb-8"
 							 label="Énergie :"
 							 data={data.energies}
-							 {...connect( "codeEnergie" )}
 						/>
-						
-						<div className="pt-8"/>
 						
 						
 						{/* @note: Maif does Boite manuelle ? Oui/non */}
 						<Select2
+							 {...connect( "codeTransmission" )}
+							 className="mb-8"
 							 label="Transmission :"
 							 data={data.transmissions}
-							 {...connect( "codeTransmission" )}
 						/>
 						
-						<div className="pt-8"/>
 						
 						<Select2
+							 {...connect( "codeMotorisation" )}
+							 className="mb-8"
 							 label="Motorisation :"
 							 data={data.motorisations}
-							 {...connect( "codeMotorisation" )}
 						/>
 						
-						<div className="pt-8"/>
 						
 						{/* @note: Maif does Berline/autres */}
 						<Select2
+							 {...connect( "codeCarosserie" )}
+							 className="mb-8"
 							 label="Type de carosserie :"
 							 data={data.carosseries}
-							 {...connect( "codeCarosserie" )}
 						/>
 						
-						<div className="pt-8"/>
 						
 						<RadioSelect
 							 {...connect( "codeConfigurationPortes" )}
+							 className="mb-8"
 							 data={data.configurationsPortes}
 							 label="Nombre de portes :"
 						>
@@ -179,20 +179,18 @@ const IdentificationAuto = makeStep<IdentificationVehiculeStep, typeof schema>(
 									</Grid>}
 						</RadioSelect>
 						
-						<div className="pt-8"/>
 						
 						<Select2
+							 {...connect( "numeroRepertoire" )}
+							 className="mb-8"
 							 label="Finition :"
 							 data={data.finitions}
-							 {...connect( "numeroRepertoire" )}
 						/>
 						
-						<div className="pt-8"/>
 						
-						{props.dirty && props.isValid && (
-							 <FormSubmitButton disabled={props.isSubmitting}>
-									Valider
-							 </FormSubmitButton>)}
+						<FormSubmitButton disabled={props.isSubmitting}>
+							 Valider
+						</FormSubmitButton>
 				 </form>)
 	 },
 	 {

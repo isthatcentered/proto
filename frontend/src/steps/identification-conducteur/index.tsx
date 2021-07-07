@@ -176,7 +176,7 @@ const IdentificationConducteur = makeStep<IdentificationConducteurStep, typeof s
 						
 						<div className="pt-8"/>
 						
-						{props.isValid && <FormSubmitButton disabled={props.isSubmitting}>Valider</FormSubmitButton>}
+						<FormSubmitButton disabled={props.isSubmitting}>Valider</FormSubmitButton>
 				 </form>)
 	 },
 	 {

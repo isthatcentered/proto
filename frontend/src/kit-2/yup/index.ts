@@ -6,6 +6,7 @@ import { RequiredStringSchema } from "yup/lib/string"
 import { pipe } from "fp-ts/lib/function"
 import { RequiredNumberSchema } from "yup/lib/number"
 import { AnySchema } from "yup/lib/schema"
+import { BooleanString } from "../boolean-string"
 
 
 
@@ -61,7 +62,6 @@ export const enumm = <T extends { [ name: string ]: any }>( enm: T ) =>
 
 export const number = () => yup.number().required()
 
-export type BooleanString = "true" | "false"
 export const bool = () => yup.mixed<BooleanString>().oneOf<BooleanString>( [ "true", "false" ] ).required()
 
 export const dateString = () => nonEmptyString()

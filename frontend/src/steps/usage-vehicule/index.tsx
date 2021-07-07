@@ -38,24 +38,25 @@ const UsageVehicule = makeStep<UsageVehiculeStep, typeof schema>(
 						
 						<Input2
 							 {...connect( "dateEffetContratDesiree" )}
+							 className="mb-8"
 							 type="date"
 							 min={DS.today()}
 							 label="A partir de quelle date souhaitez-vous être assuré"
 							 disabled={pending}
 						/>
 						
-						<div className="pt-8"/>
 						
 						<YesNo2
 							 {...connect( "leasingOuCreditEnCours" )}
+							 className="mb-8"
 							 label="Ce véhicule est-il financé à crédit (leasing, crédit auto) ?"
 							 disabled={pending}
 						/>
 						
-						<div className="pt-8"/>
 						
 						<RadioSelect
 							 {...connect( "codeUsageVehicule" )}
+							 className="mb-8"
 							 data={codesTypesUtilisationVehicule}
 							 label="Pour quels types de déplacements ce véhicule est-il utilisé ?"
 						>
@@ -72,11 +73,10 @@ const UsageVehicule = makeStep<UsageVehiculeStep, typeof schema>(
 									</Grid>}
 						</RadioSelect>
 						
-						<div className="pt-8"/>
-						{props.dirty && props.isValid && (
-							 <FormSubmitButton disabled={props.isSubmitting}>
-									Étape suivante
-							 </FormSubmitButton>)}
+						
+						<FormSubmitButton disabled={props.isSubmitting}>
+							 Étape suivante
+						</FormSubmitButton>
 				 </form>)
 	 },
 	 {

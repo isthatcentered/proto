@@ -1,109 +1,148 @@
-import * as V from "../../kit-2/validation"
-import * as CA from "./ca"
-import caSchema from "./ca"
-import { PasseConducteurStep } from "../../contracts"
-import { useForm, YesNo } from "../../kit-2/forms"
+import { makeStep, PasseConducteurStep } from "../../contracts"
 import { FormSubmitButton, FormTitle } from "../../kit-2/shared"
 import React from "react"
-import { MergeUnions, Props } from "../../kit-2/helpers"
+import { getConnect, YesNo2 } from "../../kit-2/forms-2"
+import * as BS from "../../kit-2/boolean-string"
+import { caSchema } from "./shared"
 
 
 
 
-const schema = caSchema
-
-const handleSubmitPasseAssure = ( _props: Props<PasseConducteurStep> ) => ( _values: V.ValidatedType<typeof schema> ) => {
-	
-	// return DRIVERS.jouerAcceptationProspect( {
-	// 		conducteur: {
-	// 			codeExperienceConducteur:           props.codeExperienceConducteur,
-	// 			codeTypeConducteur:                 props.codeTypeConducteur,
-	// 			dateNaissance:                      props.dateNaissance,
-	// 			dateObtentionPermis:                props.dateObtentionPermis,
-	// 			nom:                                props.nom,
-	// 			prenom:                             props.prenom,
-	// 			coefficientBonusMalus:              values.coefficientBonusMalus,
-	// 			dateDEcheanceAncienAssureur:        values.dateDEcheanceAncienAssureur,
-	// 			retraitPermis:                      values.retraitPermis,
-	// 			sinistreAvecCirconstanceAggravante: values.sinistreAvecCirconstanceAggravante,
-	// 			sinistres:                          sinistresCollision,
-	// 		},
-	// 		vehicule:   {
-	// 			numeroRepertoire:  props.numeroRepertoire,
-	// 			codeUsageVehicule: props.codeUsageVehicule,
-	// 		},
-	// 		dateEffet:  props.dateEffetContratDesiree,
-	// 	} )
-	// 	.then( E.foldW(
-	// 		() => {
-	// 			// @todo: display rejected error
-	// 			// @todo: display errors
-	// 		},
-	// 		() => props.onConfirm( {
-	// 			conduiteAccompagneeMaif:          false,
-	// 			conduiteAccompagneeMaifAvant2007: false,
-	// 			...values.ca,
-	// 			coefficientBonusMalus:              values.coefficientBonusMalus,
-	// 			dateAnterioriteBonus050:            values.dateAnterioriteBonus050,
-	// 			dateDEcheanceAncienAssureur:        values.dateDEcheanceAncienAssureur,
-	// 			dateSouscriptionAncienAssureur:     values.dateSouscriptionAncienAssureur,
-	// 			retraitPermis:                      values.retraitPermis,
-	// 			sinistreAvecCirconstanceAggravante: values.sinistreAvecCirconstanceAggravante,
-	// 			sinistres:                          sinistresCollision,
-	// 		} ),
-	// 		),
-	// 	)
-	// @todo: what is required and what can be ommitted for ca ?
-}
-
-
-const PasseSansExperience: PasseConducteurStep = ( props ) => {
-	const [ values, form ] = useForm( {
-		schema,
-		onSubmit: handleSubmitPasseAssure( props ),
-	} )
-	
-	const handleChangedCA = ( k: keyof MergeUnions<CA.CA> ) => ( value: boolean ) => {
-		const ca = { ...form.values, [ k ]: value } as Partial<CA.CA>
-		if ( ca.conduiteAccompagnee === false )
-			return form.set( CA.NoCA )
-		
-		if ( ca.conduiteAccompagnee === true && ca.conduiteAccompagneeMaif === false )
-			return form.set( CA.CANotMaif )
-		
-		form.set( ca as CA.CA )
-	}
-	
-	const showConduiteAccompaniedDrivingWithMaifQuestion = values.conduiteAccompagnee === true
-	const showConduiteAccompaniedDrivingBefore2007Question = values.conduiteAccompagnee === true && values.conduiteAccompagneeMaif === true
-	
-	return (
-		<form {...form.props}>
-			<FormTitle>Le passé du conducteur</FormTitle>
+const PasseSansExperience = makeStep<PasseConducteurStep, typeof caSchema>(
+	 ( props ) => {
+			const connect                                          = getConnect( props )
+			const showConduiteAccompaniedDrivingWithMaifQuestion   = props.values.conduiteAccompagnee === "true"
+			const showConduiteAccompaniedDrivingBefore2007Question = props.values.conduiteAccompagnee === "true" && props.values.conduiteAccompagneeMaif === "true"
 			
-			<YesNo
-				className="mb-8"
-				label="A-t-il bénéficié de l’apprentissage anticipé de la conduite (conduite accompagnée) ?"
-				{...form.connect( [ "conduiteAccompagnee" ], { onChange: handleChangedCA( "conduiteAccompagnee" ) } )}
-			/>
+			const handleCAChanged = BS.fold( {
+				 onTrue:  () => {
+						props.setValues( {
+							 ...props.values,
+							 conduiteAccompagnee: "true",
+						} )
+						
+						props.setTouched( { ...props.touched, conduiteAccompagnee: true }, false )
+				 },
+				 onFalse: () => {
+						props.setValues( {
+							 conduiteAccompagnee:              "false",
+							 conduiteAccompagneeMaif:          undefined!,
+							 conduiteAccompagneeMaifAvant2007: undefined!,
+						} )
+						
+						props.setTouched( { conduiteAccompagnee: true }, false )
+				 },
+			} )
 			
-			{showConduiteAccompaniedDrivingWithMaifQuestion && (
-				<YesNo
-					className="mb-8"
-					label="A-t-il bénéficié de l’apprentissage anticipé de la conduite (conduite accompagnée) auprès d’une personne assurée MAIF ?"
-					{...form.connect( [ "conduiteAccompagneeMaif" ], { onChange: handleChangedCA( "conduiteAccompagneeMaif" ) } )}
-				/>)}
+			const handleCAMAIFChanged = BS.fold( {
+				 onTrue:  () => {
+						props.setValues( {
+							 ...props.values,
+							 conduiteAccompagneeMaif: "true",
+						} )
+						
+						props.setTouched( { ...props.touched, conduiteAccompagneeMaif: true }, false )
+				 },
+				 onFalse: () => {
+						props.setValues( {
+							 ...props.values,
+							 conduiteAccompagneeMaif:          "false",
+							 conduiteAccompagneeMaifAvant2007: undefined!,
+						} )
+						
+						props.setTouched( { ...props.touched, conduiteAccompagneeMaif: true, conduiteAccompagneeMaifAvant2007: false }, false )
+				 },
+			} )
 			
-			{showConduiteAccompaniedDrivingBefore2007Question && (
-				<YesNo
-					className="mb-8"
-					label="Cet apprentissage a-t-il débuté avant le 01/01/2007 ?"
-					{...form.connect( [ "conduiteAccompagneeMaifAvant2007" ], { onChange: handleChangedCA( "conduiteAccompagneeMaifAvant2007" ) } )}
-				/>)}
-			
-			{form.isValid && <FormSubmitButton disabled={form.isPending}>Valider</FormSubmitButton>}
-		</form>
-	)
-}
+			return (
+				 <form onSubmit={props.handleSubmit}>
+						<FormTitle>Le passé du conducteur</FormTitle>
+						
+						<YesNo2
+							 {...connect( "conduiteAccompagnee" )}
+							 className="mb-8"
+							 label="A-t-il bénéficié de l’apprentissage anticipé de la conduite (conduite accompagnée) ?"
+							 onChange={handleCAChanged}
+						/>
+						
+						{showConduiteAccompaniedDrivingWithMaifQuestion && (
+							 <YesNo2
+									{...connect( "conduiteAccompagneeMaif" )}
+									className="mb-8"
+									label="A-t-il bénéficié de l’apprentissage anticipé de la conduite (conduite accompagnée) auprès d’une personne assurée MAIF ?"
+									onChange={handleCAMAIFChanged}
+							 />)}
+						
+						{showConduiteAccompaniedDrivingBefore2007Question && (
+							 <YesNo2
+									{...connect( "conduiteAccompagneeMaifAvant2007" )}
+									className="mb-8"
+									label="Cet apprentissage a-t-il débuté avant le 01/01/2007 ?"
+							 />)}
+						
+						<FormSubmitButton disabled={props.isSubmitting}>Valider</FormSubmitButton>
+				 </form>
+			)
+	 },
+	 {
+			mapPropsToValues: () => ({
+				 conduiteAccompagnee:              undefined!,
+				 conduiteAccompagneeMaif:          undefined!,
+				 conduiteAccompagneeMaifAvant2007: undefined!,
+			}),
+			validationSchema: caSchema,
+			handleSubmit:     ( values, { props } ) => {
+				 // @todo: live test
+				 
+				 // Q.checkAcceptationProspect( {
+				 // 		 conducteur: {
+				 // 				codeExperienceConducteur:           props.codeExperienceConducteur,
+				 // 				codeTypeConducteur:                 props.codeTypeConducteur,
+				 // 				dateNaissance:                      pipe( props.dateNaissance, DS.fromDate, DS.toISO8601 ),
+				 // 				dateObtentionPermis:                pipe( props.dateObtentionPermis, DS.fromDate, DS.toISO8601 ),
+				 // 				nom:                                props.nom,
+				 // 				prenom:                             props.prenom,
+				 // 				coefficientBonusMalus:              values.coefficientBonusMalus,
+				 // 				dateDEcheanceAncienAssureur:        DS.toISO8601( values.dateDEcheanceAncienAssureur ),
+				 // 				retraitPermis:                      values.retraitPermis === "true",
+				 // 				sinistreAvecCirconstanceAggravante: values.sinistreAvecCirconstanceAggravante === "true",
+				 // 				sinistres:                          pipe(
+				 // 					 sinistresCollision,
+				 // 					 AR.map( s => ({
+				 // 							...s,
+				 // 							dateSurvenance: DS.toISO8601( s.dateSurvenance ),
+				 // 					 }) ),
+				 // 				),
+				 // 		 },
+				 // 		 vehicule:   {
+				 // 				numeroRepertoire:  props.numeroRepertoire,
+				 // 				codeUsageVehicule: props.codeUsageVehicule,
+				 // 		 },
+				 // 		 dateEffet:  pipe( props.dateEffetContratDesiree, DS.fromDate, DS.toISO8601 ),
+				 // 	} )
+				 // 	.then( E.foldW(
+				 // 		 () => {
+				 // 				console.log( "Failure" )
+				 // 				// @todo: display rejected error
+				 // 				// @todo: display errors
+				 // 		 },
+				 // 		 () => props.onConfirm( {
+				 // 				conduiteAccompagnee:                values.ca.conduiteAccompagnee === "true",
+				 // 				conduiteAccompagneeMaif:            values.ca.conduiteAccompagneeMaif === "true",
+				 // 				conduiteAccompagneeMaifAvant2007:   values.ca.conduiteAccompagneeMaifAvant2007 === "true",
+				 // 				coefficientBonusMalus:              values.coefficientBonusMalus,
+				 // 				dateAnterioriteBonus050:            DS.toDate( values.dateAnterioriteBonus050 ),
+				 // 				dateDEcheanceAncienAssureur:        DS.toDate( values.dateDEcheanceAncienAssureur ),
+				 // 				dateSouscriptionAncienAssureur:     DS.toDate( values.dateSouscriptionAncienAssureur ),
+				 // 				retraitPermis:                      values.retraitPermis === "true",
+				 // 				sinistreAvecCirconstanceAggravante: values.sinistreAvecCirconstanceAggravante === "true",
+				 // 				sinistres:                          pipe( sinistresCollision, AR.map( s => ({ ...s, dateSurvenance: DS.toDate( s.dateSurvenance ) }) ) ),
+				 // 		 } ),
+				 // 		 ),
+				 // 	)
+				 // 	.catch( err => console.log( "err", err ) )
+			},
+	 },
+)
 
 export default PasseSansExperience
