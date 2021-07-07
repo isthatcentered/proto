@@ -5,190 +5,300 @@
  * "Cette API permet de gÃ©rer le contexte iard-devis-vehicules."
  * OpenAPI spec version: 1.0.0-SNAPSHOT
  */
-import {
-  useQuery,
-  useMutation,
-  UseQueryOptions,
-  UseMutationOptions
-} from 'react-query'
-import type {
-  DateAntecedentsSinistralite,
-  RecupererDatesAntecedentsSinistraliteParams,
-  AcceptationRisqueVehicule,
-  InfoAcceptationProspect,
-  InfoAcceptationSocietaire,
-  InfoAcceptationVehicule
-} from './iard-devis-vehicules-v1.schemas'
-import {
-  rest
-} from 'msw'
-import faker from 'faker'
-import { customInstance } from '../../axios/index'
+import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from "react-query"
+import type { AcceptationRisqueVehicule, DateAntecedentsSinistralite, InfoAcceptationProspect, InfoAcceptationSocietaire, InfoAcceptationVehicule, RecupererDatesAntecedentsSinistraliteParams } from "./iard-devis-vehicules-v1.schemas"
+import { rest } from "msw"
+import faker from "faker"
+import { customInstance } from "../../axios/index"
 
 
-type AsyncReturnType<
-T extends (...args: any) => Promise<any>
-> = T extends (...args: any) => Promise<infer R> ? R : any;
 
+
+type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
+	...args: any
+) => Promise<infer R>
+	? R
+	: any
 
 type SecondParameter<T extends (...args: any) => any> = T extends (
-  config: any,
-  args: infer P,
+	config: any,
+	args: infer P,
 ) => any
-  ? P extends unknown
-  ? Record<string, any>
-  : P
-  : never;
+	? P extends unknown
+		? Record<string, any>
+		: P
+	: never
 
 export const recupererDatesAntecedentsSinistralite = <Data = unknown>(
-    params?: RecupererDatesAntecedentsSinistraliteParams,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? DateAntecedentsSinistralite : Data>(
-      {url: `/antecedents_sinistralite/dates`, method: 'get',
-        params,
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
-    }
-  
+	params?: RecupererDatesAntecedentsSinistraliteParams,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<
+		Data extends unknown ? DateAntecedentsSinistralite : Data
+	>(
+		{
+			url: `/antecedents_sinistralite/dates`,
+			method: "get",
+			params,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/iard/devis_vehicules/v1/", ...options },
+	)
+}
 
-export const getRecupererDatesAntecedentsSinistraliteQueryKey = (params?: RecupererDatesAntecedentsSinistraliteParams,) => [`/antecedents_sinistralite/dates`, ...(params ? [params]: [])]
+export const getRecupererDatesAntecedentsSinistraliteQueryKey = (
+	params?: RecupererDatesAntecedentsSinistraliteParams,
+) => [`/antecedents_sinistralite/dates`, ...(params ? [params] : [])]
 
-    
 export const useRecupererDatesAntecedentsSinistralite = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
 >(
- params?: RecupererDatesAntecedentsSinistraliteParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererDatesAntecedentsSinistralite>, Error>, request?: SecondParameter<typeof customInstance>}
+	params?: RecupererDatesAntecedentsSinistraliteParams,
+	options?: {
+		query?: UseQueryOptions<
+			AsyncReturnType<typeof recupererDatesAntecedentsSinistralite>,
+			Error
+		>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererDatesAntecedentsSinistraliteQueryKey(params)
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererDatesAntecedentsSinistraliteQueryKey(params);
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererDatesAntecedentsSinistralite>,
+		Error
+	>(
+		queryKey,
+		() => recupererDatesAntecedentsSinistralite<Data>(params, requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererDatesAntecedentsSinistralite>, Error>(queryKey, () => recupererDatesAntecedentsSinistralite<Data>(params, requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const jouerAcceptationProspect = <Data = unknown>(
-    infoAcceptationProspect: InfoAcceptationProspect,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? AcceptationRisqueVehicule : Data>(
-      {url: `/jouer_acceptation/prospect`, method: 'post',
-      data: infoAcceptationProspect
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
-    }
-  
-
-
-    export const useJouerAcceptationProspect = <
-      Data extends unknown = unknown,
-      Error extends unknown = unknown
-    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof jouerAcceptationProspect>, Error, {data: InfoAcceptationProspect}, unknown>, request?: SecondParameter<typeof customInstance>}
+	infoAcceptationProspect: InfoAcceptationProspect,
+	options?: SecondParameter<typeof customInstance>,
 ) => {
-      const {mutation: mutationOptions, request: requestOptions} = options || {}
+	return customInstance<
+		Data extends unknown ? AcceptationRisqueVehicule : Data
+	>(
+		{
+			url: `/jouer_acceptation/prospect`,
+			method: "post",
+			data: infoAcceptationProspect,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/iard/devis_vehicules/v1/", ...options },
+	)
+}
 
-      return useMutation<AsyncReturnType<typeof jouerAcceptationProspect>, Error, {data: InfoAcceptationProspect}>((props) => {
-        const {data} = props || {};
+export const useJouerAcceptationProspect = <
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
+>(options?: {
+	mutation?: UseMutationOptions<
+		AsyncReturnType<typeof jouerAcceptationProspect>,
+		Error,
+		{ data: InfoAcceptationProspect },
+		unknown
+	>
+	request?: SecondParameter<typeof customInstance>
+}) => {
+	const { mutation: mutationOptions, request: requestOptions } = options || {}
 
-        return  jouerAcceptationProspect<Data>(data,requestOptions)
-      }, mutationOptions)
-    }
-    export const jouerAcceptationSocietaire = <Data = unknown>(
-    referenceSocietaire: string,
-    infoAcceptationSocietaire: InfoAcceptationSocietaire,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? AcceptationRisqueVehicule : Data>(
-      {url: `/jouer_acceptation/societaire/${referenceSocietaire}`, method: 'post',
-      data: infoAcceptationSocietaire
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
-    }
-  
+	return useMutation<
+		AsyncReturnType<typeof jouerAcceptationProspect>,
+		Error,
+		{ data: InfoAcceptationProspect }
+	>(props => {
+		const { data } = props || {}
 
-
-    export const useJouerAcceptationSocietaire = <
-      Data extends unknown = unknown,
-      Error extends unknown = unknown
-    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof jouerAcceptationSocietaire>, Error, {referenceSocietaire: string;data: InfoAcceptationSocietaire}, unknown>, request?: SecondParameter<typeof customInstance>}
+		return jouerAcceptationProspect<Data>(data, requestOptions)
+	}, mutationOptions)
+}
+export const jouerAcceptationSocietaire = <Data = unknown>(
+	referenceSocietaire: string,
+	infoAcceptationSocietaire: InfoAcceptationSocietaire,
+	options?: SecondParameter<typeof customInstance>,
 ) => {
-      const {mutation: mutationOptions, request: requestOptions} = options || {}
+	return customInstance<
+		Data extends unknown ? AcceptationRisqueVehicule : Data
+	>(
+		{
+			url: `/jouer_acceptation/societaire/${referenceSocietaire}`,
+			method: "post",
+			data: infoAcceptationSocietaire,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/iard/devis_vehicules/v1/", ...options },
+	)
+}
 
-      return useMutation<AsyncReturnType<typeof jouerAcceptationSocietaire>, Error, {referenceSocietaire: string;data: InfoAcceptationSocietaire}>((props) => {
-        const {referenceSocietaire,data} = props || {};
+export const useJouerAcceptationSocietaire = <
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
+>(options?: {
+	mutation?: UseMutationOptions<
+		AsyncReturnType<typeof jouerAcceptationSocietaire>,
+		Error,
+		{ referenceSocietaire: string; data: InfoAcceptationSocietaire },
+		unknown
+	>
+	request?: SecondParameter<typeof customInstance>
+}) => {
+	const { mutation: mutationOptions, request: requestOptions } = options || {}
 
-        return  jouerAcceptationSocietaire<Data>(referenceSocietaire,data,requestOptions)
-      }, mutationOptions)
-    }
-    export const jouerAcceptationVehicule = <Data = unknown>(
-    infoAcceptationVehicule: InfoAcceptationVehicule,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? AcceptationRisqueVehicule : Data>(
-      {url: `/jouer_acceptation/vehicule`, method: 'post',
-      data: infoAcceptationVehicule
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
-    }
-  
+	return useMutation<
+		AsyncReturnType<typeof jouerAcceptationSocietaire>,
+		Error,
+		{ referenceSocietaire: string; data: InfoAcceptationSocietaire }
+	>(props => {
+		const { referenceSocietaire, data } = props || {}
 
-
-    export const useJouerAcceptationVehicule = <
-      Data extends unknown = unknown,
-      Error extends unknown = unknown
-    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof jouerAcceptationVehicule>, Error, {data: InfoAcceptationVehicule}, unknown>, request?: SecondParameter<typeof customInstance>}
+		return jouerAcceptationSocietaire<Data>(
+			referenceSocietaire,
+			data,
+			requestOptions,
+		)
+	}, mutationOptions)
+}
+export const jouerAcceptationVehicule = <Data = unknown>(
+	infoAcceptationVehicule: InfoAcceptationVehicule,
+	options?: SecondParameter<typeof customInstance>,
 ) => {
-      const {mutation: mutationOptions, request: requestOptions} = options || {}
+	return customInstance<
+		Data extends unknown ? AcceptationRisqueVehicule : Data
+	>(
+		{
+			url: `/jouer_acceptation/vehicule`,
+			method: "post",
+			data: infoAcceptationVehicule,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/iard/devis_vehicules/v1/", ...options },
+	)
+}
 
-      return useMutation<AsyncReturnType<typeof jouerAcceptationVehicule>, Error, {data: InfoAcceptationVehicule}>((props) => {
-        const {data} = props || {};
+export const useJouerAcceptationVehicule = <
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
+>(options?: {
+	mutation?: UseMutationOptions<
+		AsyncReturnType<typeof jouerAcceptationVehicule>,
+		Error,
+		{ data: InfoAcceptationVehicule },
+		unknown
+	>
+	request?: SecondParameter<typeof customInstance>
+}) => {
+	const { mutation: mutationOptions, request: requestOptions } = options || {}
 
-        return  jouerAcceptationVehicule<Data>(data,requestOptions)
-      }, mutationOptions)
-    }
-    
+	return useMutation<
+		AsyncReturnType<typeof jouerAcceptationVehicule>,
+		Error,
+		{ data: InfoAcceptationVehicule }
+	>(props => {
+		const { data } = props || {}
 
-export const getRecupererDatesAntecedentsSinistraliteMock = () => ({dateDebutCollecteSinistre: faker.random.word(), dateAnterioriteBonus050: faker.random.word()})
+		return jouerAcceptationVehicule<Data>(data, requestOptions)
+	}, mutationOptions)
+}
 
-export const getJouerAcceptationProspectMock = () => ({codeAcceptation: faker.random.word(), libelleAcceptation: faker.random.word(), justifications: faker.helpers.randomize([[...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({codeJustificationRisque: faker.helpers.randomize([faker.random.word(), undefined]), libelleJustificationRisque: faker.helpers.randomize([faker.random.word(), undefined])})), undefined])})
+export const getRecupererDatesAntecedentsSinistraliteMock = () => ({
+	dateDebutCollecteSinistre: faker.random.word(),
+	dateAnterioriteBonus050: faker.random.word(),
+})
 
-export const getJouerAcceptationSocietaireMock = () => ({codeAcceptation: faker.random.word(), libelleAcceptation: faker.random.word(), justifications: faker.helpers.randomize([[...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({codeJustificationRisque: faker.helpers.randomize([faker.random.word(), undefined]), libelleJustificationRisque: faker.helpers.randomize([faker.random.word(), undefined])})), undefined])})
+export const getJouerAcceptationProspectMock = () => ({
+	codeAcceptation: faker.random.word(),
+	libelleAcceptation: faker.random.word(),
+	justifications: faker.helpers.randomize([
+		[...Array(faker.datatype.number({ min: 1, max: 10 }))].map(() => ({
+			codeJustificationRisque: faker.helpers.randomize([
+				faker.random.word(),
+				undefined,
+			]),
+			libelleJustificationRisque: faker.helpers.randomize([
+				faker.random.word(),
+				undefined,
+			]),
+		})),
+		undefined,
+	]),
+})
 
-export const getJouerAcceptationVehiculeMock = () => ({codeAcceptation: faker.random.word(), libelleAcceptation: faker.random.word(), justifications: faker.helpers.randomize([[...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({codeJustificationRisque: faker.helpers.randomize([faker.random.word(), undefined]), libelleJustificationRisque: faker.helpers.randomize([faker.random.word(), undefined])})), undefined])})
+export const getJouerAcceptationSocietaireMock = () => ({
+	codeAcceptation: faker.random.word(),
+	libelleAcceptation: faker.random.word(),
+	justifications: faker.helpers.randomize([
+		[...Array(faker.datatype.number({ min: 1, max: 10 }))].map(() => ({
+			codeJustificationRisque: faker.helpers.randomize([
+				faker.random.word(),
+				undefined,
+			]),
+			libelleJustificationRisque: faker.helpers.randomize([
+				faker.random.word(),
+				undefined,
+			]),
+		})),
+		undefined,
+	]),
+})
+
+export const getJouerAcceptationVehiculeMock = () => ({
+	codeAcceptation: faker.random.word(),
+	libelleAcceptation: faker.random.word(),
+	justifications: faker.helpers.randomize([
+		[...Array(faker.datatype.number({ min: 1, max: 10 }))].map(() => ({
+			codeJustificationRisque: faker.helpers.randomize([
+				faker.random.word(),
+				undefined,
+			]),
+			libelleJustificationRisque: faker.helpers.randomize([
+				faker.random.word(),
+				undefined,
+			]),
+		})),
+		undefined,
+	]),
+})
 
 export const getAcceptationRisqueVéhiculeMSW = () => [
-rest.get('*/antecedents_sinistralite/dates', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-ctx.json(getRecupererDatesAntecedentsSinistraliteMock()),
-        )
-      }),rest.post('*/jouer_acceptation/prospect', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-ctx.json(getJouerAcceptationProspectMock()),
-        )
-      }),rest.post('*/jouer_acceptation/societaire/:referenceSocietaire', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-ctx.json(getJouerAcceptationSocietaireMock()),
-        )
-      }),rest.post('*/jouer_acceptation/vehicule', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-ctx.json(getJouerAcceptationVehiculeMock()),
-        )
-      }),]
+	rest.get("*/antecedents_sinistralite/dates", (req, res, ctx) => {
+		return res(
+			ctx.delay(1000),
+			ctx.status(200, "Mocked status"),
+			ctx.json(getRecupererDatesAntecedentsSinistraliteMock()),
+		)
+	}),
+	rest.post("*/jouer_acceptation/prospect", (req, res, ctx) => {
+		return res(
+			ctx.delay(1000),
+			ctx.status(200, "Mocked status"),
+			ctx.json(getJouerAcceptationProspectMock()),
+		)
+	}),
+	rest.post(
+		"*/jouer_acceptation/societaire/:referenceSocietaire",
+		(req, res, ctx) => {
+			return res(
+				ctx.delay(1000),
+				ctx.status(200, "Mocked status"),
+				ctx.json(getJouerAcceptationSocietaireMock()),
+			)
+		},
+	),
+	rest.post("*/jouer_acceptation/vehicule", (req, res, ctx) => {
+		return res(
+			ctx.delay(1000),
+			ctx.status(200, "Mocked status"),
+			ctx.json(getJouerAcceptationVehiculeMock()),
+		)
+	}),
+]

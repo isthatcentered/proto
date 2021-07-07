@@ -5,71 +5,229 @@
  * "Cette API permet de gÃ©rer le contexte iard-devis-vehicules."
  * OpenAPI spec version: 1.0.0-SNAPSHOT
  */
-import {
-  useMutation,
-  UseMutationOptions
-} from 'react-query'
-import type {
-  CreationDevisSynthese,
-  DevisVehiculeConducteur
-} from './iard-devis-vehicules-v1.schemas'
-import {
-  rest
-} from 'msw'
-import faker from 'faker'
-import { customInstance } from '../../axios/index'
+import { useMutation, UseMutationOptions } from "react-query"
+import type { CreationDevisSynthese, DevisVehiculeConducteur } from "./iard-devis-vehicules-v1.schemas"
+import { rest } from "msw"
+import faker from "faker"
+import { customInstance } from "../../axios/index"
 
 
-type AsyncReturnType<
-T extends (...args: any) => Promise<any>
-> = T extends (...args: any) => Promise<infer R> ? R : any;
 
+
+type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
+	...args: any
+) => Promise<infer R>
+	? R
+	: any
 
 type SecondParameter<T extends (...args: any) => any> = T extends (
-  config: any,
-  args: infer P,
+	config: any,
+	args: infer P,
 ) => any
-  ? P extends unknown
-  ? Record<string, any>
-  : P
-  : never;
+	? P extends unknown
+		? Record<string, any>
+		: P
+	: never
 
 export const creerDevis = <Data = unknown>(
-    devisVehiculeConducteur: DevisVehiculeConducteur,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? CreationDevisSynthese : Data>(
-      {url: `/devis`, method: 'post',
-      data: devisVehiculeConducteur
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
-    }
-  
-
-
-    export const useCreerDevis = <
-      Data extends unknown = unknown,
-      Error extends unknown = unknown
-    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof creerDevis>, Error, {data: DevisVehiculeConducteur}, unknown>, request?: SecondParameter<typeof customInstance>}
+	devisVehiculeConducteur: DevisVehiculeConducteur,
+	options?: SecondParameter<typeof customInstance>,
 ) => {
-      const {mutation: mutationOptions, request: requestOptions} = options || {}
+	return customInstance<Data extends unknown ? CreationDevisSynthese : Data>(
+		{
+			url: `/devis`,
+			method: "post",
+			data: devisVehiculeConducteur,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/iard/devis_vehicules/v1/", ...options },
+	)
+}
 
-      return useMutation<AsyncReturnType<typeof creerDevis>, Error, {data: DevisVehiculeConducteur}>((props) => {
-        const {data} = props || {};
+export const useCreerDevis = <
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
+>(options?: {
+	mutation?: UseMutationOptions<
+		AsyncReturnType<typeof creerDevis>,
+		Error,
+		{ data: DevisVehiculeConducteur },
+		unknown
+	>
+	request?: SecondParameter<typeof customInstance>
+}) => {
+	const { mutation: mutationOptions, request: requestOptions } = options || {}
 
-        return  creerDevis<Data>(data,requestOptions)
-      }, mutationOptions)
-    }
-    
+	return useMutation<
+		AsyncReturnType<typeof creerDevis>,
+		Error,
+		{ data: DevisVehiculeConducteur }
+	>(props => {
+		const { data } = props || {}
 
-export const getCreerDevisMock = () => ({conducteurAAssurer: faker.helpers.randomize([{nom: faker.random.word(), prenom: faker.random.word(), dateNaissance: faker.random.word(), codeTypePermis: faker.helpers.randomize([faker.random.word(), undefined]), libelleTypePermis: faker.helpers.randomize([faker.random.word(), undefined]), dateObtentionPermis: faker.helpers.randomize([faker.random.word(), undefined]), dateAnterioriteBonus050: faker.helpers.randomize([faker.random.word(), undefined]), codeExperienceConducteur: faker.random.word(), libelleExperienceConducteur: faker.helpers.randomize([faker.random.word(), undefined]), codeTypeConducteur: faker.random.word(), libelleTypeConducteur: faker.random.word(), dateSouscriptionAncienAssureur: faker.helpers.randomize([faker.random.word(), undefined]), dateDEcheanceAncienAssureur: faker.helpers.randomize([faker.random.word(), undefined]), coefficientBonusMalusAncienAssureur: faker.helpers.randomize([faker.datatype.number(), undefined]), codeConduiteAccompagnee: faker.random.word(), libelleConduiteAccompagnee: faker.random.word(), codeAssujettissementClause: faker.random.word(), libelleAssujettissementClause: faker.random.word()}, undefined]), vehiculeAAssurer: {lienDetailVehicule: faker.helpers.randomize([{method: faker.random.word(), href: faker.random.word()}, undefined]), numeroRepertoire: faker.random.word(), typeImmatriculationVehicule: faker.helpers.randomize([faker.random.word(), undefined]), libelleTypeImmatriculationVehicule: faker.helpers.randomize([faker.random.word(), undefined]), immatriculation: faker.helpers.randomize([faker.random.word(), undefined]), codeCategorie: faker.random.word(), libelleCategorie: faker.random.word(), codeGenre: faker.random.word(), libelleGenre: faker.random.word(), libelleMarque: faker.random.word(), libelleFamille: faker.random.word(), denominationCommercialeLongue: faker.random.word(), dateMiseEnCirculationVehicule: faker.random.word(), codeUsageVehicule: faker.helpers.randomize([faker.random.word(), undefined]), libelleUsageVehicule: faker.helpers.randomize([faker.random.word(), undefined])}, idDevis: faker.datatype.number(), dateRealisationDevis: faker.random.word(), dateFinValiditeDevis: faker.random.word(), dateEffetDevis: faker.random.word(), tarifsFranchiseSyntheseDevis: [...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({tarifsParFormule: {codeFormule: faker.random.word(), libelleFormule: faker.random.word(), montantFormuleTTC: faker.datatype.number(), options: faker.helpers.randomize([[...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({codeOption: faker.random.word(), libelleOption: faker.random.word(), montantOptionTTC: faker.datatype.number()})), undefined])}, anneeTarif: faker.random.word(), dateDebutPeriodeTarification: faker.random.word(), dateFinPeriodeTarification: faker.random.word(), nombreEcheanceAvecBonus050: faker.helpers.randomize([faker.random.word(), undefined]), coefficientBonusMalus: faker.helpers.randomize([faker.datatype.number(), undefined]), montantAnnuelHT: faker.datatype.number(), montantAnnuelTTC: faker.datatype.number(), montantAnnuelBrutTTC: faker.datatype.number(), montantTarifJourUsageTTC: faker.helpers.randomize([faker.datatype.number(), undefined]), mesuresReductionCommerciale: faker.helpers.randomize([[...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({codeFamilleTarifaire: faker.random.word(), libelleFamilleTarifaire: faker.random.word(), codeModaliteFamilleTarifaire: faker.random.word(), libelleModaliteFamilleTarifaire: faker.helpers.randomize([faker.random.word(), undefined])})), undefined]), montantFranchiseContractuelle: faker.helpers.randomize([faker.datatype.number(), undefined]), autresFranchises: faker.helpers.randomize([[...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({codeNatureFranchise: faker.random.word(), libelleNatureFranchise: faker.random.word(), detailsFranchise: faker.helpers.randomize([[...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({montantFranchise: faker.datatype.number(), conditions: faker.helpers.randomize([[...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({libelleConditionFranchise: faker.random.word()})), undefined])})), undefined])})), undefined])}))})
+		return creerDevis<Data>(data, requestOptions)
+	}, mutationOptions)
+}
+
+export const getCreerDevisMock = () => ({
+	conducteurAAssurer: faker.helpers.randomize([
+		{
+			nom: faker.random.word(),
+			prenom: faker.random.word(),
+			dateNaissance: faker.random.word(),
+			codeTypePermis: faker.helpers.randomize([faker.random.word(), undefined]),
+			libelleTypePermis: faker.helpers.randomize([
+				faker.random.word(),
+				undefined,
+			]),
+			dateObtentionPermis: faker.helpers.randomize([
+				faker.random.word(),
+				undefined,
+			]),
+			dateAnterioriteBonus050: faker.helpers.randomize([
+				faker.random.word(),
+				undefined,
+			]),
+			codeExperienceConducteur: faker.random.word(),
+			libelleExperienceConducteur: faker.helpers.randomize([
+				faker.random.word(),
+				undefined,
+			]),
+			codeTypeConducteur: faker.random.word(),
+			libelleTypeConducteur: faker.random.word(),
+			dateSouscriptionAncienAssureur: faker.helpers.randomize([
+				faker.random.word(),
+				undefined,
+			]),
+			dateDEcheanceAncienAssureur: faker.helpers.randomize([
+				faker.random.word(),
+				undefined,
+			]),
+			coefficientBonusMalusAncienAssureur: faker.helpers.randomize([
+				faker.datatype.number(),
+				undefined,
+			]),
+			codeConduiteAccompagnee: faker.random.word(),
+			libelleConduiteAccompagnee: faker.random.word(),
+			codeAssujettissementClause: faker.random.word(),
+			libelleAssujettissementClause: faker.random.word(),
+		},
+		undefined,
+	]),
+	vehiculeAAssurer: {
+		lienDetailVehicule: faker.helpers.randomize([
+			{ method: faker.random.word(), href: faker.random.word() },
+			undefined,
+		]),
+		numeroRepertoire: faker.random.word(),
+		typeImmatriculationVehicule: faker.helpers.randomize([
+			faker.random.word(),
+			undefined,
+		]),
+		libelleTypeImmatriculationVehicule: faker.helpers.randomize([
+			faker.random.word(),
+			undefined,
+		]),
+		immatriculation: faker.helpers.randomize([faker.random.word(), undefined]),
+		codeCategorie: faker.random.word(),
+		libelleCategorie: faker.random.word(),
+		codeGenre: faker.random.word(),
+		libelleGenre: faker.random.word(),
+		libelleMarque: faker.random.word(),
+		libelleFamille: faker.random.word(),
+		denominationCommercialeLongue: faker.random.word(),
+		dateMiseEnCirculationVehicule: faker.random.word(),
+		codeUsageVehicule: faker.helpers.randomize([
+			faker.random.word(),
+			undefined,
+		]),
+		libelleUsageVehicule: faker.helpers.randomize([
+			faker.random.word(),
+			undefined,
+		]),
+	},
+	idDevis: faker.datatype.number(),
+	dateRealisationDevis: faker.random.word(),
+	dateFinValiditeDevis: faker.random.word(),
+	dateEffetDevis: faker.random.word(),
+	tarifsFranchiseSyntheseDevis: [
+		...Array(faker.datatype.number({ min: 1, max: 10 })),
+	].map(() => ({
+		tarifsParFormule: {
+			codeFormule: faker.random.word(),
+			libelleFormule: faker.random.word(),
+			montantFormuleTTC: faker.datatype.number(),
+			options: faker.helpers.randomize([
+				[...Array(faker.datatype.number({ min: 1, max: 10 }))].map(() => ({
+					codeOption: faker.random.word(),
+					libelleOption: faker.random.word(),
+					montantOptionTTC: faker.datatype.number(),
+				})),
+				undefined,
+			]),
+		},
+		anneeTarif: faker.random.word(),
+		dateDebutPeriodeTarification: faker.random.word(),
+		dateFinPeriodeTarification: faker.random.word(),
+		nombreEcheanceAvecBonus050: faker.helpers.randomize([
+			faker.random.word(),
+			undefined,
+		]),
+		coefficientBonusMalus: faker.helpers.randomize([
+			faker.datatype.number(),
+			undefined,
+		]),
+		montantAnnuelHT: faker.datatype.number(),
+		montantAnnuelTTC: faker.datatype.number(),
+		montantAnnuelBrutTTC: faker.datatype.number(),
+		montantTarifJourUsageTTC: faker.helpers.randomize([
+			faker.datatype.number(),
+			undefined,
+		]),
+		mesuresReductionCommerciale: faker.helpers.randomize([
+			[...Array(faker.datatype.number({ min: 1, max: 10 }))].map(() => ({
+				codeFamilleTarifaire: faker.random.word(),
+				libelleFamilleTarifaire: faker.random.word(),
+				codeModaliteFamilleTarifaire: faker.random.word(),
+				libelleModaliteFamilleTarifaire: faker.helpers.randomize([
+					faker.random.word(),
+					undefined,
+				]),
+			})),
+			undefined,
+		]),
+		montantFranchiseContractuelle: faker.helpers.randomize([
+			faker.datatype.number(),
+			undefined,
+		]),
+		autresFranchises: faker.helpers.randomize([
+			[...Array(faker.datatype.number({ min: 1, max: 10 }))].map(() => ({
+				codeNatureFranchise: faker.random.word(),
+				libelleNatureFranchise: faker.random.word(),
+				detailsFranchise: faker.helpers.randomize([
+					[...Array(faker.datatype.number({ min: 1, max: 10 }))].map(() => ({
+						montantFranchise: faker.datatype.number(),
+						conditions: faker.helpers.randomize([
+							[...Array(faker.datatype.number({ min: 1, max: 10 }))].map(
+								() => ({ libelleConditionFranchise: faker.random.word() }),
+							),
+							undefined,
+						]),
+					})),
+					undefined,
+				]),
+			})),
+			undefined,
+		]),
+	})),
+})
 
 export const getDevisMSW = () => [
-rest.post('*/devis', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-ctx.json(getCreerDevisMock()),
-        )
-      }),]
+	rest.post("*/devis", (req, res, ctx) => {
+		return res(
+			ctx.delay(1000),
+			ctx.status(200, "Mocked status"),
+			ctx.json(getCreerDevisMock()),
+		)
+	}),
+]

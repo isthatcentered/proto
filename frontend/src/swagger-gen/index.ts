@@ -2,7 +2,7 @@ import { UseQueryOptions, UseQueryResult } from "react-query"
 import { AxiosResponse } from "axios"
 import { Code, prop } from "../kit/helpers"
 import { useMemo } from "react"
-import { pipe } from "fp-ts/function"
+import { pipe, unsafeCoerce } from "fp-ts/function"
 import * as REMOTE from "../kit/remote"
 import * as AR from "fp-ts/Array"
 import { Nomenclature } from "./__gen/iard-devis-vehicules-v1/iard-devis-vehicules-v1.schemas"
@@ -12,16 +12,17 @@ export type GeneratedReactQuery<TParams, TError, TResult> = (
 	config?: { query?: UseQueryOptions<any, any, any> },
 ) => UseQueryResult<AxiosResponse<TResult>, TError>
 
-export const useSelectData = <P, E, A extends any[]>(
+export const useQuery = <P, E, A, B = A>(
 	query: GeneratedReactQuery<P, E, A>,
-	asCodes: (item: A[number]) => Code<string>,
 	params: P | undefined,
-) => {
-	const queryResult = query(params, { query: { enabled: !!params } })
+	map: (a: A) => B = unsafeCoerce,
+	enabled = !!params,
+): REMOTE.Remote<E, B> => {
+	const queryResult = query(params, { query: { enabled } })
 
 	return useMemo(
-		() => pipe(REMOTE.fromQueryState(queryResult), REMOTE.map(AR.map(asCodes))),
-		[queryResult.dataUpdatedAt],
+		() => pipe(REMOTE.fromQueryState(queryResult), REMOTE.map(map)),
+		[queryResult.dataUpdatedAt], // eslint-disable-line
 	)
 }
 
@@ -41,5 +42,5 @@ export const useNomenclature = (
 					})),
 				),
 			),
-		[nomenclature.dataUpdatedAt],
+		[nomenclature.dataUpdatedAt], // eslint-disable-line
 	)

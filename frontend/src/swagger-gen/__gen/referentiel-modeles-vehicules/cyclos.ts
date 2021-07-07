@@ -6,197 +6,236 @@
 
  * OpenAPI spec version: 1.6.5
  */
-import {
-  useQuery,
-  UseQueryOptions
-} from 'react-query'
-import type {
-  VehiculeSynthese,
-  RecupererListeCyclosParams,
-  FamilleVehicule,
-  RecupererListeFamillesCyclosParams,
-  GroupeTarificationVehicule,
-  RecupererListeGroupesTarifCyclosParams,
-  MarqueVehicule,
-  RecupererListeMarquesCyclosParams
-} from './referentiel-modeles-vehicules.schemas'
-import {
-  rest
-} from 'msw'
-import { customInstance } from '../../axios/index'
+import { useQuery, UseQueryOptions } from "react-query"
+import type { FamilleVehicule, GroupeTarificationVehicule, MarqueVehicule, RecupererListeCyclosParams, RecupererListeFamillesCyclosParams, RecupererListeGroupesTarifCyclosParams, RecupererListeMarquesCyclosParams, VehiculeSynthese } from "./referentiel-modeles-vehicules.schemas"
+import { rest } from "msw"
+import { customInstance } from "../../axios/index"
 
 
-type AsyncReturnType<
-T extends (...args: any) => Promise<any>
-> = T extends (...args: any) => Promise<infer R> ? R : any;
 
+
+type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
+	...args: any
+) => Promise<infer R>
+	? R
+	: any
 
 type SecondParameter<T extends (...args: any) => any> = T extends (
-  config: any,
-  args: infer P,
+	config: any,
+	args: infer P,
 ) => any
-  ? P extends unknown
-  ? Record<string, any>
-  : P
-  : never;
+	? P extends unknown
+		? Record<string, any>
+		: P
+	: never
 
 export const recupererListeCyclos = <Data = unknown>(
-    params?: RecupererListeCyclosParams,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? VehiculeSynthese[] : Data>(
-      {url: `/vehicules/cyclos`, method: 'get',
-        params,
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
-    }
-  
+	params?: RecupererListeCyclosParams,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? VehiculeSynthese[] : Data>(
+		{
+			url: `/vehicules/cyclos`,
+			method: "get",
+			params,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/referentiel/modeles_vehicules/", ...options },
+	)
+}
 
-export const getRecupererListeCyclosQueryKey = (params?: RecupererListeCyclosParams,) => [`/vehicules/cyclos`, ...(params ? [params]: [])]
+export const getRecupererListeCyclosQueryKey = (
+	params?: RecupererListeCyclosParams,
+) => [`/vehicules/cyclos`, ...(params ? [params] : [])]
 
-    
 export const useRecupererListeCyclos = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
 >(
- params?: RecupererListeCyclosParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeCyclos>, Error>, request?: SecondParameter<typeof customInstance>}
+	params?: RecupererListeCyclosParams,
+	options?: {
+		query?: UseQueryOptions<AsyncReturnType<typeof recupererListeCyclos>, Error>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererListeCyclosQueryKey(params)
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererListeCyclosQueryKey(params);
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<AsyncReturnType<typeof recupererListeCyclos>, Error>(
+		queryKey,
+		() => recupererListeCyclos<Data>(params, requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeCyclos>, Error>(queryKey, () => recupererListeCyclos<Data>(params, requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererListeFamillesCyclos = <Data = unknown>(
-    params?: RecupererListeFamillesCyclosParams,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? FamilleVehicule[] : Data>(
-      {url: `/vehicules/cyclos/familles`, method: 'get',
-        params,
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
-    }
-  
+	params?: RecupererListeFamillesCyclosParams,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? FamilleVehicule[] : Data>(
+		{
+			url: `/vehicules/cyclos/familles`,
+			method: "get",
+			params,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/referentiel/modeles_vehicules/", ...options },
+	)
+}
 
-export const getRecupererListeFamillesCyclosQueryKey = (params?: RecupererListeFamillesCyclosParams,) => [`/vehicules/cyclos/familles`, ...(params ? [params]: [])]
+export const getRecupererListeFamillesCyclosQueryKey = (
+	params?: RecupererListeFamillesCyclosParams,
+) => [`/vehicules/cyclos/familles`, ...(params ? [params] : [])]
 
-    
 export const useRecupererListeFamillesCyclos = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
 >(
- params?: RecupererListeFamillesCyclosParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeFamillesCyclos>, Error>, request?: SecondParameter<typeof customInstance>}
+	params?: RecupererListeFamillesCyclosParams,
+	options?: {
+		query?: UseQueryOptions<
+			AsyncReturnType<typeof recupererListeFamillesCyclos>,
+			Error
+		>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererListeFamillesCyclosQueryKey(params)
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererListeFamillesCyclosQueryKey(params);
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererListeFamillesCyclos>,
+		Error
+	>(
+		queryKey,
+		() => recupererListeFamillesCyclos<Data>(params, requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeFamillesCyclos>, Error>(queryKey, () => recupererListeFamillesCyclos<Data>(params, requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererListeGroupesTarifCyclos = <Data = unknown>(
-    params?: RecupererListeGroupesTarifCyclosParams,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? GroupeTarificationVehicule[] : Data>(
-      {url: `/vehicules/cyclos/groupes_tarification`, method: 'get',
-        params,
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
-    }
-  
+	params?: RecupererListeGroupesTarifCyclosParams,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<
+		Data extends unknown ? GroupeTarificationVehicule[] : Data
+	>(
+		{
+			url: `/vehicules/cyclos/groupes_tarification`,
+			method: "get",
+			params,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/referentiel/modeles_vehicules/", ...options },
+	)
+}
 
-export const getRecupererListeGroupesTarifCyclosQueryKey = (params?: RecupererListeGroupesTarifCyclosParams,) => [`/vehicules/cyclos/groupes_tarification`, ...(params ? [params]: [])]
+export const getRecupererListeGroupesTarifCyclosQueryKey = (
+	params?: RecupererListeGroupesTarifCyclosParams,
+) => [`/vehicules/cyclos/groupes_tarification`, ...(params ? [params] : [])]
 
-    
 export const useRecupererListeGroupesTarifCyclos = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
 >(
- params?: RecupererListeGroupesTarifCyclosParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeGroupesTarifCyclos>, Error>, request?: SecondParameter<typeof customInstance>}
+	params?: RecupererListeGroupesTarifCyclosParams,
+	options?: {
+		query?: UseQueryOptions<
+			AsyncReturnType<typeof recupererListeGroupesTarifCyclos>,
+			Error
+		>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererListeGroupesTarifCyclosQueryKey(params)
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererListeGroupesTarifCyclosQueryKey(params);
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererListeGroupesTarifCyclos>,
+		Error
+	>(
+		queryKey,
+		() => recupererListeGroupesTarifCyclos<Data>(params, requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeGroupesTarifCyclos>, Error>(queryKey, () => recupererListeGroupesTarifCyclos<Data>(params, requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererListeMarquesCyclos = <Data = unknown>(
-    params?: RecupererListeMarquesCyclosParams,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? MarqueVehicule[] : Data>(
-      {url: `/vehicules/cyclos/marques`, method: 'get',
-        params,
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
-    }
-  
-
-export const getRecupererListeMarquesCyclosQueryKey = (params?: RecupererListeMarquesCyclosParams,) => [`/vehicules/cyclos/marques`, ...(params ? [params]: [])]
-
-    
-export const useRecupererListeMarquesCyclos = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
->(
- params?: RecupererListeMarquesCyclosParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeMarquesCyclos>, Error>, request?: SecondParameter<typeof customInstance>}
-
-  ) => {
-  const queryKey = getRecupererListeMarquesCyclosQueryKey(params);
-  const {query: queryOptions, request: requestOptions} = options || {}
-
-  const query = useQuery<AsyncReturnType<typeof recupererListeMarquesCyclos>, Error>(queryKey, () => recupererListeMarquesCyclos<Data>(params, requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	params?: RecupererListeMarquesCyclosParams,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? MarqueVehicule[] : Data>(
+		{
+			url: `/vehicules/cyclos/marques`,
+			method: "get",
+			params,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/referentiel/modeles_vehicules/", ...options },
+	)
 }
 
+export const getRecupererListeMarquesCyclosQueryKey = (
+	params?: RecupererListeMarquesCyclosParams,
+) => [`/vehicules/cyclos/marques`, ...(params ? [params] : [])]
 
+export const useRecupererListeMarquesCyclos = <
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
+>(
+	params?: RecupererListeMarquesCyclosParams,
+	options?: {
+		query?: UseQueryOptions<
+			AsyncReturnType<typeof recupererListeMarquesCyclos>,
+			Error
+		>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererListeMarquesCyclosQueryKey(params)
+	const { query: queryOptions, request: requestOptions } = options || {}
+
+	const query = useQuery<
+		AsyncReturnType<typeof recupererListeMarquesCyclos>,
+		Error
+	>(
+		queryKey,
+		() => recupererListeMarquesCyclos<Data>(params, requestOptions),
+		queryOptions,
+	)
+
+	return {
+		queryKey,
+		...query,
+	}
+}
 
 export const getCyclosMSW = () => [
-rest.get('*/vehicules/cyclos', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-        )
-      }),rest.get('*/vehicules/cyclos/familles', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-        )
-      }),rest.get('*/vehicules/cyclos/groupes_tarification', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-        )
-      }),rest.get('*/vehicules/cyclos/marques', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-        )
-      }),]
+	rest.get("*/vehicules/cyclos", (req, res, ctx) => {
+		return res(ctx.delay(1000), ctx.status(200, "Mocked status"))
+	}),
+	rest.get("*/vehicules/cyclos/familles", (req, res, ctx) => {
+		return res(ctx.delay(1000), ctx.status(200, "Mocked status"))
+	}),
+	rest.get("*/vehicules/cyclos/groupes_tarification", (req, res, ctx) => {
+		return res(ctx.delay(1000), ctx.status(200, "Mocked status"))
+	}),
+	rest.get("*/vehicules/cyclos/marques", (req, res, ctx) => {
+		return res(ctx.delay(1000), ctx.status(200, "Mocked status"))
+	}),
+]

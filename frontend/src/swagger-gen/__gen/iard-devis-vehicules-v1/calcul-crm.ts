@@ -5,71 +5,84 @@
  * "Cette API permet de gÃ©rer le contexte iard-devis-vehicules."
  * OpenAPI spec version: 1.0.0-SNAPSHOT
  */
-import {
-  useMutation,
-  UseMutationOptions
-} from 'react-query'
-import type {
-  CalculCrmRisqueVehicule,
-  InfoCalculCrmProspect
-} from './iard-devis-vehicules-v1.schemas'
-import {
-  rest
-} from 'msw'
-import faker from 'faker'
-import { customInstance } from '../../axios/index'
+import { useMutation, UseMutationOptions } from "react-query"
+import type { CalculCrmRisqueVehicule, InfoCalculCrmProspect } from "./iard-devis-vehicules-v1.schemas"
+import { rest } from "msw"
+import faker from "faker"
+import { customInstance } from "../../axios/index"
 
 
-type AsyncReturnType<
-T extends (...args: any) => Promise<any>
-> = T extends (...args: any) => Promise<infer R> ? R : any;
 
+
+type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
+	...args: any
+) => Promise<infer R>
+	? R
+	: any
 
 type SecondParameter<T extends (...args: any) => any> = T extends (
-  config: any,
-  args: infer P,
+	config: any,
+	args: infer P,
 ) => any
-  ? P extends unknown
-  ? Record<string, any>
-  : P
-  : never;
+	? P extends unknown
+		? Record<string, any>
+		: P
+	: never
 
 export const calculCrmProspect = <Data = unknown>(
-    infoCalculCrmProspect: InfoCalculCrmProspect,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? CalculCrmRisqueVehicule : Data>(
-      {url: `/calculer_coefficient_bonus_malus`, method: 'post',
-      data: infoCalculCrmProspect
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
-    }
-  
-
-
-    export const useCalculCrmProspect = <
-      Data extends unknown = unknown,
-      Error extends unknown = unknown
-    >(options?: { mutation?:UseMutationOptions<AsyncReturnType<typeof calculCrmProspect>, Error, {data: InfoCalculCrmProspect}, unknown>, request?: SecondParameter<typeof customInstance>}
+	infoCalculCrmProspect: InfoCalculCrmProspect,
+	options?: SecondParameter<typeof customInstance>,
 ) => {
-      const {mutation: mutationOptions, request: requestOptions} = options || {}
+	return customInstance<Data extends unknown ? CalculCrmRisqueVehicule : Data>(
+		{
+			url: `/calculer_coefficient_bonus_malus`,
+			method: "post",
+			data: infoCalculCrmProspect,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/iard/devis_vehicules/v1/", ...options },
+	)
+}
 
-      return useMutation<AsyncReturnType<typeof calculCrmProspect>, Error, {data: InfoCalculCrmProspect}>((props) => {
-        const {data} = props || {};
+export const useCalculCrmProspect = <
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
+>(options?: {
+	mutation?: UseMutationOptions<
+		AsyncReturnType<typeof calculCrmProspect>,
+		Error,
+		{ data: InfoCalculCrmProspect },
+		unknown
+	>
+	request?: SecondParameter<typeof customInstance>
+}) => {
+	const { mutation: mutationOptions, request: requestOptions } = options || {}
 
-        return  calculCrmProspect<Data>(data,requestOptions)
-      }, mutationOptions)
-    }
-    
+	return useMutation<
+		AsyncReturnType<typeof calculCrmProspect>,
+		Error,
+		{ data: InfoCalculCrmProspect }
+	>(props => {
+		const { data } = props || {}
 
-export const getCalculCrmProspectMock = () => ({coefficientBonusMalusRetenu: faker.datatype.number(), coefficientBonusMalusRetenuAnneeSuivante: faker.helpers.randomize([faker.datatype.number(), undefined])})
+		return calculCrmProspect<Data>(data, requestOptions)
+	}, mutationOptions)
+}
+
+export const getCalculCrmProspectMock = () => ({
+	coefficientBonusMalusRetenu: faker.datatype.number(),
+	coefficientBonusMalusRetenuAnneeSuivante: faker.helpers.randomize([
+		faker.datatype.number(),
+		undefined,
+	]),
+})
 
 export const getCalculCrmMSW = () => [
-rest.post('*/calculer_coefficient_bonus_malus', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-ctx.json(getCalculCrmProspectMock()),
-        )
-      }),]
+	rest.post("*/calculer_coefficient_bonus_malus", (req, res, ctx) => {
+		return res(
+			ctx.delay(1000),
+			ctx.status(200, "Mocked status"),
+			ctx.json(getCalculCrmProspectMock()),
+		)
+	}),
+]

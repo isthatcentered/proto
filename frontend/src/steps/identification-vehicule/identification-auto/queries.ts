@@ -1,17 +1,16 @@
 import * as A2 from "../../../swagger-gen/__gen/referentiel-modeles-vehicules/autos"
-import * as REMOTE from "../../../kit/remote"
-import { pipe } from "fp-ts/function"
 import { notNil, prop } from "../../../kit/helpers"
 import * as AR from "fp-ts/Array"
 import * as EI from "fp-ts/Either"
 import { jouerAcceptationVehicule } from "../../../swagger-gen/__gen/iard-devis-vehicules-v1/acceptation-risque-véhicule"
-import { useSelectData } from "../../../swagger-gen"
+import { useQuery } from "../../../swagger-gen"
 
 export const useMarques = () => {
-	const queryState = A2.useRecupererListeMarquesAutos()
-	return pipe(
-		REMOTE.fromQueryState(queryState),
-		REMOTE.map(AR.map(a => ({ label: a.libelleMarque, value: a.codeMarque }))),
+	return useQuery(
+		A2.useRecupererListeMarquesAutos,
+		undefined,
+		AR.map(a => ({ label: a.libelleMarque, value: a.codeMarque })),
+		true,
 	)
 }
 
@@ -21,15 +20,15 @@ export const useFamilles = (
 		anneeMiseEnCirculation: number
 	}>,
 ) =>
-	useSelectData(
+	useQuery(
 		A2.useRecupererListeFamillesAutos,
-		a => ({ label: a.libelleFamille, value: a.codeFamille }),
 		params.anneeMiseEnCirculation && params.codeMarque
 			? {
 					listeAnneesCirculation: [params.anneeMiseEnCirculation],
 					listeCodesMarque: [params.codeMarque],
 			  }
 			: undefined,
+		AR.map(a => ({ label: a.libelleFamille, value: a.codeFamille })),
 	)
 
 export const useEnergies = (
@@ -39,9 +38,8 @@ export const useEnergies = (
 		codeFamille: string
 	}>,
 ) =>
-	useSelectData(
+	useQuery(
 		A2.useRecupererListeEnergiesAutos,
-		a => ({ label: a.libelleEnergie, value: a.codeEnergie }),
 		params.anneeMiseEnCirculation && params.codeMarque && params.codeFamille
 			? {
 					listeAnneesCirculation: [params.anneeMiseEnCirculation],
@@ -49,6 +47,7 @@ export const useEnergies = (
 					listeCodesFamille: [params.codeFamille],
 			  }
 			: undefined,
+		AR.map(a => ({ label: a.libelleEnergie, value: a.codeEnergie })),
 	)
 
 export const useTransmissions = (
@@ -59,9 +58,8 @@ export const useTransmissions = (
 		codeEnergie: string
 	}>,
 ) =>
-	useSelectData(
+	useQuery(
 		A2.useRecupererListeTransmissionsAutos,
-		a => ({ label: a.libelleTransmission, value: a.codeTransmission }),
 		params.anneeMiseEnCirculation &&
 			params.codeMarque &&
 			params.codeFamille &&
@@ -73,6 +71,7 @@ export const useTransmissions = (
 					listeCodesEnergie: [params.codeEnergie],
 			  }
 			: undefined,
+		AR.map(a => ({ label: a.libelleTransmission, value: a.codeTransmission })),
 	)
 
 export const useMotorisations = (
@@ -84,9 +83,8 @@ export const useMotorisations = (
 		codeTransmission: string
 	}>,
 ) =>
-	useSelectData(
+	useQuery(
 		A2.useRecupererListeMotorisationsAutos,
-		a => ({ label: a.libelleMotorisation, value: a.libelleMotorisation }),
 		params.anneeMiseEnCirculation &&
 			params.codeMarque &&
 			params.codeFamille &&
@@ -100,6 +98,10 @@ export const useMotorisations = (
 					listeCodesTransmission: [params.codeTransmission],
 			  }
 			: undefined,
+		AR.map(a => ({
+			label: a.libelleMotorisation,
+			value: a.libelleMotorisation,
+		})),
 	)
 
 export const useCarosseries = (
@@ -112,9 +114,8 @@ export const useCarosseries = (
 		codeMotorisation: string
 	}>,
 ) =>
-	useSelectData(
+	useQuery(
 		A2.useRecupererListeCarrosseriesAutos,
-		a => ({ label: a.libelleCarrosserie, value: a.codeCarrosserie }),
 		params.anneeMiseEnCirculation &&
 			params.codeMarque &&
 			params.codeFamille &&
@@ -130,6 +131,7 @@ export const useCarosseries = (
 					listeLibellesMotorisation: [params.codeMotorisation],
 			  }
 			: undefined,
+		AR.map(a => ({ label: a.libelleCarrosserie, value: a.codeCarrosserie })),
 	)
 
 export const useNombrePortes = (
@@ -143,9 +145,8 @@ export const useNombrePortes = (
 		codeCarrosserie: string
 	}>,
 ) =>
-	useSelectData(
+	useQuery(
 		A2.useRecupererListeNbPortesAutos,
-		a => ({ label: a.nombrePortes, value: a.nombrePortes }),
 		params.anneeMiseEnCirculation &&
 			params.codeMarque &&
 			params.codeFamille &&
@@ -163,6 +164,7 @@ export const useNombrePortes = (
 					listeCodesCarrosserie: [params.codeCarrosserie],
 			  }
 			: undefined,
+		AR.map(a => ({ label: a.nombrePortes, value: a.nombrePortes })),
 	)
 
 export const useFinitions = (
@@ -177,12 +179,8 @@ export const useFinitions = (
 		codeCarrosserie: string
 	}>,
 ) =>
-	useSelectData(
+	useQuery(
 		A2.useRecupererListeAutos,
-		a => ({
-			label: a.denominationCommerciale,
-			value: a.numeroRepertoire,
-		}),
 		params.anneeMiseEnCirculation &&
 			params.codeMarque &&
 			params.codeFamille &&
@@ -202,6 +200,10 @@ export const useFinitions = (
 					listeNombresPortes: [params.codeConfigurationPortes],
 			  }
 			: undefined,
+		AR.map(a => ({
+			label: a.denominationCommerciale,
+			value: a.numeroRepertoire,
+		})),
 	)
 
 export const verifyVehiculeAccepted = (

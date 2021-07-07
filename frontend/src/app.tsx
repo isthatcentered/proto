@@ -4,7 +4,13 @@ import IdentificationVehicule from "./steps/identification-vehicule"
 import UsageVehicule from "./steps/usage-vehicule"
 import IdentificationConducteur from "./steps/identification-conducteur"
 import PasseConducteur from "./steps/passe-conducteur"
-import { CODE_TYPE_VEHICULE, IdentificationConducteurStep, IdentificationVehiculeStep, InitParcoursStep, StepValues, UsageVehiculeStep } from "./contracts"
+import {
+	IdentificationConducteurStep,
+	IdentificationVehiculeStep,
+	InitParcoursStep,
+	StepValues,
+	UsageVehiculeStep,
+} from "./contracts"
 
 // Each step data is the accumulated data of all the previous steps
 type IdentificationVehiculeData = StepValues<InitParcoursStep>
@@ -21,13 +27,12 @@ type Step =
 	| { type: "identification-conducteur"; data: IdentificationConducteurData }
 	| { type: "passe-assure"; data: PasseAssureData }
 
-const stepOverride: Step | undefined =
-	//undefined;
-	// { type: "init-parcours" }
-	{
-		type: "identification-vehicule",
-		data: { codeTypeVehicule: CODE_TYPE_VEHICULE.AUTO },
-	}
+const stepOverride: Step | undefined = undefined
+// { type: "init-parcours" }
+// {
+// 	type: "identification-vehicule",
+// 	data: { codeTypeVehicule: CODE_TYPE_VEHICULE.AUTO },
+// }
 // 				 { type: "usage-vehicule", data: { numeroRepertoire: "1234" } as any }
 // { type: "identification-conducteur", data: { numeroRepertoire: "1234" }as any }
 // 				 {

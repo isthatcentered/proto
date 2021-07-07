@@ -5,281 +5,388 @@
  * "Cette API permet de gÃ©rer le contexte iard-devis-vehicules."
  * OpenAPI spec version: 1.0.0-SNAPSHOT
  */
-import {
-  useQuery,
-  UseQueryOptions
-} from 'react-query'
-import type {
-  Nomenclature
-} from './iard-devis-vehicules-v1.schemas'
-import {
-  rest
-} from 'msw'
-import faker from 'faker'
-import { customInstance } from '../../axios/index'
+import { useQuery, UseQueryOptions } from "react-query"
+import type { Nomenclature } from "./iard-devis-vehicules-v1.schemas"
+import { rest } from "msw"
+import faker from "faker"
+import { customInstance } from "../../axios/index"
 
 
-type AsyncReturnType<
-T extends (...args: any) => Promise<any>
-> = T extends (...args: any) => Promise<infer R> ? R : any;
 
+
+type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
+	...args: any
+) => Promise<infer R>
+	? R
+	: any
 
 type SecondParameter<T extends (...args: any) => any> = T extends (
-  config: any,
-  args: infer P,
+	config: any,
+	args: infer P,
 ) => any
-  ? P extends unknown
-  ? Record<string, any>
-  : P
-  : never;
+	? P extends unknown
+		? Record<string, any>
+		: P
+	: never
 
 export const recupererValeursExperienceConducteur = <Data = unknown>(
-    
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? Nomenclature : Data>(
-      {url: `/experiences_conducteur`, method: 'get'
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
-    }
-  
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? Nomenclature : Data>(
+		{
+			url: `/experiences_conducteur`,
+			method: "get",
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/iard/devis_vehicules/v1/", ...options },
+	)
+}
 
-export const getRecupererValeursExperienceConducteurQueryKey = () => [`/experiences_conducteur`]
+export const getRecupererValeursExperienceConducteurQueryKey = () => [
+	`/experiences_conducteur`,
+]
 
-    
 export const useRecupererValeursExperienceConducteur = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
->(
-  options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursExperienceConducteur>, Error>, request?: SecondParameter<typeof customInstance>}
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
+>(options?: {
+	query?: UseQueryOptions<
+		AsyncReturnType<typeof recupererValeursExperienceConducteur>,
+		Error
+	>
+	request?: SecondParameter<typeof customInstance>
+}) => {
+	const queryKey = getRecupererValeursExperienceConducteurQueryKey()
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererValeursExperienceConducteurQueryKey();
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererValeursExperienceConducteur>,
+		Error
+	>(
+		queryKey,
+		() => recupererValeursExperienceConducteur<Data>(requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererValeursExperienceConducteur>, Error>(queryKey, () => recupererValeursExperienceConducteur<Data>(requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererValeursOrigineSocietaire = <Data = unknown>(
-    
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? Nomenclature : Data>(
-      {url: `/passe_autre_assurance`, method: 'get'
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
-    }
-  
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? Nomenclature : Data>(
+		{
+			url: `/passe_autre_assurance`,
+			method: "get",
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/iard/devis_vehicules/v1/", ...options },
+	)
+}
 
-export const getRecupererValeursOrigineSocietaireQueryKey = () => [`/passe_autre_assurance`]
+export const getRecupererValeursOrigineSocietaireQueryKey = () => [
+	`/passe_autre_assurance`,
+]
 
-    
 export const useRecupererValeursOrigineSocietaire = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
->(
-  options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursOrigineSocietaire>, Error>, request?: SecondParameter<typeof customInstance>}
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
+>(options?: {
+	query?: UseQueryOptions<
+		AsyncReturnType<typeof recupererValeursOrigineSocietaire>,
+		Error
+	>
+	request?: SecondParameter<typeof customInstance>
+}) => {
+	const queryKey = getRecupererValeursOrigineSocietaireQueryKey()
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererValeursOrigineSocietaireQueryKey();
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererValeursOrigineSocietaire>,
+		Error
+	>(
+		queryKey,
+		() => recupererValeursOrigineSocietaire<Data>(requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererValeursOrigineSocietaire>, Error>(queryKey, () => recupererValeursOrigineSocietaire<Data>(requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererValeursResponsabiliteSinistre = <Data = unknown>(
-    
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? Nomenclature : Data>(
-      {url: `/responsabilites_sinistre`, method: 'get'
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
-    }
-  
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? Nomenclature : Data>(
+		{
+			url: `/responsabilites_sinistre`,
+			method: "get",
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/iard/devis_vehicules/v1/", ...options },
+	)
+}
 
-export const getRecupererValeursResponsabiliteSinistreQueryKey = () => [`/responsabilites_sinistre`]
+export const getRecupererValeursResponsabiliteSinistreQueryKey = () => [
+	`/responsabilites_sinistre`,
+]
 
-    
 export const useRecupererValeursResponsabiliteSinistre = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
->(
-  options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursResponsabiliteSinistre>, Error>, request?: SecondParameter<typeof customInstance>}
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
+>(options?: {
+	query?: UseQueryOptions<
+		AsyncReturnType<typeof recupererValeursResponsabiliteSinistre>,
+		Error
+	>
+	request?: SecondParameter<typeof customInstance>
+}) => {
+	const queryKey = getRecupererValeursResponsabiliteSinistreQueryKey()
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererValeursResponsabiliteSinistreQueryKey();
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererValeursResponsabiliteSinistre>,
+		Error
+	>(
+		queryKey,
+		() => recupererValeursResponsabiliteSinistre<Data>(requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererValeursResponsabiliteSinistre>, Error>(queryKey, () => recupererValeursResponsabiliteSinistre<Data>(requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererValeursTypeConducteur = <Data = unknown>(
-    
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? Nomenclature : Data>(
-      {url: `/types_conducteur`, method: 'get'
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
-    }
-  
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? Nomenclature : Data>(
+		{
+			url: `/types_conducteur`,
+			method: "get",
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/iard/devis_vehicules/v1/", ...options },
+	)
+}
 
-export const getRecupererValeursTypeConducteurQueryKey = () => [`/types_conducteur`]
+export const getRecupererValeursTypeConducteurQueryKey = () => [
+	`/types_conducteur`,
+]
 
-    
 export const useRecupererValeursTypeConducteur = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
->(
-  options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursTypeConducteur>, Error>, request?: SecondParameter<typeof customInstance>}
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
+>(options?: {
+	query?: UseQueryOptions<
+		AsyncReturnType<typeof recupererValeursTypeConducteur>,
+		Error
+	>
+	request?: SecondParameter<typeof customInstance>
+}) => {
+	const queryKey = getRecupererValeursTypeConducteurQueryKey()
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererValeursTypeConducteurQueryKey();
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererValeursTypeConducteur>,
+		Error
+	>(
+		queryKey,
+		() => recupererValeursTypeConducteur<Data>(requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererValeursTypeConducteur>, Error>(queryKey, () => recupererValeursTypeConducteur<Data>(requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererValeursTypePermis = <Data = unknown>(
-    numeroRepertoire: string,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? Nomenclature : Data>(
-      {url: `/types_permis/vehicule/${numeroRepertoire}`, method: 'get'
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
-    }
-  
+	numeroRepertoire: string,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? Nomenclature : Data>(
+		{
+			url: `/types_permis/vehicule/${numeroRepertoire}`,
+			method: "get",
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/iard/devis_vehicules/v1/", ...options },
+	)
+}
 
-export const getRecupererValeursTypePermisQueryKey = (numeroRepertoire: string,) => [`/types_permis/vehicule/${numeroRepertoire}`]
+export const getRecupererValeursTypePermisQueryKey = (
+	numeroRepertoire: string,
+) => [`/types_permis/vehicule/${numeroRepertoire}`]
 
-    
 export const useRecupererValeursTypePermis = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
 >(
- numeroRepertoire: string, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursTypePermis>, Error>, request?: SecondParameter<typeof customInstance>}
+	numeroRepertoire: string,
+	options?: {
+		query?: UseQueryOptions<
+			AsyncReturnType<typeof recupererValeursTypePermis>,
+			Error
+		>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererValeursTypePermisQueryKey(numeroRepertoire)
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererValeursTypePermisQueryKey(numeroRepertoire);
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererValeursTypePermis>,
+		Error
+	>(
+		queryKey,
+		() => recupererValeursTypePermis<Data>(numeroRepertoire, requestOptions),
+		{ enabled: !!numeroRepertoire, ...queryOptions },
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererValeursTypePermis>, Error>(queryKey, () => recupererValeursTypePermis<Data>(numeroRepertoire, requestOptions), {enabled: !!(numeroRepertoire), ...queryOptions} )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererValeursUsage = <Data = unknown>(
-    numeroRepertoire: string,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? Nomenclature : Data>(
-      {url: `/usages/vehicule/${numeroRepertoire}`, method: 'get'
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/iard/devis_vehicules/v1/',  ...options});
-    }
-  
-
-export const getRecupererValeursUsageQueryKey = (numeroRepertoire: string,) => [`/usages/vehicule/${numeroRepertoire}`]
-
-    
-export const useRecupererValeursUsage = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
->(
- numeroRepertoire: string, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererValeursUsage>, Error>, request?: SecondParameter<typeof customInstance>}
-
-  ) => {
-  const queryKey = getRecupererValeursUsageQueryKey(numeroRepertoire);
-  const {query: queryOptions, request: requestOptions} = options || {}
-
-  const query = useQuery<AsyncReturnType<typeof recupererValeursUsage>, Error>(queryKey, () => recupererValeursUsage<Data>(numeroRepertoire, requestOptions), {enabled: !!(numeroRepertoire), ...queryOptions} )
-
-  return {
-    queryKey,
-    ...query
-  }
+	numeroRepertoire: string,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? Nomenclature : Data>(
+		{
+			url: `/usages/vehicule/${numeroRepertoire}`,
+			method: "get",
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/iard/devis_vehicules/v1/", ...options },
+	)
 }
 
+export const getRecupererValeursUsageQueryKey = (numeroRepertoire: string) => [
+	`/usages/vehicule/${numeroRepertoire}`,
+]
 
+export const useRecupererValeursUsage = <
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
+>(
+	numeroRepertoire: string,
+	options?: {
+		query?: UseQueryOptions<
+			AsyncReturnType<typeof recupererValeursUsage>,
+			Error
+		>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererValeursUsageQueryKey(numeroRepertoire)
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-export const getRecupererValeursExperienceConducteurMock = () => ({nomNomenclature: faker.random.word(), detailNomenclature: [...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({code: faker.random.word(), libelle: faker.random.word()}))})
+	const query = useQuery<AsyncReturnType<typeof recupererValeursUsage>, Error>(
+		queryKey,
+		() => recupererValeursUsage<Data>(numeroRepertoire, requestOptions),
+		{ enabled: !!numeroRepertoire, ...queryOptions },
+	)
 
-export const getRecupererValeursOrigineSocietaireMock = () => ({nomNomenclature: faker.random.word(), detailNomenclature: [...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({code: faker.random.word(), libelle: faker.random.word()}))})
+	return {
+		queryKey,
+		...query,
+	}
+}
 
-export const getRecupererValeursResponsabiliteSinistreMock = () => ({nomNomenclature: faker.random.word(), detailNomenclature: [...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({code: faker.random.word(), libelle: faker.random.word()}))})
+export const getRecupererValeursExperienceConducteurMock = () => ({
+	nomNomenclature: faker.random.word(),
+	detailNomenclature: [
+		...Array(faker.datatype.number({ min: 1, max: 10 })),
+	].map(() => ({ code: faker.random.word(), libelle: faker.random.word() })),
+})
 
-export const getRecupererValeursTypeConducteurMock = () => ({nomNomenclature: faker.random.word(), detailNomenclature: [...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({code: faker.random.word(), libelle: faker.random.word()}))})
+export const getRecupererValeursOrigineSocietaireMock = () => ({
+	nomNomenclature: faker.random.word(),
+	detailNomenclature: [
+		...Array(faker.datatype.number({ min: 1, max: 10 })),
+	].map(() => ({ code: faker.random.word(), libelle: faker.random.word() })),
+})
 
-export const getRecupererValeursTypePermisMock = () => ({nomNomenclature: faker.random.word(), detailNomenclature: [...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({code: faker.random.word(), libelle: faker.random.word()}))})
+export const getRecupererValeursResponsabiliteSinistreMock = () => ({
+	nomNomenclature: faker.random.word(),
+	detailNomenclature: [
+		...Array(faker.datatype.number({ min: 1, max: 10 })),
+	].map(() => ({ code: faker.random.word(), libelle: faker.random.word() })),
+})
 
-export const getRecupererValeursUsageMock = () => ({nomNomenclature: faker.random.word(), detailNomenclature: [...Array(faker.datatype.number({min: 1, max: 10}))].map(() => ({code: faker.random.word(), libelle: faker.random.word()}))})
+export const getRecupererValeursTypeConducteurMock = () => ({
+	nomNomenclature: faker.random.word(),
+	detailNomenclature: [
+		...Array(faker.datatype.number({ min: 1, max: 10 })),
+	].map(() => ({ code: faker.random.word(), libelle: faker.random.word() })),
+})
+
+export const getRecupererValeursTypePermisMock = () => ({
+	nomNomenclature: faker.random.word(),
+	detailNomenclature: [
+		...Array(faker.datatype.number({ min: 1, max: 10 })),
+	].map(() => ({ code: faker.random.word(), libelle: faker.random.word() })),
+})
+
+export const getRecupererValeursUsageMock = () => ({
+	nomNomenclature: faker.random.word(),
+	detailNomenclature: [
+		...Array(faker.datatype.number({ min: 1, max: 10 })),
+	].map(() => ({ code: faker.random.word(), libelle: faker.random.word() })),
+})
 
 export const getNomenclaturesMSW = () => [
-rest.get('*/experiences_conducteur', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-ctx.json(getRecupererValeursExperienceConducteurMock()),
-        )
-      }),rest.get('*/passe_autre_assurance', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-ctx.json(getRecupererValeursOrigineSocietaireMock()),
-        )
-      }),rest.get('*/responsabilites_sinistre', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-ctx.json(getRecupererValeursResponsabiliteSinistreMock()),
-        )
-      }),rest.get('*/types_conducteur', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-ctx.json(getRecupererValeursTypeConducteurMock()),
-        )
-      }),rest.get('*/types_permis/vehicule/:numeroRepertoire', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-ctx.json(getRecupererValeursTypePermisMock()),
-        )
-      }),rest.get('*/usages/vehicule/:numeroRepertoire', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-ctx.json(getRecupererValeursUsageMock()),
-        )
-      }),]
+	rest.get("*/experiences_conducteur", (req, res, ctx) => {
+		return res(
+			ctx.delay(1000),
+			ctx.status(200, "Mocked status"),
+			ctx.json(getRecupererValeursExperienceConducteurMock()),
+		)
+	}),
+	rest.get("*/passe_autre_assurance", (req, res, ctx) => {
+		return res(
+			ctx.delay(1000),
+			ctx.status(200, "Mocked status"),
+			ctx.json(getRecupererValeursOrigineSocietaireMock()),
+		)
+	}),
+	rest.get("*/responsabilites_sinistre", (req, res, ctx) => {
+		return res(
+			ctx.delay(1000),
+			ctx.status(200, "Mocked status"),
+			ctx.json(getRecupererValeursResponsabiliteSinistreMock()),
+		)
+	}),
+	rest.get("*/types_conducteur", (req, res, ctx) => {
+		return res(
+			ctx.delay(1000),
+			ctx.status(200, "Mocked status"),
+			ctx.json(getRecupererValeursTypeConducteurMock()),
+		)
+	}),
+	rest.get("*/types_permis/vehicule/:numeroRepertoire", (req, res, ctx) => {
+		return res(
+			ctx.delay(1000),
+			ctx.status(200, "Mocked status"),
+			ctx.json(getRecupererValeursTypePermisMock()),
+		)
+	}),
+	rest.get("*/usages/vehicule/:numeroRepertoire", (req, res, ctx) => {
+		return res(
+			ctx.delay(1000),
+			ctx.status(200, "Mocked status"),
+			ctx.json(getRecupererValeursUsageMock()),
+		)
+	}),
+]

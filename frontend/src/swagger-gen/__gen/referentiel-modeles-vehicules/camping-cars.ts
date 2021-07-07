@@ -6,361 +6,474 @@
 
  * OpenAPI spec version: 1.6.5
  */
-import {
-  useQuery,
-  UseQueryOptions
-} from 'react-query'
+import { useQuery, UseQueryOptions } from "react-query"
 import type {
-  VehiculeSynthese,
-  RecupererListeCampingCarsParams,
-  CarrosserieVehicule,
-  RecupererListeCarrosseriesCampingCarsParams,
-  ChassisVehicule,
-  RecupererListeChassisCampingCarsParams,
-  EnergieVehicule,
-  RecupererListeEnergiesCampingCarsParams,
-  FamilleCelluleVehicule,
-  RecupererListeFamillesCampingCarsParams,
-  MarqueVehicule,
-  RecupererListeMarquesCampingCarsParams,
-  NiveauFinitionVehicule,
-  RecupererListeFinitionsCampingCarsParams,
-  PuissanceFiscaleVehicule,
-  RecupererListePuissancesCampingCarsParams
-} from './referentiel-modeles-vehicules.schemas'
-import {
-  rest
-} from 'msw'
-import { customInstance } from '../../axios/index'
+	 CarrosserieVehicule,
+	 ChassisVehicule,
+	 EnergieVehicule,
+	 FamilleCelluleVehicule,
+	 MarqueVehicule,
+	 NiveauFinitionVehicule,
+	 PuissanceFiscaleVehicule,
+	 RecupererListeCampingCarsParams,
+	 RecupererListeCarrosseriesCampingCarsParams,
+	 RecupererListeChassisCampingCarsParams,
+	 RecupererListeEnergiesCampingCarsParams,
+	 RecupererListeFamillesCampingCarsParams,
+	 RecupererListeFinitionsCampingCarsParams,
+	 RecupererListeMarquesCampingCarsParams,
+	 RecupererListePuissancesCampingCarsParams,
+	 VehiculeSynthese,
+} from "./referentiel-modeles-vehicules.schemas"
+import { rest } from "msw"
+import { customInstance } from "../../axios/index"
 
 
-type AsyncReturnType<
-T extends (...args: any) => Promise<any>
-> = T extends (...args: any) => Promise<infer R> ? R : any;
 
+
+type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
+	...args: any
+) => Promise<infer R>
+	? R
+	: any
 
 type SecondParameter<T extends (...args: any) => any> = T extends (
-  config: any,
-  args: infer P,
+	config: any,
+	args: infer P,
 ) => any
-  ? P extends unknown
-  ? Record<string, any>
-  : P
-  : never;
+	? P extends unknown
+		? Record<string, any>
+		: P
+	: never
 
 export const recupererListeCampingCars = <Data = unknown>(
-    params?: RecupererListeCampingCarsParams,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? VehiculeSynthese[] : Data>(
-      {url: `/vehicules/camping_cars`, method: 'get',
-        params,
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
-    }
-  
+	params?: RecupererListeCampingCarsParams,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? VehiculeSynthese[] : Data>(
+		{
+			url: `/vehicules/camping_cars`,
+			method: "get",
+			params,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/referentiel/modeles_vehicules/", ...options },
+	)
+}
 
-export const getRecupererListeCampingCarsQueryKey = (params?: RecupererListeCampingCarsParams,) => [`/vehicules/camping_cars`, ...(params ? [params]: [])]
+export const getRecupererListeCampingCarsQueryKey = (
+	params?: RecupererListeCampingCarsParams,
+) => [`/vehicules/camping_cars`, ...(params ? [params] : [])]
 
-    
 export const useRecupererListeCampingCars = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
 >(
- params?: RecupererListeCampingCarsParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeCampingCars>, Error>, request?: SecondParameter<typeof customInstance>}
+	params?: RecupererListeCampingCarsParams,
+	options?: {
+		query?: UseQueryOptions<
+			AsyncReturnType<typeof recupererListeCampingCars>,
+			Error
+		>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererListeCampingCarsQueryKey(params)
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererListeCampingCarsQueryKey(params);
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererListeCampingCars>,
+		Error
+	>(
+		queryKey,
+		() => recupererListeCampingCars<Data>(params, requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeCampingCars>, Error>(queryKey, () => recupererListeCampingCars<Data>(params, requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererListeCarrosseriesCampingCars = <Data = unknown>(
-    params?: RecupererListeCarrosseriesCampingCarsParams,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? CarrosserieVehicule[] : Data>(
-      {url: `/vehicules/camping_cars/carrosseries`, method: 'get',
-        params,
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
-    }
-  
+	params?: RecupererListeCarrosseriesCampingCarsParams,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? CarrosserieVehicule[] : Data>(
+		{
+			url: `/vehicules/camping_cars/carrosseries`,
+			method: "get",
+			params,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/referentiel/modeles_vehicules/", ...options },
+	)
+}
 
-export const getRecupererListeCarrosseriesCampingCarsQueryKey = (params?: RecupererListeCarrosseriesCampingCarsParams,) => [`/vehicules/camping_cars/carrosseries`, ...(params ? [params]: [])]
+export const getRecupererListeCarrosseriesCampingCarsQueryKey = (
+	params?: RecupererListeCarrosseriesCampingCarsParams,
+) => [`/vehicules/camping_cars/carrosseries`, ...(params ? [params] : [])]
 
-    
 export const useRecupererListeCarrosseriesCampingCars = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
 >(
- params?: RecupererListeCarrosseriesCampingCarsParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeCarrosseriesCampingCars>, Error>, request?: SecondParameter<typeof customInstance>}
+	params?: RecupererListeCarrosseriesCampingCarsParams,
+	options?: {
+		query?: UseQueryOptions<
+			AsyncReturnType<typeof recupererListeCarrosseriesCampingCars>,
+			Error
+		>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererListeCarrosseriesCampingCarsQueryKey(params)
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererListeCarrosseriesCampingCarsQueryKey(params);
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererListeCarrosseriesCampingCars>,
+		Error
+	>(
+		queryKey,
+		() => recupererListeCarrosseriesCampingCars<Data>(params, requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeCarrosseriesCampingCars>, Error>(queryKey, () => recupererListeCarrosseriesCampingCars<Data>(params, requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererListeChassisCampingCars = <Data = unknown>(
-    params?: RecupererListeChassisCampingCarsParams,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? ChassisVehicule[] : Data>(
-      {url: `/vehicules/camping_cars/chassis`, method: 'get',
-        params,
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
-    }
-  
+	params?: RecupererListeChassisCampingCarsParams,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? ChassisVehicule[] : Data>(
+		{
+			url: `/vehicules/camping_cars/chassis`,
+			method: "get",
+			params,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/referentiel/modeles_vehicules/", ...options },
+	)
+}
 
-export const getRecupererListeChassisCampingCarsQueryKey = (params?: RecupererListeChassisCampingCarsParams,) => [`/vehicules/camping_cars/chassis`, ...(params ? [params]: [])]
+export const getRecupererListeChassisCampingCarsQueryKey = (
+	params?: RecupererListeChassisCampingCarsParams,
+) => [`/vehicules/camping_cars/chassis`, ...(params ? [params] : [])]
 
-    
 export const useRecupererListeChassisCampingCars = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
 >(
- params?: RecupererListeChassisCampingCarsParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeChassisCampingCars>, Error>, request?: SecondParameter<typeof customInstance>}
+	params?: RecupererListeChassisCampingCarsParams,
+	options?: {
+		query?: UseQueryOptions<
+			AsyncReturnType<typeof recupererListeChassisCampingCars>,
+			Error
+		>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererListeChassisCampingCarsQueryKey(params)
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererListeChassisCampingCarsQueryKey(params);
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererListeChassisCampingCars>,
+		Error
+	>(
+		queryKey,
+		() => recupererListeChassisCampingCars<Data>(params, requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeChassisCampingCars>, Error>(queryKey, () => recupererListeChassisCampingCars<Data>(params, requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererListeEnergiesCampingCars = <Data = unknown>(
-    params?: RecupererListeEnergiesCampingCarsParams,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? EnergieVehicule[] : Data>(
-      {url: `/vehicules/camping_cars/energies`, method: 'get',
-        params,
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
-    }
-  
+	params?: RecupererListeEnergiesCampingCarsParams,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? EnergieVehicule[] : Data>(
+		{
+			url: `/vehicules/camping_cars/energies`,
+			method: "get",
+			params,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/referentiel/modeles_vehicules/", ...options },
+	)
+}
 
-export const getRecupererListeEnergiesCampingCarsQueryKey = (params?: RecupererListeEnergiesCampingCarsParams,) => [`/vehicules/camping_cars/energies`, ...(params ? [params]: [])]
+export const getRecupererListeEnergiesCampingCarsQueryKey = (
+	params?: RecupererListeEnergiesCampingCarsParams,
+) => [`/vehicules/camping_cars/energies`, ...(params ? [params] : [])]
 
-    
 export const useRecupererListeEnergiesCampingCars = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
 >(
- params?: RecupererListeEnergiesCampingCarsParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeEnergiesCampingCars>, Error>, request?: SecondParameter<typeof customInstance>}
+	params?: RecupererListeEnergiesCampingCarsParams,
+	options?: {
+		query?: UseQueryOptions<
+			AsyncReturnType<typeof recupererListeEnergiesCampingCars>,
+			Error
+		>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererListeEnergiesCampingCarsQueryKey(params)
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererListeEnergiesCampingCarsQueryKey(params);
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererListeEnergiesCampingCars>,
+		Error
+	>(
+		queryKey,
+		() => recupererListeEnergiesCampingCars<Data>(params, requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeEnergiesCampingCars>, Error>(queryKey, () => recupererListeEnergiesCampingCars<Data>(params, requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererListeFamillesCampingCars = <Data = unknown>(
-    params?: RecupererListeFamillesCampingCarsParams,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? FamilleCelluleVehicule[] : Data>(
-      {url: `/vehicules/camping_cars/familles_cellules`, method: 'get',
-        params,
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
-    }
-  
+	params?: RecupererListeFamillesCampingCarsParams,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? FamilleCelluleVehicule[] : Data>(
+		{
+			url: `/vehicules/camping_cars/familles_cellules`,
+			method: "get",
+			params,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/referentiel/modeles_vehicules/", ...options },
+	)
+}
 
-export const getRecupererListeFamillesCampingCarsQueryKey = (params?: RecupererListeFamillesCampingCarsParams,) => [`/vehicules/camping_cars/familles_cellules`, ...(params ? [params]: [])]
+export const getRecupererListeFamillesCampingCarsQueryKey = (
+	params?: RecupererListeFamillesCampingCarsParams,
+) => [`/vehicules/camping_cars/familles_cellules`, ...(params ? [params] : [])]
 
-    
 export const useRecupererListeFamillesCampingCars = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
 >(
- params?: RecupererListeFamillesCampingCarsParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeFamillesCampingCars>, Error>, request?: SecondParameter<typeof customInstance>}
+	params?: RecupererListeFamillesCampingCarsParams,
+	options?: {
+		query?: UseQueryOptions<
+			AsyncReturnType<typeof recupererListeFamillesCampingCars>,
+			Error
+		>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererListeFamillesCampingCarsQueryKey(params)
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererListeFamillesCampingCarsQueryKey(params);
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererListeFamillesCampingCars>,
+		Error
+	>(
+		queryKey,
+		() => recupererListeFamillesCampingCars<Data>(params, requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeFamillesCampingCars>, Error>(queryKey, () => recupererListeFamillesCampingCars<Data>(params, requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererListeMarquesCampingCars = <Data = unknown>(
-    params?: RecupererListeMarquesCampingCarsParams,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? MarqueVehicule[] : Data>(
-      {url: `/vehicules/camping_cars/marques_cellules`, method: 'get',
-        params,
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
-    }
-  
+	params?: RecupererListeMarquesCampingCarsParams,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? MarqueVehicule[] : Data>(
+		{
+			url: `/vehicules/camping_cars/marques_cellules`,
+			method: "get",
+			params,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/referentiel/modeles_vehicules/", ...options },
+	)
+}
 
-export const getRecupererListeMarquesCampingCarsQueryKey = (params?: RecupererListeMarquesCampingCarsParams,) => [`/vehicules/camping_cars/marques_cellules`, ...(params ? [params]: [])]
+export const getRecupererListeMarquesCampingCarsQueryKey = (
+	params?: RecupererListeMarquesCampingCarsParams,
+) => [`/vehicules/camping_cars/marques_cellules`, ...(params ? [params] : [])]
 
-    
 export const useRecupererListeMarquesCampingCars = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
 >(
- params?: RecupererListeMarquesCampingCarsParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeMarquesCampingCars>, Error>, request?: SecondParameter<typeof customInstance>}
+	params?: RecupererListeMarquesCampingCarsParams,
+	options?: {
+		query?: UseQueryOptions<
+			AsyncReturnType<typeof recupererListeMarquesCampingCars>,
+			Error
+		>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererListeMarquesCampingCarsQueryKey(params)
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererListeMarquesCampingCarsQueryKey(params);
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererListeMarquesCampingCars>,
+		Error
+	>(
+		queryKey,
+		() => recupererListeMarquesCampingCars<Data>(params, requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeMarquesCampingCars>, Error>(queryKey, () => recupererListeMarquesCampingCars<Data>(params, requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererListeFinitionsCampingCars = <Data = unknown>(
-    params?: RecupererListeFinitionsCampingCarsParams,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? NiveauFinitionVehicule[] : Data>(
-      {url: `/vehicules/camping_cars/niveaux_finitions`, method: 'get',
-        params,
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
-    }
-  
+	params?: RecupererListeFinitionsCampingCarsParams,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<Data extends unknown ? NiveauFinitionVehicule[] : Data>(
+		{
+			url: `/vehicules/camping_cars/niveaux_finitions`,
+			method: "get",
+			params,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/referentiel/modeles_vehicules/", ...options },
+	)
+}
 
-export const getRecupererListeFinitionsCampingCarsQueryKey = (params?: RecupererListeFinitionsCampingCarsParams,) => [`/vehicules/camping_cars/niveaux_finitions`, ...(params ? [params]: [])]
+export const getRecupererListeFinitionsCampingCarsQueryKey = (
+	params?: RecupererListeFinitionsCampingCarsParams,
+) => [`/vehicules/camping_cars/niveaux_finitions`, ...(params ? [params] : [])]
 
-    
 export const useRecupererListeFinitionsCampingCars = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
 >(
- params?: RecupererListeFinitionsCampingCarsParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListeFinitionsCampingCars>, Error>, request?: SecondParameter<typeof customInstance>}
+	params?: RecupererListeFinitionsCampingCarsParams,
+	options?: {
+		query?: UseQueryOptions<
+			AsyncReturnType<typeof recupererListeFinitionsCampingCars>,
+			Error
+		>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererListeFinitionsCampingCarsQueryKey(params)
+	const { query: queryOptions, request: requestOptions } = options || {}
 
-  ) => {
-  const queryKey = getRecupererListeFinitionsCampingCarsQueryKey(params);
-  const {query: queryOptions, request: requestOptions} = options || {}
+	const query = useQuery<
+		AsyncReturnType<typeof recupererListeFinitionsCampingCars>,
+		Error
+	>(
+		queryKey,
+		() => recupererListeFinitionsCampingCars<Data>(params, requestOptions),
+		queryOptions,
+	)
 
-  const query = useQuery<AsyncReturnType<typeof recupererListeFinitionsCampingCars>, Error>(queryKey, () => recupererListeFinitionsCampingCars<Data>(params, requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	return {
+		queryKey,
+		...query,
+	}
 }
 
 export const recupererListePuissancesCampingCars = <Data = unknown>(
-    params?: RecupererListePuissancesCampingCarsParams,
- options?: SecondParameter<typeof customInstance>) => {
-      return customInstance<Data extends unknown ? PuissanceFiscaleVehicule[] : Data>(
-      {url: `/vehicules/camping_cars/puissances_fiscales`, method: 'get',
-        params,
-    },
-       // eslint-disable-next-line
-// @ts-ignore
- { baseURL: '/api/referentiel/modeles_vehicules/',  ...options});
-    }
-  
-
-export const getRecupererListePuissancesCampingCarsQueryKey = (params?: RecupererListePuissancesCampingCarsParams,) => [`/vehicules/camping_cars/puissances_fiscales`, ...(params ? [params]: [])]
-
-    
-export const useRecupererListePuissancesCampingCars = <
-  Data extends unknown = unknown,
-  Error extends unknown = unknown
->(
- params?: RecupererListePuissancesCampingCarsParams, options?: { query?:UseQueryOptions<AsyncReturnType<typeof recupererListePuissancesCampingCars>, Error>, request?: SecondParameter<typeof customInstance>}
-
-  ) => {
-  const queryKey = getRecupererListePuissancesCampingCarsQueryKey(params);
-  const {query: queryOptions, request: requestOptions} = options || {}
-
-  const query = useQuery<AsyncReturnType<typeof recupererListePuissancesCampingCars>, Error>(queryKey, () => recupererListePuissancesCampingCars<Data>(params, requestOptions), queryOptions )
-
-  return {
-    queryKey,
-    ...query
-  }
+	params?: RecupererListePuissancesCampingCarsParams,
+	options?: SecondParameter<typeof customInstance>,
+) => {
+	return customInstance<
+		Data extends unknown ? PuissanceFiscaleVehicule[] : Data
+	>(
+		{
+			url: `/vehicules/camping_cars/puissances_fiscales`,
+			method: "get",
+			params,
+		}, // eslint-disable-next-line
+		// @ts-ignore
+		{ baseURL: "/api/referentiel/modeles_vehicules/", ...options },
+	)
 }
 
+export const getRecupererListePuissancesCampingCarsQueryKey = (
+	params?: RecupererListePuissancesCampingCarsParams,
+) => [
+	`/vehicules/camping_cars/puissances_fiscales`,
+	...(params ? [params] : []),
+]
 
+export const useRecupererListePuissancesCampingCars = <
+	Data extends unknown = unknown,
+	Error extends unknown = unknown,
+>(
+	params?: RecupererListePuissancesCampingCarsParams,
+	options?: {
+		query?: UseQueryOptions<
+			AsyncReturnType<typeof recupererListePuissancesCampingCars>,
+			Error
+		>
+		request?: SecondParameter<typeof customInstance>
+	},
+) => {
+	const queryKey = getRecupererListePuissancesCampingCarsQueryKey(params)
+	const { query: queryOptions, request: requestOptions } = options || {}
+
+	const query = useQuery<
+		AsyncReturnType<typeof recupererListePuissancesCampingCars>,
+		Error
+	>(
+		queryKey,
+		() => recupererListePuissancesCampingCars<Data>(params, requestOptions),
+		queryOptions,
+	)
+
+	return {
+		queryKey,
+		...query,
+	}
+}
 
 export const getCampingCarsMSW = () => [
-rest.get('*/vehicules/camping_cars', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-        )
-      }),rest.get('*/vehicules/camping_cars/carrosseries', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-        )
-      }),rest.get('*/vehicules/camping_cars/chassis', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-        )
-      }),rest.get('*/vehicules/camping_cars/energies', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-        )
-      }),rest.get('*/vehicules/camping_cars/familles_cellules', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-        )
-      }),rest.get('*/vehicules/camping_cars/marques_cellules', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-        )
-      }),rest.get('*/vehicules/camping_cars/niveaux_finitions', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-        )
-      }),rest.get('*/vehicules/camping_cars/puissances_fiscales', (req, res, ctx) => {
-        return res(
-          ctx.delay(1000),
-          ctx.status(200, 'Mocked status'),
-        )
-      }),]
+	rest.get("*/vehicules/camping_cars", (req, res, ctx) => {
+		return res(ctx.delay(1000), ctx.status(200, "Mocked status"))
+	}),
+	rest.get("*/vehicules/camping_cars/carrosseries", (req, res, ctx) => {
+		return res(ctx.delay(1000), ctx.status(200, "Mocked status"))
+	}),
+	rest.get("*/vehicules/camping_cars/chassis", (req, res, ctx) => {
+		return res(ctx.delay(1000), ctx.status(200, "Mocked status"))
+	}),
+	rest.get("*/vehicules/camping_cars/energies", (req, res, ctx) => {
+		return res(ctx.delay(1000), ctx.status(200, "Mocked status"))
+	}),
+	rest.get("*/vehicules/camping_cars/familles_cellules", (req, res, ctx) => {
+		return res(ctx.delay(1000), ctx.status(200, "Mocked status"))
+	}),
+	rest.get("*/vehicules/camping_cars/marques_cellules", (req, res, ctx) => {
+		return res(ctx.delay(1000), ctx.status(200, "Mocked status"))
+	}),
+	rest.get("*/vehicules/camping_cars/niveaux_finitions", (req, res, ctx) => {
+		return res(ctx.delay(1000), ctx.status(200, "Mocked status"))
+	}),
+	rest.get("*/vehicules/camping_cars/puissances_fiscales", (req, res, ctx) => {
+		return res(ctx.delay(1000), ctx.status(200, "Mocked status"))
+	}),
+]
