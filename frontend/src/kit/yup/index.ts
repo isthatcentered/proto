@@ -78,6 +78,12 @@ export const dateString = () =>
 		test: value => DS.isValid(value || ""),
 	}) as DateStringSchema
 
+export const monthDate = () =>
+	yup
+		.string()
+		.required()
+		.matches(/^\d{4}-\d{2}$/, "La date doit suivre le format YYYY-MM")
+
 // -------------------------------------------------------------------------------------
 // Utils
 // -------------------------------------------------------------------------------------

@@ -10,8 +10,10 @@ import {
 import React from "react"
 import { pipe } from "fp-ts/lib/function"
 import * as Y from "../kit/yup"
-import { FieldSubText, getConnect, RadioButton, RadioGroup } from "../kit/forms"
+import { FieldSubText} from "../kit/forms"
 import * as AR from "fp-ts/Array"
+import { getConnect } from "../kit/forms/connect"
+import { RadioButton, RadioGroup } from "../kit/forms/radios"
 
 const useCodesTypeVehicule = () =>
 	useStaticValue([

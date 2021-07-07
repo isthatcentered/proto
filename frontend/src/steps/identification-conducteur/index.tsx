@@ -5,14 +5,10 @@ import * as Y from "../../kit/yup"
 import * as REMOTE from "../../kit/remote"
 import * as DS from "../../kit/date-string"
 import { not, pipe } from "fp-ts/lib/function"
-import {
-	CheckableRadio2,
-	getConnect,
-	Input2,
-	RadioButton,
-	RadioSelect,
-} from "../../kit/forms"
 import * as Q from "./queries"
+import { getConnect } from "../../kit/forms/connect"
+import { CheckableRadio, RadioButton, RadioSelect } from "../../kit/forms/radios"
+import { Input } from "../../kit/forms/input"
 
 const MaximumDateOfBirthToHaveADrivingLicense = pipe(
 	DS.today(),
@@ -126,7 +122,7 @@ const IdentificationConducteur = makeStep<
 					)}
 				</RadioSelect>
 
-				<Input2
+				<Input
 					{...connect("nom")}
 					className="mb-8"
 					type="text"
@@ -134,7 +130,7 @@ const IdentificationConducteur = makeStep<
 					disabled={pageLoading}
 				/>
 
-				<Input2
+				<Input
 					{...connect("prenom")}
 					className="mb-8"
 					type="text"
@@ -142,7 +138,7 @@ const IdentificationConducteur = makeStep<
 					disabled={pageLoading}
 				/>
 
-				<Input2
+				<Input
 					{...connect("dateNaissance")}
 					className="mb-8"
 					label="Date de naissance"
@@ -151,7 +147,7 @@ const IdentificationConducteur = makeStep<
 					disabled={pageLoading}
 				/>
 
-				<Input2
+				<Input
 					{...connect("dateObtentionPermis")}
 					className="mb-8"
 					label="Date d'obtention du permis"
@@ -192,7 +188,7 @@ const IdentificationConducteur = makeStep<
 					{(data, props) => (
 						<Grid>
 							{data.map(code => (
-								<CheckableRadio2
+								<CheckableRadio
 									{...props}
 									key={code.value}
 									value={code.value}

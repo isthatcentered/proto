@@ -3,17 +3,14 @@ import React from "react"
 import * as REMOTE from "../../kit/remote"
 import { FormSubmitButton, FormTitle, Grid } from "../../kit/shared"
 import * as Y from "../../kit/yup"
-import {
-	CheckableRadio2,
-	getConnect,
-	Input2,
-	RadioSelect,
-	YesNo2,
-} from "../../kit/forms"
 import * as DS from "../../kit/date-string"
 import { pipe } from "fp-ts/lib/function"
 import * as Q from "./queries"
 import { VehiculeSpecs } from "./vehicule-specs"
+import { getConnect } from "../../kit/forms/connect"
+import { CheckableRadio, RadioSelect } from "../../kit/forms/radios"
+import { YesNo } from "../../kit/forms/yesNo"
+import { Input } from "../../kit/forms/input"
 
 const schema = Y.struct({
 	codeUsageVehicule: Y.nonEmptyString(),
@@ -44,7 +41,7 @@ const UsageVehicule = makeStep<UsageVehiculeStep, typeof schema>(
 
 				<div className="pt-8" />
 
-				<Input2
+				<Input
 					{...connect("dateEffetContratDesiree")}
 					className="mb-8"
 					type="date"
@@ -53,7 +50,7 @@ const UsageVehicule = makeStep<UsageVehiculeStep, typeof schema>(
 					disabled={pending}
 				/>
 
-				<YesNo2
+				<YesNo
 					{...connect("leasingOuCreditEnCours")}
 					className="mb-8"
 					label="Ce véhicule est-il financé à crédit (leasing, crédit auto) ?"
@@ -69,7 +66,7 @@ const UsageVehicule = makeStep<UsageVehiculeStep, typeof schema>(
 					{(data, props) => (
 						<Grid>
 							{data.map(code => (
-								<CheckableRadio2
+								<CheckableRadio
 									{...props}
 									key={code.value}
 									value={code.value}

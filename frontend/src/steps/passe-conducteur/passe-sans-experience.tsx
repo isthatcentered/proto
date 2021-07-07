@@ -1,9 +1,10 @@
 import { makeStep, PasseConducteurStep } from "../../contracts"
 import { FormSubmitButton, FormTitle } from "../../kit/shared"
 import React from "react"
-import { getConnect, YesNo2 } from "../../kit/forms"
 import * as BS from "../../kit/boolean-string"
 import { caSchema } from "./shared"
+import { getConnect } from "../../kit/forms/connect"
+import { YesNo } from "../../kit/forms/yesNo"
 
 const PasseSansExperience = makeStep<PasseConducteurStep, typeof caSchema>(
 	props => {
@@ -68,7 +69,7 @@ const PasseSansExperience = makeStep<PasseConducteurStep, typeof caSchema>(
 			<form onSubmit={props.handleSubmit}>
 				<FormTitle>Le passé du conducteur</FormTitle>
 
-				<YesNo2
+				<YesNo
 					{...connect("conduiteAccompagnee")}
 					className="mb-8"
 					label="A-t-il bénéficié de l’apprentissage anticipé de la conduite (conduite accompagnée) ?"
@@ -76,7 +77,7 @@ const PasseSansExperience = makeStep<PasseConducteurStep, typeof caSchema>(
 				/>
 
 				{showConduiteAccompaniedDrivingWithMaifQuestion && (
-					<YesNo2
+					<YesNo
 						{...connect("conduiteAccompagneeMaif")}
 						className="mb-8"
 						label="A-t-il bénéficié de l’apprentissage anticipé de la conduite (conduite accompagnée) auprès d’une personne assurée MAIF ?"
@@ -85,7 +86,7 @@ const PasseSansExperience = makeStep<PasseConducteurStep, typeof caSchema>(
 				)}
 
 				{showConduiteAccompaniedDrivingBefore2007Question && (
-					<YesNo2
+					<YesNo
 						{...connect("conduiteAccompagneeMaifAvant2007")}
 						className="mb-8"
 						label="Cet apprentissage a-t-il débuté avant le 01/01/2007 ?"

@@ -1,13 +1,5 @@
 import { pipe } from "fp-ts/function"
 import { makeStep, PasseConducteurStep } from "../../contracts"
-import {
-	getConnect,
-	Input2,
-	Label,
-	RadioButton,
-	RadioSelect,
-	YesNo2,
-} from "../../kit/forms"
 import * as AR from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import * as REMOTE from "../../kit/remote"
@@ -21,6 +13,14 @@ import * as Q from "./queries"
 import { CODES_NATURES_SINISTRE } from "./queries"
 import * as BS from "../../kit/boolean-string"
 import { caSchema } from "./shared"
+import {
+	getConnect,
+	Input,
+	Label,
+	RadioButton,
+	RadioSelect,
+	YesNo,
+} from "../../kit/forms"
 
 const sinistreSchema = Y.struct({
 	dateSurvenance: Y.dateString(),
@@ -48,7 +48,7 @@ const isSinistreCollision = (
 const schema = Y.struct({
 	dateAnterioriteBonus050: Y.dateString(),
 	coefficientBonusMalus: Y.number(),
-	dateSouscriptionAncienAssureur: Y.dateString(),
+	dateSouscriptionAncienAssureur: Y.monthDate(),
 	dateDEcheanceAncienAssureur: Y.dateString(),
 	sinistreAvecCirconstanceAggravante: Y.bool(),
 	retraitPermis: Y.bool(),
@@ -225,19 +225,19 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema>(
 			<form onSubmit={props.handleSubmit}>
 				<FormTitle>Le passé du conducteur</FormTitle>
 
-				<YesNo2
+				<YesNo
 					{...connect("sinistreAvecCirconstanceAggravante")}
 					className="mb-8"
 					label="Le conducteur a-t-il fait l’objet d’une résiliation par son dernier assureur ou a-t-il provoqué, au cours des 24 derniers mois, un ou plusieurs sinistres avec circonstances aggravantes ?"
 				/>
 
-				<YesNo2
+				<YesNo
 					{...connect("retraitPermis")}
 					className="mb-8"
 					label="Le conducteur a-t-il fait l’objet d’une suspension, d’une annulation ou d’un retrait de permis dans les 2 ans précédent la demande ?"
 				/>
 
-				<YesNo2
+				<YesNo
 					{...connect(["ca", "conduiteAccompagnee"])}
 					className="mb-8"
 					label="A-t-il bénéficié de l’apprentissage anticipé de la conduite (conduite accompagnée) ?"
@@ -245,7 +245,7 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema>(
 				/>
 
 				{shouldShow.showConduiteAccompaniedDrivingWithMaifQuestion && (
-					<YesNo2
+					<YesNo
 						{...connect(["ca", "conduiteAccompagneeMaif"])}
 						className="mb-8"
 						label="A-t-il bénéficié de l’apprentissage anticipé de la conduite (conduite accompagnée) auprès d’une personne assurée MAIF ?"
@@ -254,28 +254,28 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema>(
 				)}
 
 				{shouldShow.showConduiteAccompaniedDrivingBefore2007Question && (
-					<YesNo2
+					<YesNo
 						{...connect(["ca", "conduiteAccompagneeMaifAvant2007"])}
 						className="mb-8"
 						label="Cet apprentissage a-t-il débuté avant le 01/01/2007 ?"
 					/>
 				)}
 
-				<Input2
+				<Input
 					{...connect("dateDEcheanceAncienAssureur")}
 					className="mb-8"
 					label="Date de la dernière échéance du contrat actuel"
 					type="date"
 				/>
 
-				<Input2
+				<Input
 					{...connect("dateSouscriptionAncienAssureur")}
 					className="mb-8"
 					label="Depuis quand le conducteur est-il assuré sans interruption chez son assureur actuel (mm/aaaa)"
 					type="month"
 				/>
 
-				<Input2
+				<Input
 					{...connect("coefficientBonusMalus")}
 					className="mb-8"
 					label="Coefficient bonus malus"
@@ -287,7 +287,7 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema>(
 
 				{shouldShow.showIsAutoDateCoefficinentValidQuestion &&
 					REMOTE.isSuccess(autoDateAnterioriteBonus050) && (
-						<YesNo2
+						<YesNo
 							{...connect("isAutoDateCoefficientValid")}
 							className="mb-8"
 							label={`Avez-vous un coefficient de 0,5 depuis le ${autoDateAnterioriteBonus050.value.dateAnterioriteBonus050.toLocaleDateString()}`}
@@ -296,7 +296,7 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema>(
 					)}
 
 				{shouldShow.showCustomDateCoefficinentQuestion && (
-					<Input2
+					<Input
 						{...connect("dateAnterioriteBonus050")}
 						className="mb-8"
 						label="Depuis quelle date avez-vous le bonus 0,50 ?"
@@ -309,7 +309,7 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema>(
 						<>
 							<div className="pt-8" />
 							<FormTitle>Sinistres</FormTitle>
-							<YesNo2
+							<YesNo
 								{...connect("hasSinistres")}
 								className="mb-8"
 								label={`Le conducteur a-t-il un ou plusieurs sinistres à déclarer depuis le ${autoDateAnterioriteBonus050.value.dateDebutCollecteSinistre.toLocaleDateString()} ?`}
@@ -373,7 +373,7 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema>(
 															</RadioSelect>
 														)}
 
-														<Input2
+														<Input
 															{...connect([
 																"sinistres",
 																index,
@@ -513,7 +513,7 @@ const PasseAssure = makeStep<PasseConducteurStep, typeof schema>(
 							dateDEcheanceAncienAssureur: DS.toDate(
 								values.dateDEcheanceAncienAssureur,
 							),
-							dateSouscriptionAncienAssureur: DS.toDate(
+							dateSouscriptionAncienAssureur: new Date(
 								values.dateSouscriptionAncienAssureur,
 							),
 							retraitPermis: values.retraitPermis === "true",

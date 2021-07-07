@@ -15,14 +15,11 @@ import {
 } from "./queries"
 import * as Y from "../../../kit/yup"
 import * as yup from "yup"
-import {
-	getConnect,
-	Input2,
-	RadioButton,
-	RadioSelect,
-	Select2,
-} from "../../../kit/forms"
 import { pipe } from "fp-ts/lib/function"
+import { getConnect } from "../../../kit/forms/connect"
+import { RadioButton, RadioSelect } from "../../../kit/forms/radios"
+import { Select } from "../../../kit/forms/select"
+import { Input } from "../../../kit/forms/input"
 
 const usePageData = (values: Partial<yup.Asserts<typeof schema>>) => {
 	const params = {
@@ -77,14 +74,14 @@ const IdentificationAuto = makeStep<IdentificationVehiculeStep, typeof schema>(
 		return (
 			<form onSubmit={props.handleSubmit}>
 				<FormTitle>Votre véhicule</FormTitle>
-				<Select2
+				<Select
 					{...connect("codeMarque")}
 					className="mb-8"
 					label="Marque de votre véhicule :"
 					data={data.marques}
 				/>
 
-				<Input2
+				<Input
 					{...connect("anneeMiseEnCirculationVehicule")}
 					className="mb-8"
 					type="number"
@@ -94,7 +91,7 @@ const IdentificationAuto = makeStep<IdentificationVehiculeStep, typeof schema>(
 					placeholder="2020"
 				/>
 
-				<Select2
+				<Select
 					{...connect("codeFamille")}
 					className="mb-8"
 					label="Modèle de votre véhicule :"
@@ -102,7 +99,7 @@ const IdentificationAuto = makeStep<IdentificationVehiculeStep, typeof schema>(
 				/>
 
 				{/* @note: Maif does essence, diesel, autre */}
-				<Select2
+				<Select
 					{...connect("codeEnergie")}
 					className="mb-8"
 					label="Énergie :"
@@ -110,14 +107,14 @@ const IdentificationAuto = makeStep<IdentificationVehiculeStep, typeof schema>(
 				/>
 
 				{/* @note: Maif does Boite manuelle ? Oui/non */}
-				<Select2
+				<Select
 					{...connect("codeTransmission")}
 					className="mb-8"
 					label="Transmission :"
 					data={data.transmissions}
 				/>
 
-				<Select2
+				<Select
 					{...connect("codeMotorisation")}
 					className="mb-8"
 					label="Motorisation :"
@@ -125,7 +122,7 @@ const IdentificationAuto = makeStep<IdentificationVehiculeStep, typeof schema>(
 				/>
 
 				{/* @note: Maif does Berline/autres */}
-				<Select2
+				<Select
 					{...connect("codeCarosserie")}
 					className="mb-8"
 					label="Type de carosserie :"
@@ -152,7 +149,7 @@ const IdentificationAuto = makeStep<IdentificationVehiculeStep, typeof schema>(
 					)}
 				</RadioSelect>
 
-				<Select2
+				<Select
 					{...connect("numeroRepertoire")}
 					className="mb-8"
 					label="Finition :"

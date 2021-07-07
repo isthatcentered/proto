@@ -14,12 +14,16 @@ import {
 
 // Each step data is the accumulated data of all the previous steps
 type IdentificationVehiculeData = StepValues<InitParcoursStep>
+
 type UsageVehiculeData = IdentificationVehiculeData &
 	StepValues<IdentificationVehiculeStep>
+
 type IdentificationConducteurData = UsageVehiculeData &
 	StepValues<UsageVehiculeStep>
+
 type PasseAssureData = IdentificationConducteurData &
 	StepValues<IdentificationConducteurStep>
+
 type Step =
 	| { type: "init-parcours" }
 	| { type: "identification-vehicule"; data: IdentificationVehiculeData }
@@ -29,30 +33,27 @@ type Step =
 
 const stepOverride: Step | undefined = undefined
 // { type: "init-parcours" }
-// {
-// 	type: "identification-vehicule",
-// 	data: { codeTypeVehicule: CODE_TYPE_VEHICULE.AUTO },
-// }
-// 				 { type: "usage-vehicule", data: { numeroRepertoire: "1234" } as any }
+// { type: "identification-vehicule", data: { codeTypeVehicule: CODE_TYPE_VEHICULE.AUTO } }
+// { type: "usage-vehicule", data: { numeroRepertoire: "1234" } as any }
 // { type: "identification-conducteur", data: { numeroRepertoire: "1234" }as any }
-// 				 {
-// 						type: "passe-assure", data: {
-// 							 anneeMiseEnCirculationVehicule: 0,
-// 							 codeCivilite:                   "",
-// 							 codeTypeConducteur:             "",
-// 							 codeTypePermis:                 "",
-// 							 codeTypeVehicule:               CODE_TYPE_VEHICULE.AUTO,
-// 							 codeUsageVehicule:              "",
-// 							 dateNaissance:                  new Date(),
-// 							 dateObtentionPermis:            new Date(),
-// 							 leasingOuCreditEnCours:         false,
-// 							 nom:                            "",
-// 							 numeroRepertoire:               "",
-// 							 prenom:                         "",
-// 							 codeExperienceConducteur:       "03",
-// 							 dateEffetContratDesiree:        new Date(),
-// 						},
-// 				 }
+// { type: "passe-assure",
+//   data: {
+//			anneeMiseEnCirculationVehicule: 0,
+//			codeCivilite:                   "",
+//			codeTypeConducteur:             "",
+//			codeTypePermis:                 "",
+//			codeTypeVehicule:               CODE_TYPE_VEHICULE.AUTO,
+//			codeUsageVehicule:              "",
+//			dateNaissance:                  new Date(),
+//			dateObtentionPermis:            new Date(),
+//			leasingOuCreditEnCours:         false,
+//			nom:                            "",
+//			numeroRepertoire:               "",
+//			prenom:                         "",
+//			codeExperienceConducteur:       "03",
+//			dateEffetContratDesiree:        new Date(),
+//		},
+// }
 
 const initialState: Step = stepOverride || { type: "init-parcours" }
 
