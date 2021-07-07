@@ -1,11 +1,11 @@
 import { IdentificationConducteurStep, makeStep } from "../../contracts"
-import { FormSubmitButton, FormTitle, Grid } from "../../kit-2/shared"
+import { FormSubmitButton, FormTitle, Grid } from "../../kit/shared"
 import React, { useMemo } from "react"
-import * as Y from "../../kit-2/yup"
-import * as REMOTE from "../../kit-2/remote"
-import * as DS from "../../kit-2/date-string"
+import * as Y from "../../kit/yup"
+import * as REMOTE from "../../kit/remote"
+import * as DS from "../../kit/date-string"
 import { not, pipe } from "fp-ts/lib/function"
-import { CheckableRadio2, getConnect, Input2, RadioButton, RadioSelect } from "../../kit-2/forms-2"
+import { CheckableRadio2, getConnect, Input2, RadioButton, RadioSelect } from "../../kit/forms-2"
 import * as Q from "./queries"
 
 

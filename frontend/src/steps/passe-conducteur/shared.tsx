@@ -1,6 +1,6 @@
-import * as Y from "../../kit-2/yup"
+import * as Y from "../../kit/yup"
 import { pipe } from "fp-ts/function"
-import * as BS from "../../kit-2/boolean-string"
+import * as BS from "../../kit/boolean-string"
 
 
 

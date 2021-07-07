@@ -1,5 +1,5 @@
 import * as Q from "./queries"
-import * as REMOTE from "../../kit-2/remote"
+import * as REMOTE from "../../kit/remote"
 import React from "react"
 
 

@@ -1,11 +1,11 @@
 import { IdentificationVehiculeStep, makeStep } from "../../../contracts"
 import * as E from "fp-ts/Either"
 import React from "react"
-import { FormSubmitButton, FormTitle, Grid } from "../../../kit-2/shared"
+import { FormSubmitButton, FormTitle, Grid } from "../../../kit/shared"
 import { useCarosseries, useEnergies, useFamilles, useFinitions, useMarques, useMotorisations, useNombrePortes, useTransmissions, verifyVehiculeAccepted } from "./queries"
-import * as Y from "../../../kit-2/yup"
+import * as Y from "../../../kit/yup"
 import * as yup from "yup"
-import { getConnect, Input2, RadioButton, RadioSelect, Select2 } from "../../../kit-2/forms-2"
+import { getConnect, Input2, RadioButton, RadioSelect, Select2 } from "../../../kit/forms-2"
 import { pipe } from "fp-ts/lib/function"
 
 

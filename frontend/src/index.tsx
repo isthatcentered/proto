@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
 import App from "./app"
-import { worker } from "./mocks"
+import { worker } from "./swagger-gen/mocks"
 
 
 

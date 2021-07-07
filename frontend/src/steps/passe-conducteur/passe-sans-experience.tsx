@@ -1,8 +1,8 @@
 import { makeStep, PasseConducteurStep } from "../../contracts"
-import { FormSubmitButton, FormTitle } from "../../kit-2/shared"
+import { FormSubmitButton, FormTitle } from "../../kit/shared"
 import React from "react"
-import { getConnect, YesNo2 } from "../../kit-2/forms-2"
-import * as BS from "../../kit-2/boolean-string"
+import { getConnect, YesNo2 } from "../../kit/forms-2"
+import * as BS from "../../kit/boolean-string"
 import { caSchema } from "./shared"
 
 

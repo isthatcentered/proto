@@ -7,7 +7,6 @@
         "gen:swagger": "orval --config ./orval.config.js",
         "start:frontend": "cd frontend && yarn start",
         "start:backend": "cd backend && yarn start",
-        "start:mock-backend": "cd mock-backend && yarn start",
         "start": "yarn start:frontend"
     },
     "repository": {
@@ -22,6 +21,7 @@
     },
     "homepage": "https://github.com/isthatcentered/proto#readme",
     "devDependencies": {
-        "orval": "5.3.2"
+        "orval": "5.3.2",
+        "prettier": "^2.3.2"
     }
 }

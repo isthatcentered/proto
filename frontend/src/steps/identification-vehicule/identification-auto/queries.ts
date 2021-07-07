@@ -6,17 +6,17 @@ import {
 	 RecupererListeMotorisationsAutosParams,
 	 RecupererListeNbPortesAutosParams,
 	 RecupererListeTransmissionsAutosParams,
-} from "../../../__gen/referentiel-modeles-vehicules/referentiel-modeles-vehicules.schemas"
-import * as A2 from "../../../__gen/referentiel-modeles-vehicules/autos"
+} from "../../../swagger-gen/__gen/referentiel-modeles-vehicules/referentiel-modeles-vehicules.schemas"
+import * as A2 from "../../../swagger-gen/__gen/referentiel-modeles-vehicules/autos"
 import { UseQueryOptions, UseQueryResult } from "react-query"
 import { AxiosResponse } from "axios"
-import * as REMOTE from "../../../kit-2/remote"
-import * as V from "../../../kit-2/validation"
+import * as REMOTE from "../../../kit/remote"
+import * as V from "../../../kit/validation"
 import { constant, pipe } from "fp-ts/function"
-import { Code, notNil, prop } from "../../../kit-2/helpers"
+import { Code, notNil, prop } from "../../../kit/helpers"
 import * as AR from "fp-ts/Array"
 import * as EI from "fp-ts/Either"
-import { jouerAcceptationVehicule } from "../../../__gen/iard-devis-vehicules-v1/acceptation-risque-véhicule"
+import { jouerAcceptationVehicule } from "../../../swagger-gen/__gen/iard-devis-vehicules-v1/acceptation-risque-véhicule"
 
 
 

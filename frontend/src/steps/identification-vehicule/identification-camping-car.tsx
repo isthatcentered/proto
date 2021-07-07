@@ -1,5 +1,5 @@
 import { IdentificationVehiculeStep } from "../../contracts"
-import * as CC from "../../__gen/referentiel-modeles-vehicules/camping-cars"
+import * as CC from "../../swagger-gen/__gen/referentiel-modeles-vehicules/camping-cars"
 
 
 

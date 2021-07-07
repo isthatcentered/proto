@@ -2,7 +2,7 @@ import { ComponentType } from "react"
 import { FormikProps, FormikValues, withFormik, WithFormikConfig } from "formik"
 import { pipe } from "fp-ts/function"
 import { RequiredObjectSchema } from "yup/lib/object"
-import * as Y from "./kit-2/yup"
+import * as Y from "./kit/yup"
 
 
 export enum CODE_TYPE_VEHICULE

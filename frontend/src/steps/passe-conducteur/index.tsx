@@ -2,7 +2,7 @@ import { PasseConducteurStep } from "../../contracts"
 import React from "react"
 import PasseAssure from "./passe-assure"
 import PasseSansExperience from "./passe-sans-experience"
-import { Alert } from "../../kit-2/alert"
+import { Alert } from "../../kit/alert"
 
 
 
